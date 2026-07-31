@@ -13,25 +13,19 @@ from matflowkit.common.dpdata_utils import require_dpdata
 def xyz_to_deepmd(
     input: Path = typer.Argument(
         Path("train.xyz"),
-        help="带 energy/force/virial 标注的 GPUMD/extxyz 文件",
+        help="GPUMD/extxyz 文件",
     ),
     output: Path = typer.Argument(
         Path("deepmd"),
-        help="DeepMD 输出目录（按化学组成分 system）",
+        help="输出目录",
     ),
     set_size: int = typer.Option(
         2000,
         min=1,
-        help="每个 set.* NPY 分片最多包含的帧数",
+        help="每个 set 的最大帧数",
     ),
 ) -> None:
-    """将 GPUMD ``train.xyz`` 转为 DeepMD raw + NPY。
-
-    输入必须是带有晶胞、能量和原子力标注的 GPUMD/extxyz。输出目录按精确
-    化学组成拆分为多个 DeepMD system；每个 system 同时包含 ``type.raw``、
-    ``type_map.raw``、raw 标签文件及 ``set.*/*.npy``。示例：
-    ``mfk dpdata xyz-to-deepmd train.xyz deepmd``。
-    """
+    """XYZ 转 DeepMD raw 和 NPY。"""
     if not input.is_file():
         typer.secho(f"错误: 输入文件不存在: {input}", err=True, fg=typer.colors.RED)
         raise typer.Exit(1)

@@ -151,18 +151,18 @@ def run_relaxation(
 
 
 def relax(
-    input: Path = typer.Argument(..., help="ASE 可读取的输入结构"),
+    input: Path = typer.Argument(..., help="输入结构"),
     output: Path | None = typer.Option(
         None,
         "--output",
         "-o",
-        help="优化后结构；默认 INPUT_dpa4_relaxed.extxyz",
+        help="输出结构",
     ),
     model: Path | None = typer.Option(
         None,
         "--model",
         envvar="DPA4_MODEL",
-        help="DPA4 model.pt；也可设置 DPA4_MODEL",
+        help="DPA4 model.pt",
     ),
     fmax: float = typer.Option(
         0.05,
@@ -190,12 +190,7 @@ def relax(
         help="是否叠加 PBE-D3(BJ) 色散修正",
     ),
 ) -> None:
-    """使用 DPA4 对结构进行固定晶胞或变胞优化。
-
-    默认使用固定晶胞、BFGS、0.05 eV/angstrom，并在输出结构旁生成优化日志、
-    extxyz 轨迹和 JSON 状态文件。DPA4 模型按 ``--model``、环境变量
-    ``DPA4_MODEL``、``~/dpa4/Neo-MPtrj/model.pt`` 的顺序查找。
-    """
+    """用 DPA4 优化结构。"""
     try:
         status, passed = run_relaxation(
             input=input,

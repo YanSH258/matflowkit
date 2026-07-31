@@ -40,7 +40,7 @@ def plot_convergence(
     output: Optional[Path] = typer.Option(None, "-o", "--output", help="PNG 输出路径"),
     dpi: int = typer.Option(180, min=72, max=600),
 ):
-    """绘制相对能量、最大力和最大应力梯度随离子步的变化。"""
+    """画 ABACUS relax 收敛曲线。"""
     logs = find_logs(dir)
     if not logs:
         typer.secho(

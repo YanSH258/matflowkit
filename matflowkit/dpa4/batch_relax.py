@@ -38,7 +38,7 @@ def safe_case_id(value: str) -> str:
 def batch_relax(
     manifest: Path = typer.Argument(
         Path("structures.csv"),
-        help="CSV manifest，必须包含 input 列，可选 id 列",
+        help="CSV，需包含 input 列",
     ),
     output_dir: Path = typer.Option(
         Path("dpa4_batch_relax"),
@@ -76,12 +76,7 @@ def batch_relax(
         help="存在失败或未收敛任务时返回退出码 2",
     ),
 ) -> None:
-    """按 CSV manifest 批量运行 DPA4 优化，并持续写出可恢复的状态表。
-
-    ``input`` 路径相对于 manifest 所在目录解析。可选 ``id`` 控制任务目录名，
-    省略时使用输入文件名。每个任务写入 ``OUTPUT_DIR/ID/``，重复运行默认跳过
-    已通过任务；使用 ``--retry-failed`` 可重新运行失败任务。
-    """
+    """批量运行 DPA4 结构优化。"""
     manifest = manifest.expanduser().resolve()
     output_dir = output_dir.expanduser().resolve()
     if not manifest.is_file():

@@ -39,16 +39,16 @@ def _frame_hash(data, index: int) -> str:
 
 
 def merge(
-    inputs: list[Path] = typer.Argument(..., help="两个或多个 DeePMD NPY 数据集根目录"),
-    output: Path = typer.Option(..., "-o", "--output", help="新的合并输出目录"),
+    inputs: list[Path] = typer.Argument(..., help="NPY 数据集目录"),
+    output: Path = typer.Option(..., "-o", "--output", help="输出目录"),
     type_map: Optional[str] = typer.Option(
-        None, help="全局元素顺序；默认按所有输入自动推断"
+        None, help="元素顺序"
     ),
     set_size: int = typer.Option(2000, min=1),
     allow_duplicates: bool = typer.Option(False, help="允许完全相同的 cell+coord 帧"),
     require_virial: bool = typer.Option(True, "--virial/--no-virial"),
 ):
-    """按精确组成合并 NPY；不同原子数或组成不会写入同一个 system。"""
+    """合并 DeepMD NPY 数据集。"""
     if len(inputs) < 2:
         typer.secho("错误: 至少需要两个输入数据集", err=True, fg=typer.colors.RED)
         raise typer.Exit(1)

@@ -112,13 +112,7 @@ def neb(
         help="是否叠加 PBE-D3(BJ) 色散修正",
     ),
 ) -> None:
-    """使用 DPA4 执行 IDPP 插值、普通 NEB 和可选 CI-NEB。
-
-    初态和末态必须具有相同原子数、元素顺序、晶胞和周期性。命令首先使用
-    IDPP 构建路径，再用 FIRE 优化普通 NEB；普通 NEB 收敛且最高能图像位于
-    路径内部时，默认继续执行 CI-NEB。结果属于 DPA4 预测的最低能量路径，
-    不等同于第一性原理 NEB。
-    """
+    """用 DPA4 计算 NEB/CI-NEB。"""
     initial = initial.expanduser().resolve()
     final = final.expanduser().resolve()
     for label, path in (("初态", initial), ("末态", final)):

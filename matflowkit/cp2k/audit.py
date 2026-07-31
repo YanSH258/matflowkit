@@ -27,7 +27,7 @@ def public_row(parsed: dict) -> dict:
 def audit(
     root: Path = typer.Argument(
         Path("."),
-        help="CP2K 任务根目录或单个输出文件",
+        help="任务目录或输出文件",
     ),
     pattern: str = typer.Option(
         "**/output.log",
@@ -46,11 +46,7 @@ def audit(
         help="存在未通过任务或数量不符时返回退出码 2",
     ),
 ) -> None:
-    """检查 CP2K 是否正常结束且包含收敛 SCF、能量、完整力块和晶胞。
-
-    ``PROGRAM ENDED AT`` 只作为正常终止证据，不会单独判为通过。当前 PASS
-    规则面向可提取能量和原子力的 CP2K 任务。
-    """
+    """检查 CP2K 输出。"""
     root = root.expanduser().resolve()
     output = output.expanduser().resolve()
     if not root.exists():

@@ -84,17 +84,17 @@ def overlap(
         6,
         min=0,
         max=12,
-        help="坐标和晶胞取整的小数位数",
+        help="取整小数位",
     ),
     order_independent: bool = typer.Option(
         False,
         "--order-independent",
-        help="比较前按元素和坐标排序，忽略原子排列顺序",
+        help="忽略原子顺序",
     ),
     wrap: bool = typer.Option(
         False,
         "--wrap",
-        help="比较前将周期坐标 wrap 回晶胞",
+        help="比较前 wrap",
     ),
     output: Path = typer.Option(
         Path("frame_overlap.json"),
@@ -108,11 +108,7 @@ def overlap(
         help="发现跨数据集重叠帧时返回退出码 2",
     ),
 ) -> None:
-    """检测两个 ASE 可读结构数据集之间的规范化重复帧。
-
-    该命令比较元素、周期性、晶胞和笛卡尔坐标在指定小数位取整后的 SHA256，
-    同时报告各文件内部重复和跨文件重叠。它不衡量近似结构相似度。
-    """
+    """检查两个数据集的重复帧。"""
     reference = reference.expanduser().resolve()
     candidate = candidate.expanduser().resolve()
     output = output.expanduser().resolve()

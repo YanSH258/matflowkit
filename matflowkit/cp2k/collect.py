@@ -62,7 +62,7 @@ def collect(
     root: Path = typer.Argument(Path("."), help="CP2K 单点任务根目录"),
     output: Path = typer.Argument(
         Path("cp2k_dataset"),
-        help="新的数据集输出目录",
+        help="输出目录",
     ),
     pattern: str = typer.Option(
         "**/output.log",
@@ -76,7 +76,7 @@ def collect(
     type_map: Optional[str] = typer.Option(
         None,
         "--type-map",
-        help="全局元素顺序，逗号或空格分隔；默认按原子序数推断",
+        help="元素顺序，逗号或空格分隔",
     ),
     set_size: int = typer.Option(
         2000,
@@ -90,11 +90,7 @@ def collect(
         help="跳过未通过审计或无法读取的任务",
     ),
 ) -> None:
-    """收集 CP2K 单点能量和原子力，按精确组成导出 DeepMD NPY 与 extxyz。
-
-    每个任务必须在 CP2K 输出同目录下提供与最终能量和力对应的单帧结构文件。
-    本命令不会从几何优化日志重建末态，因此不应直接用于 GEO_OPT 轨迹。
-    """
+    """CP2K 单点结果转 DeepMD NPY 和 extxyz。"""
     root = root.expanduser().resolve()
     output = output.expanduser().resolve()
     if not root.exists():

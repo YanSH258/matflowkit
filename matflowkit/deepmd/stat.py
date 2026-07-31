@@ -62,10 +62,10 @@ def stat_system(sysdir: Path) -> dict:
 
 
 def stat(
-    dir: Path = typer.Argument(Path("."), help="数据集根目录（或其本身即单个 system）"),
-    json_out: bool = typer.Option(False, "--json", help="以 JSON 格式输出"),
+    dir: Path = typer.Argument(Path("."), help="数据集目录"),
+    json_out: bool = typer.Option(False, "--json", help="输出 JSON"),
 ):
-    """统计 DeePMD raw/npy 数据集：system 数、frame/原子数、元素计数、能量与力的范围。"""
+    """统计 DeePMD 数据集。"""
     if not dir.is_dir():
         typer.secho(f"错误: 目录不存在: {dir}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1)

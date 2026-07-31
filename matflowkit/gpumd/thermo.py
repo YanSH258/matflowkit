@@ -7,10 +7,10 @@ import typer
 
 
 def thermo(
-    file: Path = typer.Argument(Path("thermo.out"), help="GPUMD thermo.out 文件路径"),
-    plot: bool = typer.Option(False, "--plot", help="画第 1 列随步数演化图，保存 thermo_col1.png"),
+    file: Path = typer.Argument(Path("thermo.out"), help="thermo.out 路径"),
+    plot: bool = typer.Option(False, "--plot", help="画第 1 列"),
 ):
-    """统计 thermo.out 各列（行数、列数、mean/min/max/末值），可选画第 1 列曲线。"""
+    """统计 thermo.out，可选画第 1 列。"""
     if not file.is_file():
         typer.secho(f"错误: 文件不存在: {file}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1)

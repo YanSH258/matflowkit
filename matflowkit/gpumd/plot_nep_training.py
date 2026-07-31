@@ -75,7 +75,7 @@ def _loss_series(loss: np.ndarray) -> tuple[list[str], np.ndarray]:
 def plot_nep_training(
     directory: Path = typer.Argument(
         Path("."),
-        help="包含 loss.out 和 *_train.out 的 NEP 训练或预测目录",
+        help="NEP 输出目录",
     ),
     output: Path = typer.Option(
         Path("nep_training.png"),
@@ -91,16 +91,10 @@ def plot_nep_training(
     max_points: int = typer.Option(
         200_000,
         min=1000,
-        help="每个散点面板最多绘制的点数，不影响误差计算",
+        help="每个面板的最大点数",
     ),
 ) -> None:
-    """绘制 NEP loss 和能量、力、应力预测误差。
-
-    默认读取 ``loss.out``、``energy_train.out`` 和 ``force_train.out``。
-    如果目录中存在 ``stress_train.out``，则自动绘制应力面板。RMSE、MAE
-    和 R2 使用完整数据计算并写入 ``nep_training_metrics.json``；大数据集
-    仅在绘图时等距抽样。示例：``mfk gpumd plot-nep-training ./train``。
-    """
+    """画 NEP loss 和预测误差。"""
     if not directory.is_dir():
         typer.secho(f"错误: 目录不存在: {directory}", err=True, fg=typer.colors.RED)
         raise typer.Exit(1)

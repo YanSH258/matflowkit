@@ -31,18 +31,18 @@ def frame_metrics(energy: float, forces: np.ndarray, atom_count: int) -> dict:
 
 
 def evaluate(
-    input: Path = typer.Argument(..., help="ASE 可读取的单帧或多帧结构文件"),
+    input: Path = typer.Argument(..., help="输入结构"),
     output: Path | None = typer.Option(
         None,
         "--output",
         "-o",
-        help="带 DPA4 标注的 extxyz；默认 INPUT_dpa4_evaluated.extxyz",
+        help="输出 extxyz",
     ),
     model: Path | None = typer.Option(
         None,
         "--model",
         envvar="DPA4_MODEL",
-        help="DPA4 model.pt；也可设置 DPA4_MODEL",
+        help="DPA4 model.pt",
     ),
     index: str = typer.Option(
         ":",
@@ -60,11 +60,7 @@ def evaluate(
         help="同时请求六分量应力；默认只计算能量和力",
     ),
 ) -> None:
-    """使用 DPA4 为结构文件中的选定帧计算能量、原子力和可选应力。
-
-    输出带单点标注的 extxyz、逐帧 CSV 和 JSON 汇总。该命令不优化结构，也不
-    覆盖已有输出。DPA4 模型按 ``--model``、``DPA4_MODEL`` 和用户约定路径查找。
-    """
+    """用 DPA4 计算能量和力。"""
     input = input.expanduser().resolve()
     if not input.is_file():
         typer.secho(f"错误: 输入不存在: {input}", err=True, fg=typer.colors.RED)

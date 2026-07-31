@@ -63,29 +63,24 @@ def merge_loss_files(
 def merge_loss(
     first: Path = typer.Argument(
         Path("loss.out"),
-        help="首次 NEP 训练产生的 loss.out",
+        help="首次训练 loss.out",
     ),
     restart: Path = typer.Argument(
         Path("restart/loss.out"),
-        help="续训产生的 loss.out",
+        help="续训 loss.out",
     ),
     output: Path = typer.Option(
         Path("loss_merged.out"),
         "--output",
         "-o",
-        help="合并后的输出文件",
+        help="输出文件",
     ),
     offset: float | None = typer.Option(
         None,
-        help="续训步数偏移；默认取首次训练最后一个步数",
+        help="续训步数偏移",
     ),
 ) -> None:
-    """合并 NEP 首次训练和续训的 ``loss.out``。
-
-    默认将 ``restart/loss.out`` 第一列加上首次 ``loss.out`` 的最后一个
-    训练步数，再写入 ``loss_merged.out``。如果续训文件已经使用全局步数，
-    可设置 ``--offset 0``。输出文件已存在时拒绝覆盖。
-    """
+    """合并首次训练和续训的 loss.out。"""
     for path in (first, restart):
         if not path.is_file():
             typer.secho(f"错误: 文件不存在: {path}", err=True, fg=typer.colors.RED)

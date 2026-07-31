@@ -22,11 +22,11 @@ def convert(
     output: Path = typer.Argument(..., help="输出文件或目录"),
     input_format: str = typer.Option(..., "--from", help="dpdata 输入格式"),
     output_format: str = typer.Option(..., "--to", help="dpdata 输出格式"),
-    type_map: Optional[str] = typer.Option(None, help="可选全局元素顺序"),
+    type_map: Optional[str] = typer.Option(None, help="元素顺序"),
     set_size: int = typer.Option(2000, min=1),
     require_virial: bool = typer.Option(False, "--virial/--no-virial"),
 ):
-    """转换 CP2K、ABACUS、DeepMD、extxyz、GPUMD 等 dpdata 支持的格式。"""
+    """转换 dpdata 格式。"""
     dpdata = require_dpdata()
     if not input.exists():
         typer.secho(f"错误: 输入不存在: {input}", err=True, fg=typer.colors.RED)

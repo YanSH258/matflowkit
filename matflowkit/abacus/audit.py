@@ -117,14 +117,14 @@ def discover_tasks(root: Path, pattern: str) -> list[Path]:
 
 
 def audit(
-    root: Path = typer.Argument(Path("."), help="任务根目录或单个 ABACUS 任务目录"),
+    root: Path = typer.Argument(Path("."), help="任务目录"),
     pattern: str = typer.Option("**/INPUT", help="相对 root 的 INPUT 搜索模式"),
     output: Path = typer.Option(Path("abacus_audit.csv"), "-o", "--output"),
     expected: Optional[int] = typer.Option(None, help="预期任务数"),
     strict: bool = typer.Option(False, help="存在未完成任务时返回非零退出码"),
     json_out: bool = typer.Option(False, "--json", help="同时在 stdout 输出 JSON"),
 ):
-    """批量检查 ABACUS 正常结束、SCF/结构收敛、能量、力和应力证据。"""
+    """批量检查 ABACUS 任务。"""
     if not root.is_dir():
         typer.secho(f"错误: 目录不存在: {root}", fg=typer.colors.RED, err=True)
         raise typer.Exit(1)

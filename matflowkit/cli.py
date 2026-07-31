@@ -30,24 +30,24 @@ _CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
 app = typer.Typer(
     name="mfk",
-    help="MatFlowKit: 个人科研工具箱（ABACUS / CP2K / DeePMD / GPUMD / DPA4）。不带参数运行进入交互菜单。",
+    help="材料计算命令行工具。不带参数时打开菜单。",
     invoke_without_command=True,
     no_args_is_help=False,
     add_completion=False,
     context_settings=_CONTEXT_SETTINGS,
 )
 
-abacus_app = typer.Typer(help="ABACUS 相关命令", no_args_is_help=True,
+abacus_app = typer.Typer(help="ABACUS", no_args_is_help=True,
                          context_settings=_CONTEXT_SETTINGS)
-deepmd_app = typer.Typer(help="DeePMD 相关命令", no_args_is_help=True,
+deepmd_app = typer.Typer(help="DeePMD", no_args_is_help=True,
                          context_settings=_CONTEXT_SETTINGS)
-gpumd_app = typer.Typer(help="GPUMD 相关命令", no_args_is_help=True,
+gpumd_app = typer.Typer(help="GPUMD", no_args_is_help=True,
                         context_settings=_CONTEXT_SETTINGS)
-dpdata_app = typer.Typer(help="dpdata 格式转换", no_args_is_help=True,
+dpdata_app = typer.Typer(help="数据转换与检查", no_args_is_help=True,
                          context_settings=_CONTEXT_SETTINGS)
-dpa4_app = typer.Typer(help="DPA4 结构优化与反应路径", no_args_is_help=True,
+dpa4_app = typer.Typer(help="DPA4", no_args_is_help=True,
                        context_settings=_CONTEXT_SETTINGS)
-cp2k_app = typer.Typer(help="CP2K 结果审计与数据提取", no_args_is_help=True,
+cp2k_app = typer.Typer(help="CP2K", no_args_is_help=True,
                        context_settings=_CONTEXT_SETTINGS)
 
 abacus_app.command("check-relax")(check_relax)

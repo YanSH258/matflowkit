@@ -49,7 +49,7 @@ def _format(task: Path, requested: str) -> str:
 
 def to_deepmd(
     root: Path = typer.Argument(Path("."), help="ABACUS 任务根目录"),
-    output: Path = typer.Argument(..., help="新的输出目录"),
+    output: Path = typer.Argument(..., help="输出目录"),
     pattern: str = typer.Option("**/INPUT", help="INPUT 搜索模式"),
     fmt: str = typer.Option(
         "auto",
@@ -58,14 +58,14 @@ def to_deepmd(
     ),
     frames: str = typer.Option("all", help="all 或 final"),
     type_map: Optional[str] = typer.Option(
-        None, help="全局元素顺序，逗号或空格分隔；默认按原子序数推断"
+        None, help="元素顺序，逗号或空格分隔"
     ),
     set_size: int = typer.Option(2000, min=1),
     expected: Optional[int] = typer.Option(None, help="预期任务数"),
     skip_incomplete: bool = typer.Option(False, help="跳过未完成任务而不是终止"),
     require_virial: bool = typer.Option(True, "--virial/--no-virial"),
 ):
-    """使用 dpdata 提取 ABACUS scf/relax/cell-relax/md 的能量、力和 virial，并按精确组成写出 NPY。"""
+    """ABACUS 结果转 DeepMD NPY。"""
     if frames not in {"all", "final"}:
         typer.secho("错误: --frames 必须是 all 或 final", err=True, fg=typer.colors.RED)
         raise typer.Exit(1)

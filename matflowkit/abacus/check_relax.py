@@ -30,10 +30,10 @@ def find_relax_logs(directory: Path) -> list:
 
 def check_relax(
     dir: Path = typer.Argument(
-        Path("."), help="ABACUS 计算目录（其下应含 OUT.*/running_relax.log 或 running_relax.log）"
+        Path("."), help="ABACUS relax 目录"
     ),
 ):
-    """检查 ABACUS relax 计算是否收敛，报告离子步数、总能与最大力。"""
+    """检查 ABACUS relax。"""
     if not dir.is_dir():
         typer.secho(f"错误: 目录不存在: {dir}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1)
