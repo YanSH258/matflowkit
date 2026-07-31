@@ -46,8 +46,13 @@ def apply_plot_style() -> None:
     import matplotlib as mpl
 
     mpl.rcParams.update({
-        "font.family": "sans-serif",
-        "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans", "Liberation Sans"],
+        "font.family": "serif",
+        "font.serif": [
+            "Times New Roman",
+            "Times",
+            "Liberation Serif",
+            "DejaVu Serif",
+        ],
         "font.size": 8,
         "axes.labelsize": 8,
         "axes.titlesize": 9,
@@ -73,10 +78,7 @@ def apply_plot_style() -> None:
         "savefig.facecolor": "white",
         "figure.facecolor": "white",
         "axes.facecolor": "white",
-        "pdf.fonttype": 42,
-        "ps.fonttype": 42,
-        "svg.fonttype": "none",
-        "mathtext.fontset": "dejavusans",
+        "mathtext.fontset": "stix",
     })
 
 
@@ -90,10 +92,12 @@ def add_panel_labels(axes: Iterable, labels: Iterable[str] | None = None) -> Non
 
 
 def save_figure(fig, output: Path | str, dpi: int = 300) -> Path:
-    """Save and close a figure."""
+    """Save and close a figure; use PNG when no suffix is given."""
     import matplotlib.pyplot as plt
 
     target = Path(output)
+    if not target.suffix:
+        target = target.with_suffix(".png")
     target.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(target, dpi=dpi, bbox_inches="tight", facecolor="white")
     plt.close(fig)

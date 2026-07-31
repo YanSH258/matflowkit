@@ -8,12 +8,12 @@ from matflowkit.common.plot_style import apply_plot_style, figure_size, save_fig
 apply_plot_style()
 fig, ax = plt.subplots(figsize=figure_size("single", 0.72))
 # plot ...
-save_figure(fig, "figure.svg")
+save_figure(fig, "figure.png")
 ```
 
 ## 固定规则
 
-- 字体：Arial；没有 Arial 时依次使用 Helvetica、DejaVu Sans、Liberation Sans。
+- 字体：Times New Roman；没有时依次使用 Times、Liberation Serif、DejaVu Serif。
 - 字号：正文和坐标轴 8 pt，刻度和图例 7 pt，面板编号 9 pt 粗体。
 - 图宽：单栏 89 mm，双栏 183 mm。用 `figure_size()` 设置。
 - 坐标轴：线宽 0.8 pt；去掉上、右边框；刻度向外；默认不画网格。
@@ -43,9 +43,8 @@ save_figure(fig, "figure.svg")
 
 ## 输出
 
-- 论文图优先 SVG 或 PDF；SVG 文字保持可编辑，PDF 使用 TrueType 字体。
-- PNG 默认 300 dpi；线条密集或投稿要求时使用 600 dpi。
-- 不用 JPEG 保存数据图。
+- 默认只保存 PNG，分辨率为 300 dpi；线条密集或投稿要求时使用 600 dpi。
+- 不自动生成 PDF、SVG 或 JPEG。
 - 保存后关闭 figure；统一调用 `save_figure()`。
 
 ## 数据表达

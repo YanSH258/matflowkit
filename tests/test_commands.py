@@ -55,8 +55,8 @@ class CommandTests(unittest.TestCase):
         width, height = figure_size("single", 0.5)
         self.assertAlmostEqual(width, SINGLE_COLUMN_MM / 25.4)
         self.assertAlmostEqual(height, width * 0.5)
-        self.assertEqual(mpl.rcParams["font.family"], ["sans-serif"])
-        self.assertEqual(mpl.rcParams["svg.fonttype"], "none")
+        self.assertEqual(mpl.rcParams["font.family"], ["serif"])
+        self.assertEqual(mpl.rcParams["font.serif"][0], "Times New Roman")
         self.assertEqual(
             mpl.rcParams["axes.prop_cycle"].by_key()["color"], COLOR_CYCLE
         )
