@@ -87,6 +87,9 @@ MENU = {
         ("audit", "检查 CP2K 结束、SCF、能量、力和晶胞证据",
          [("root", "任务根目录或输出文件", ".", False),
           ("--output", "审计 CSV", "cp2k_audit.csv", False)]),
+        ("collect", "收集 CP2K 单点能量和力并导出 DeepMD 数据",
+         [("root", "CP2K 单点任务根目录", ".", False),
+          ("output", "新的数据集目录", "cp2k_dataset", False)]),
     ]),
 }
 _GROUP_NAME = {

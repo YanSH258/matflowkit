@@ -11,6 +11,7 @@ from mdkit.abacus.check_relax import check_relax
 from mdkit.abacus.plot_convergence import plot_convergence
 from mdkit.abacus.to_deepmd import to_deepmd
 from mdkit.cp2k.audit import audit as cp2k_audit
+from mdkit.cp2k.collect import collect as cp2k_collect
 from mdkit.deepmd.merge import merge
 from mdkit.deepmd.stat import stat
 from mdkit.dpdata.convert import convert
@@ -66,6 +67,7 @@ dpa4_app.command("batch-relax")(batch_relax)
 dpa4_app.command("evaluate")(dpa4_evaluate)
 dpa4_app.command("neb")(dpa4_neb)
 cp2k_app.command("audit")(cp2k_audit)
+cp2k_app.command("collect")(cp2k_collect)
 
 app.add_typer(abacus_app, name="abacus")
 app.add_typer(deepmd_app, name="deepmd")

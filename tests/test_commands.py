@@ -170,6 +170,46 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(result.exit_code, 0, result.output)
         self.assertTrue(output.is_file())
 
+    def test_cp2k_collect_exports_single_point(self):
+        task = self.root / "task"
+        task.mkdir()
+        (task / "structure.xyz").write_text(
+            "2\n\nH 0.0 0.0 0.0\nH 0.7 0.0 0.0\n"
+        )
+        (task / "output.log").write_text(
+            " CELL| Vector a [angstrom]: 10.0 0.0 0.0\n"
+            " CELL| Vector b [angstrom]: 0.0 10.0 0.0\n"
+            " CELL| Vector c [angstrom]: 0.0 0.0 10.0\n"
+            " *** SCF run converged in 10 steps ***\n"
+            " ENERGY| Total FORCE_EVAL ( QS ) energy [hartree] -1.000000\n"
+            " FORCES| Atomic forces [hartree/bohr]\n"
+            " FORCES| 1 1.0E-3 0.0 0.0 1.0E-3\n"
+            " FORCES| 2 -1.0E-3 0.0 0.0 1.0E-3\n"
+            " PROGRAM ENDED AT\n"
+        )
+        output = self.root / "dataset"
+        result = self.runner.invoke(
+            app,
+            ["cp2k", "collect", str(task), str(output), "--expected", "1"],
+        )
+        self.assertEqual(result.exit_code, 0, result.output)
+        summary = json.loads((output / "reports" / "summary.json").read_text())
+        self.assertEqual(summary["frames"], 1)
+        self.assertTrue(summary["all_systems_validated"])
+        self.assertTrue((output / "deepmd_npy" / "H2" / "type.raw").is_file())
+
+    def test_cp2k_collect_preserves_existing_output(self):
+        output = self.root / "existing"
+        output.mkdir()
+        marker = output / "keep.txt"
+        marker.write_text("keep")
+        result = self.runner.invoke(
+            app,
+            ["cp2k", "collect", str(self.root), str(output)],
+        )
+        self.assertEqual(result.exit_code, 1, result.output)
+        self.assertEqual(marker.read_text(), "keep")
+
     def test_discover_tasks_skips_out_hap_input(self):
         task = self.root / "task"
         out = task / "OUT.test"

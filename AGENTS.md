@@ -43,6 +43,7 @@ mfk --help          # 验证
 | 使用 DPA4 为单帧或多帧结构计算能量和力 | `mfk dpa4 evaluate INPUT` |
 | 使用 DPA4 计算 NEB/CI-NEB 路径 | `mfk dpa4 neb INITIAL FINAL` |
 | 批量审计 CP2K 单点输出的完成与标注证据 | `mfk cp2k audit [ROOT]` |
+| 收集 CP2K 单点能量和力为 DeepMD NPY/extxyz | `mfk cp2k collect [ROOT] [OUTPUT]` |
 
 ## 命令的输入/输出约定
 
@@ -138,6 +139,11 @@ mfk --help          # 验证
 - 输入：单个 CP2K 输出或根目录；默认递归查找 `**/output.log`。
 - 判断：正常结束、所有 SCF 收敛、最终能量、原子力块和晶胞是否齐全。
 - 输出：逐任务 CSV 和 JSON 汇总；`PROGRAM ENDED AT` 本身不是通过的充分条件。
+
+### `mfk cp2k collect [ROOT] [OUTPUT]`
+- 输入：每个输出目录中的 CP2K 单点 `output.log` 与对应单帧 `structure.xyz`。
+- 输出：按精确组成拆分的 DeepMD NPY、extxyz、任务审计、frame manifest 和校验报告。
+- 边界：不从 GEO_OPT 日志重建末态，不推断缺失标签，也不自动验证 DFT 方法一致性。
 
 ### `mfk dpa4 evaluate INPUT`
 - 输入：ASE 可读取的单帧或多帧结构；`--index` 使用 ASE 帧选择语法。

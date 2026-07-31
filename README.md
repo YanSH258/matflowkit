@@ -40,6 +40,7 @@ mfk dpa4 batch-relax structures.csv  # 按 manifest 批量优化并断点续跑
 mfk dpa4 evaluate structures.extxyz  # 批量预测能量、力和可选应力
 mfk dpa4 neb IS.xyz FS.xyz       # DPA4 NEB 与 CI-NEB
 mfk cp2k audit ./tasks           # 审计 CP2K 结束、SCF、能量、力和晶胞
+mfk cp2k collect ./tasks cp2k_dataset # 单点能量和力转 DeepMD NPY
 ```
 
 所有命令的路径参数都默认为当前目录（或当前目录下的默认文件），支持 `-h` 查看帮助。
@@ -223,6 +224,17 @@ mfk cp2k audit ./tasks --strict
 默认递归查找 `output.log`，检查正常结束、SCF 收敛、最终能量、完整原子力块和
 晶胞证据，生成 `cp2k_audit.csv` 与 JSON 汇总。`PROGRAM ENDED AT` 不会被
 单独视为通过证据。
+
+### CP2K 单点数据收集
+
+```bash
+mfk cp2k collect ./tasks ./cp2k_dataset \
+  --structure-name structure.xyz
+```
+
+每个任务目录必须包含相互对应的 `output.log` 和单帧 `structure.xyz`。命令只收集
+通过审计的最终能量和原子力，按精确组成输出 DeepMD NPY、extxyz、逐帧 manifest
+和校验报告。它不会从 `GEO_OPT` 日志重建末态，也不会验证不同任务的 DFT 设置一致性。
 
 ### DPA4 批量结构优化
 
