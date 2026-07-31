@@ -52,7 +52,13 @@ def build_calculator(model: Path, use_d3: bool = True):
     require_dependencies(use_d3)
     from deepmd.calculator import DP
 
-    calculator = DP(model=str(model), nlist_backend="auto")
+    try:
+        calculator = DP(model=str(model), nlist_backend="auto")
+    except Exception as exc:
+        raise RuntimeError(
+            "DPA4 模型加载失败。请确认正在使用兼容的 dpa4/deepmd/PyTorch "
+            f"环境。原始错误: {exc}"
+        ) from exc
     if use_d3:
         from dftd3.ase import DFTD3
 

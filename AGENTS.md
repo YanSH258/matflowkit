@@ -38,6 +38,7 @@ mfk --help          # 验证
 | 合并 NEP 首次训练与续训的 loss.out | `mfk gpumd merge-loss [FIRST] [RESTART]` |
 | 绘制 NEP loss 与能量/力/应力预测误差 | `mfk gpumd plot-nep-training [DIR]` |
 | 使用 DPA4 优化结构 | `mfk dpa4 relax INPUT` |
+| 使用 DPA4 计算 NEB/CI-NEB 路径 | `mfk dpa4 neb INITIAL FINAL` |
 
 ## 命令的输入/输出约定
 
@@ -109,6 +110,15 @@ mfk --help          # 验证
 - 默认：固定晶胞、BFGS、`fmax=0.05 eV/Å`、DPA4 + PBE-D3(BJ)。
 - 可选：`--relax-cell` 变胞；`--fix-indices-file` 固定从 1 开始编号的原子。
 - 输出：优化结构、日志、extxyz 轨迹和 JSON 状态；不覆盖已有结果。
+
+### `mfk dpa4 neb INITIAL FINAL`
+- 输入：已优化且原子顺序、晶胞和周期性完全匹配的初态与末态。
+- 流程：IDPP 插值、普通 ASE NEB；普通 NEB 收敛且最高点位于路径内部时默认继续
+  CI-NEB。
+- 可选：`--images`、两阶段 `fmax/steps`、`--fix-indices-file`、`--no-climb`、
+  `--no-d3`。
+- 输出：插值及优化路径、能量 CSV、最高能图像和状态 JSON；结果明确标为 DPA4
+  最低能量路径，不冒充 DFT NEB。
 
 ## 补充脚本的原则（加命令前先读）
 

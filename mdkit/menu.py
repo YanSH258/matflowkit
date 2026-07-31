@@ -65,6 +65,11 @@ MENU = {
          [("input", "输入结构", "structure.xyz", False),
           ("--output", "输出结构", "structure_dpa4_relaxed.extxyz", False),
           ("--model", "DPA4 model.pt", "~/dpa4/Neo-MPtrj/model.pt", False)]),
+        ("neb", "使用 DPA4 执行 NEB/CI-NEB",
+         [("initial", "已优化初态", "initial.extxyz", False),
+          ("final", "已优化末态", "final.extxyz", False),
+          ("--output-dir", "输出目录", "dpa4_neb", False),
+          ("--model", "DPA4 model.pt", "~/dpa4/Neo-MPtrj/model.pt", False)]),
     ]),
 }
 _GROUP_NAME = {

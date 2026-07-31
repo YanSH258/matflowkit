@@ -35,6 +35,7 @@ mfk gpumd thermo --plot          # 同时画第 1 列（温度）演化，保存
 mfk gpumd merge-loss             # 合并首次训练与续训的 loss.out
 mfk gpumd plot-nep-training .    # 绘制 loss 与能量/力/应力预测误差
 mfk dpa4 relax structure.xyz     # DPA4 固定晶胞结构优化
+mfk dpa4 neb IS.xyz FS.xyz       # DPA4 NEB 与 CI-NEB
 ```
 
 所有命令的路径参数都默认为当前目录（或当前目录下的默认文件），支持 `-h` 查看帮助。
@@ -169,6 +170,13 @@ mfk gpumd plot-nep-training ./train
 
 ### DPA4 结构优化
 
+先在包含兼容 DeepMD-kit、PyTorch、ASE 和 dftd3 的环境中安装命令：
+
+```bash
+conda activate dpa4
+pip install -e /home/yan/matflowkit
+```
+
 ```bash
 mfk dpa4 relax structure.xyz \
   --model ~/dpa4/Neo-MPtrj/model.pt \
@@ -178,3 +186,16 @@ mfk dpa4 relax structure.xyz \
 默认执行固定晶胞优化，并叠加 PBE-D3(BJ)。使用 `--relax-cell` 显式启用变胞优化，
 使用 `--fix-indices-file fixed.txt` 固定从 1 开始编号的原子。输出包括优化结构、
 日志、逐步 extxyz 轨迹和 JSON 状态文件。
+
+### DPA4 NEB
+
+```bash
+mfk dpa4 neb initial.extxyz final.extxyz \
+  --model ~/dpa4/Neo-MPtrj/model.pt \
+  --images 5 --neb-fmax 0.10 --ci-fmax 0.05
+```
+
+端点必须具有相同原子数、元素顺序、晶胞和周期性。命令使用 IDPP 插值，先执行
+普通 NEB，收敛且最高能图像位于路径内部时继续执行 CI-NEB。输出包括各阶段路径、
+`energy_profile.csv`、最高能图像和 `status.json`。所得势垒属于 DPA4 预测，
+不是第一性原理 NEB 势垒。

@@ -338,6 +338,19 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(result.exit_code, 1, result.output)
         self.assertIn("输入结构不存在", result.stderr)
 
+    def test_dpa4_neb_rejects_missing_endpoint(self):
+        result = self.runner.invoke(
+            app,
+            [
+                "dpa4",
+                "neb",
+                str(self.root / "missing_initial.xyz"),
+                str(self.root / "missing_final.xyz"),
+            ],
+        )
+        self.assertEqual(result.exit_code, 1, result.output)
+        self.assertIn("初态结构不存在", result.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()
