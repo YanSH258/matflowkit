@@ -150,20 +150,12 @@ matflowkit/
 
 ## 参考文档
 
-MatFlowKit 只负责调用和整理数据。具体格式与计算参数以各项目的原始文档为准：
-
 - [GPUMD documentation](https://gpumd.org/)
-- [GPUMD `thermo.out`](https://gpumd.org/gpumd/output_files/thermo_out.html)
 - [GPUMDkit](https://github.com/zhyan0603/GPUMDkit)
-- [GPUMDkit plotting scripts](https://zhyan0603.github.io/GPUMDkit/htmls/plot_scripts.html)
 - [DeePMD-kit documentation](https://docs.deepmodeling.com/projects/deepmd/en/latest/)
 - [dpdata documentation](https://docs.deepmodeling.com/projects/dpdata/en/master/)
 - [ABACUS documentation](https://abacus.deepmodeling.com/en/latest/)
 - [CP2K manual](https://manual.cp2k.org/)
-
-`mfk gpumd thermo --plot` 的功能参考了 GPUMDkit 的 `gpumdkit.sh -plt thermo`：
-读取 `run.in` 中的时间步长和输出间隔，并绘制温度、压力、能量、晶格长度、体积及晶格角。
-MatFlowKit 中的实现为重新编写的 Python 版本，输出样式使用本项目的统一绘图规范。
 
 ## 贡献
 
