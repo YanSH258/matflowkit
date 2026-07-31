@@ -12,6 +12,7 @@ from mdkit.cli import app
 from mdkit.dpa4.common import read_fixed_indices
 from mdkit.dpa4.batch_relax import read_manifest, safe_case_id
 from mdkit.dpa4.evaluate import frame_metrics
+from mdkit.dpdata.overlap import frame_hash
 
 
 def write_deepmd(path: Path, x: float, energy: float) -> None:
@@ -102,6 +103,44 @@ class CommandTests(unittest.TestCase):
         self.assertAlmostEqual(
             result["force_component_rms_eV_A"],
             np.sqrt(25.0 / 6.0),
+        )
+
+    def test_dpdata_overlap_detects_shared_frame(self):
+        from ase import Atoms
+        from ase.io import write
+
+        reference = self.root / "reference.extxyz"
+        candidate = self.root / "candidate.extxyz"
+        shared = Atoms("H2", positions=[[0, 0, 0], [0.7, 0, 0]])
+        other = Atoms("H2", positions=[[0, 0, 0], [0.8, 0, 0]])
+        write(reference, [shared, other])
+        write(candidate, [shared])
+        output = self.root / "overlap.json"
+        result = self.runner.invoke(
+            app,
+            [
+                "dpdata",
+                "overlap",
+                str(reference),
+                str(candidate),
+                "-o",
+                str(output),
+            ],
+        )
+        self.assertEqual(result.exit_code, 0, result.output)
+        report = json.loads(output.read_text())
+        self.assertEqual(report["overlapping_unique_frames"], 1)
+        self.assertEqual(report["overlapping_frame_pairs"], 1)
+
+    def test_frame_hash_can_ignore_atom_order(self):
+        from ase import Atoms
+
+        first = Atoms("HO", positions=[[0, 0, 0], [1, 0, 0]])
+        second = Atoms("OH", positions=[[1, 0, 0], [0, 0, 0]])
+        self.assertNotEqual(frame_hash(first), frame_hash(second))
+        self.assertEqual(
+            frame_hash(first, order_independent=True),
+            frame_hash(second, order_independent=True),
         )
 
     def test_discover_tasks_skips_out_hap_input(self):

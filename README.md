@@ -30,6 +30,7 @@ mfk deepmd stat ./data --json    # 机器可读 JSON 输出
 mfk deepmd merge a b -o merged   # 按精确组成合并 NPY 数据集
 mfk dpdata convert in out --from deepmd/npy --to extxyz
 mfk dpdata xyz-to-deepmd train.xyz deepmd  # GPUMD/extxyz 转 DeepMD raw + NPY
+mfk dpdata overlap train.extxyz test.extxyz # 检查重复帧与测试集泄漏
 mfk gpumd thermo thermo.out      # 统计 thermo.out 各列
 mfk gpumd thermo --plot          # 同时画第 1 列（温度）演化，保存 thermo_col1.png
 mfk gpumd merge-loss             # 合并首次训练与续训的 loss.out
@@ -141,6 +142,16 @@ mfk dpdata convert cp2k_work cp2k_npy \
 mfk dpdata convert deepmd_system train.xyz \
   --from deepmd/npy --to extxyz
 ```
+
+### 结构数据集重叠检查
+
+```bash
+mfk dpdata overlap train.extxyz test.extxyz --strict
+```
+
+元素、周期性、晶胞和坐标按指定精度规范化后进行哈希比较。输出
+`frame_overlap.json` 和匹配帧 CSV，同时报告文件内部重复和跨数据集重叠。
+这是重复构型检测，不是近似结构相似度分析。
 
 ### GPUMD/extxyz 转 DeepMD raw + NPY
 

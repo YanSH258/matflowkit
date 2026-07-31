@@ -59,6 +59,10 @@ MENU = {
         ("xyz-to-deepmd", "将带标注的 GPUMD/extxyz 转为 DeepMD raw + NPY",
          [("input", "输入 xyz 文件", "train.xyz", False),
           ("output", "输出目录", "deepmd", False)]),
+        ("overlap", "检查两个结构数据集的重复帧与数据泄漏",
+         [("reference", "参考结构数据集", "train.extxyz", False),
+          ("candidate", "待检查结构数据集", "test.extxyz", False),
+          ("--output", "JSON 汇总", "frame_overlap.json", False)]),
     ]),
     "5": ("DPA4", [
         ("relax", "使用 DPA4 优化结构",

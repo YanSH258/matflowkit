@@ -33,6 +33,7 @@ mfk --help          # 验证
 | 需要程序化读取 DeePMD 数据集统计（接脚本/管道） | `mfk deepmd stat [DIR] --json` |
 | 在 ABACUS/CP2K/DeepMD/extxyz/GPUMD 格式间转换 | `mfk dpdata convert INPUT OUTPUT --from FMT --to FMT` |
 | 将带标注的 GPUMD/extxyz 转为 DeepMD raw + NPY | `mfk dpdata xyz-to-deepmd [INPUT] [OUTPUT]` |
+| 检查训练集、验证集或测试集之间的重复结构 | `mfk dpdata overlap REFERENCE CANDIDATE` |
 | GPUMD 跑完后看 thermo.out 各列统计（温度、能量、压力走势） | `mfk gpumd thermo [FILE]` |
 | 想快速看一眼温度随步数的演化曲线 | `mfk gpumd thermo [FILE] --plot` |
 | 合并 NEP 首次训练与续训的 loss.out | `mfk gpumd merge-loss [FIRST] [RESTART]` |
@@ -86,6 +87,11 @@ mfk --help          # 验证
 - 输出：默认写入 `deepmd/`，按精确组成分 system，同时生成 DeepMD raw 与 NPY；
   `--set-size` 控制 NPY 分片大小。
 - 输出目录已存在且非空时拒绝覆盖；`dpdata` 缺失或解析失败时写 stderr 并非零退出。
+
+### `mfk dpdata overlap REFERENCE CANDIDATE`
+- 输入：ASE 可读取的两个单帧或多帧结构数据集。
+- 比较：元素、PBC、晶胞和坐标按指定小数位规范化后计算哈希；可选忽略原子顺序和 wrap。
+- 输出：JSON 汇总与匹配帧 CSV；只判断规范化重复，不代表近似结构相似度。
 
 ### `mfk gpumd thermo [FILE]`（默认 `thermo.out`）
 - 输入：空格分隔数值列的 thermo.out，列数不固定（典型 12 列）。

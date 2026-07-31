@@ -13,6 +13,7 @@ from mdkit.abacus.to_deepmd import to_deepmd
 from mdkit.deepmd.merge import merge
 from mdkit.deepmd.stat import stat
 from mdkit.dpdata.convert import convert
+from mdkit.dpdata.overlap import overlap
 from mdkit.dpdata.xyz_to_deepmd import xyz_to_deepmd
 from mdkit.dpa4.batch_relax import batch_relax
 from mdkit.dpa4.evaluate import evaluate as dpa4_evaluate
@@ -55,6 +56,7 @@ gpumd_app.command("thermo")(thermo)
 gpumd_app.command("merge-loss")(merge_loss)
 gpumd_app.command("plot-nep-training")(plot_nep_training)
 dpdata_app.command("convert")(convert)
+dpdata_app.command("overlap")(overlap)
 dpdata_app.command("xyz-to-deepmd")(xyz_to_deepmd)
 dpa4_app.command("relax")(dpa4_relax)
 dpa4_app.command("batch-relax")(batch_relax)
