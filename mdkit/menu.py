@@ -83,6 +83,11 @@ MENU = {
           ("--output-dir", "输出目录", "dpa4_neb", False),
           ("--model", "DPA4 model.pt", "~/dpa4/Neo-MPtrj/model.pt", False)]),
     ]),
+    "6": ("CP2K", [
+        ("audit", "检查 CP2K 结束、SCF、能量、力和晶胞证据",
+         [("root", "任务根目录或输出文件", ".", False),
+          ("--output", "审计 CSV", "cp2k_audit.csv", False)]),
+    ]),
 }
 _GROUP_NAME = {
     "1": "abacus",
@@ -90,6 +95,7 @@ _GROUP_NAME = {
     "3": "gpumd",
     "4": "dpdata",
     "5": "dpa4",
+    "6": "cp2k",
 }
 
 

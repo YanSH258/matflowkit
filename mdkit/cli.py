@@ -10,6 +10,7 @@ from mdkit.abacus.audit import audit
 from mdkit.abacus.check_relax import check_relax
 from mdkit.abacus.plot_convergence import plot_convergence
 from mdkit.abacus.to_deepmd import to_deepmd
+from mdkit.cp2k.audit import audit as cp2k_audit
 from mdkit.deepmd.merge import merge
 from mdkit.deepmd.stat import stat
 from mdkit.dpdata.convert import convert
@@ -45,6 +46,8 @@ dpdata_app = typer.Typer(help="dpdata 格式转换", no_args_is_help=True,
                          context_settings=_CONTEXT_SETTINGS)
 dpa4_app = typer.Typer(help="DPA4 结构优化与反应路径", no_args_is_help=True,
                        context_settings=_CONTEXT_SETTINGS)
+cp2k_app = typer.Typer(help="CP2K 结果审计与数据提取", no_args_is_help=True,
+                       context_settings=_CONTEXT_SETTINGS)
 
 abacus_app.command("check-relax")(check_relax)
 abacus_app.command("audit")(audit)
@@ -62,12 +65,14 @@ dpa4_app.command("relax")(dpa4_relax)
 dpa4_app.command("batch-relax")(batch_relax)
 dpa4_app.command("evaluate")(dpa4_evaluate)
 dpa4_app.command("neb")(dpa4_neb)
+cp2k_app.command("audit")(cp2k_audit)
 
 app.add_typer(abacus_app, name="abacus")
 app.add_typer(deepmd_app, name="deepmd")
 app.add_typer(gpumd_app, name="gpumd")
 app.add_typer(dpdata_app, name="dpdata")
 app.add_typer(dpa4_app, name="dpa4")
+app.add_typer(cp2k_app, name="cp2k")
 
 
 @app.callback()

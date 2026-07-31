@@ -42,6 +42,7 @@ mfk --help          # 验证
 | 按 manifest 批量运行并恢复 DPA4 优化 | `mfk dpa4 batch-relax [CSV]` |
 | 使用 DPA4 为单帧或多帧结构计算能量和力 | `mfk dpa4 evaluate INPUT` |
 | 使用 DPA4 计算 NEB/CI-NEB 路径 | `mfk dpa4 neb INITIAL FINAL` |
+| 批量审计 CP2K 单点输出的完成与标注证据 | `mfk cp2k audit [ROOT]` |
 
 ## 命令的输入/输出约定
 
@@ -132,6 +133,11 @@ mfk --help          # 验证
 - 输入：至少包含 `input` 列的 CSV，可选 `id` 列；相对路径以 CSV 所在目录为准。
 - 输出：每个任务一个目录，持续更新 `batch_status.csv` 和 `batch_summary.json`。
 - 恢复：默认跳过已通过任务；`--retry-failed` 仅清理并重跑本命令生成的失败任务文件。
+
+### `mfk cp2k audit [ROOT]`
+- 输入：单个 CP2K 输出或根目录；默认递归查找 `**/output.log`。
+- 判断：正常结束、所有 SCF 收敛、最终能量、原子力块和晶胞是否齐全。
+- 输出：逐任务 CSV 和 JSON 汇总；`PROGRAM ENDED AT` 本身不是通过的充分条件。
 
 ### `mfk dpa4 evaluate INPUT`
 - 输入：ASE 可读取的单帧或多帧结构；`--index` 使用 ASE 帧选择语法。

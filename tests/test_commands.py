@@ -13,6 +13,7 @@ from mdkit.dpa4.common import read_fixed_indices
 from mdkit.dpa4.batch_relax import read_manifest, safe_case_id
 from mdkit.dpa4.evaluate import frame_metrics
 from mdkit.dpdata.overlap import frame_hash
+from mdkit.cp2k.parser import parse_cp2k_output
 
 
 def write_deepmd(path: Path, x: float, energy: float) -> None:
@@ -142,6 +143,32 @@ class CommandTests(unittest.TestCase):
             frame_hash(first, order_independent=True),
             frame_hash(second, order_independent=True),
         )
+
+    def test_cp2k_audit_parses_complete_single_point(self):
+        task = self.root / "task"
+        task.mkdir()
+        log = task / "output.log"
+        log.write_text(
+            " CELL| Vector a [angstrom]: 10.0 0.0 0.0\n"
+            " CELL| Vector b [angstrom]: 0.0 10.0 0.0\n"
+            " CELL| Vector c [angstrom]: 0.0 0.0 10.0\n"
+            " *** SCF run converged in 10 steps ***\n"
+            " ENERGY| Total FORCE_EVAL ( QS ) energy [hartree] -1.000000\n"
+            " FORCES| Atomic forces [hartree/bohr]\n"
+            " FORCES| 1 1.0E-3 0.0 0.0 1.0E-3\n"
+            " FORCES| 2 -1.0E-3 0.0 0.0 1.0E-3\n"
+            " PROGRAM ENDED AT\n"
+        )
+        parsed = parse_cp2k_output(log)
+        self.assertEqual(parsed["status"], "PASS")
+        self.assertEqual(parsed["final_force_atoms"], 2)
+        output = self.root / "audit.csv"
+        result = self.runner.invoke(
+            app,
+            ["cp2k", "audit", str(task), "-o", str(output), "--strict"],
+        )
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertTrue(output.is_file())
 
     def test_discover_tasks_skips_out_hap_input(self):
         task = self.root / "task"

@@ -39,6 +39,7 @@ mfk dpa4 relax structure.xyz     # DPA4 固定晶胞结构优化
 mfk dpa4 batch-relax structures.csv  # 按 manifest 批量优化并断点续跑
 mfk dpa4 evaluate structures.extxyz  # 批量预测能量、力和可选应力
 mfk dpa4 neb IS.xyz FS.xyz       # DPA4 NEB 与 CI-NEB
+mfk cp2k audit ./tasks           # 审计 CP2K 结束、SCF、能量、力和晶胞
 ```
 
 所有命令的路径参数都默认为当前目录（或当前目录下的默认文件），支持 `-h` 查看帮助。
@@ -212,6 +213,16 @@ mfk dpa4 neb initial.extxyz final.extxyz \
 普通 NEB，收敛且最高能图像位于路径内部时继续执行 CI-NEB。输出包括各阶段路径、
 `energy_profile.csv`、最高能图像和 `status.json`。所得势垒属于 DPA4 预测，
 不是第一性原理 NEB 势垒。
+
+### CP2K 输出审计
+
+```bash
+mfk cp2k audit ./tasks --strict
+```
+
+默认递归查找 `output.log`，检查正常结束、SCF 收敛、最终能量、完整原子力块和
+晶胞证据，生成 `cp2k_audit.csv` 与 JSON 汇总。`PROGRAM ENDED AT` 不会被
+单独视为通过证据。
 
 ### DPA4 批量结构优化
 
