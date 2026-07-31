@@ -94,6 +94,11 @@ MENU = {
          [("root", "CP2K 单点任务根目录", ".", False),
           ("output", "新的数据集目录", "cp2k_dataset", False)]),
     ]),
+    "7": ("VASP", [
+        ("to-deepmd", "OUTCAR 转 DeepMD",
+         [("root", "任务根目录或 OUTCAR", ".", False),
+          ("output", "输出目录", "vasp_dataset", False)]),
+    ]),
 }
 _GROUP_NAME = {
     "1": "abacus",
@@ -102,6 +107,7 @@ _GROUP_NAME = {
     "4": "dpdata",
     "5": "dpa4",
     "6": "cp2k",
+    "7": "vasp",
 }
 
 

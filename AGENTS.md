@@ -50,6 +50,7 @@ DPA4 命令需要独立的 deepmd-kit + dftd3 环境（暂不随主环境安装�
 | 使用 DPA4 计算 NEB/CI-NEB 路径 | `mfk dpa4 neb INITIAL FINAL` |
 | 批量审计 CP2K 单点输出的完成与标注证据 | `mfk cp2k audit [ROOT]` |
 | 收集 CP2K 单点能量和力为 DeepMD NPY/extxyz | `mfk cp2k collect [ROOT] [OUTPUT]` |
+| 将 VASP OUTCAR 转换为按组成拆分的 DeepMD NPY | `mfk vasp to-deepmd [ROOT] [OUTPUT]` |
 
 ## 命令的输入/输出约定
 

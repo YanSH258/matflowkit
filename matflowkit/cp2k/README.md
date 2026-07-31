@@ -1,5 +1,8 @@
 # CP2K
 
+dpdata 官方同时提供 `cp2k/output` 和 `cp2k/aimd_output`。当前 `collect` 的范围仍是
+MatFlowKit 已验证的单点 `output.log + structure.xyz`，不把 AIMD 目录混入同一入口。
+
 CP2K 输出的批量审计与单点数据收集。每个命令的详细参数见 `mfk cp2k <命令> -h`。
 
 ## `mfk cp2k audit [ROOT]`

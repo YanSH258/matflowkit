@@ -3,7 +3,7 @@
 **面向计算材料研究的轻量级 workflow + analysis toolkit，用统一 CLI 管理常见科研计算流程。**
 
 MatFlowKit 把平时散落在不同目录里的检查、转换、统计和画图脚本收进一个命令行入口
-`mfk`。它不负责安装或替代 ABACUS、CP2K、DeepMD-kit、GPUMD、DPA4，而是处理这些
+`mfk`。它不负责安装或替代 ABACUS、CP2K、VASP、DeepMD-kit、GPUMD、DPA4，而是处理这些
 软件前后的重复工作。
 
 ## 为什么做这个工具
@@ -11,7 +11,7 @@ MatFlowKit 把平时散落在不同目录里的检查、转换、统计和画图
 一次完整的计算材料工作通常会经过多个程序：
 
 ```text
-DFT 计算（ABACUS / CP2K）
+DFT 计算（ABACUS / CP2K / VASP）
         ↓ 检查与数据提取
 训练数据（DeepMD / NEP）
         ↓ 统计、合并与查重
@@ -29,8 +29,8 @@ MD 模拟（GPUMD）
 ## 主要功能
 
 - 检查 ABACUS 和 CP2K 任务是否结束、是否收敛、标签是否完整；
-- 从 ABACUS 或 CP2K 输出中收集能量、力和 virial，生成 DeepMD 数据；
-- 转换 extxyz、DeepMD、CP2K、ABACUS 等常用格式；
+- 从 ABACUS、CP2K 或 VASP 输出中收集标注，生成 DeepMD NPY；
+- 转换 extxyz、DeepMD、CP2K、ABACUS、VASP 等常用格式；
 - 统计、合并和检查训练数据中的重复结构；
 - 分析 GPUMD `thermo.out` 和 NEP 训练结果；
 - 使用 DPA4 做结构优化、单点计算和 NEB；
@@ -72,6 +72,7 @@ DPA4 需要单独的 deepmd-kit + dftd3 环境，见
 mfk --help
 mfk abacus audit ./tasks --strict
 mfk abacus to-deepmd ./tasks ./deepmd_data
+mfk vasp to-deepmd ./vasp_tasks ./vasp_data
 mfk deepmd stat ./deepmd_data/deepmd_npy
 mfk dpdata overlap train.extxyz test.extxyz
 mfk gpumd plot-nep-training ./train
@@ -119,7 +120,8 @@ mfk gpumd plot-nep-training ./train
 | -------- | ----------------------------------------- |
 | ABACUS | relax 检查、批量审计、收敛图、转 DeepMD |
 | CP2K   | 输出审计、单点数据收集                  |
-| DeepMD | 数据集统计、按组成合并                  |
+| VASP   | OUTCAR 转 DeepMD NPY                    |
+| DeepMD | 数据集统计、按组成合并、数据集报告       |
 | dpdata | 格式转换、XYZ 转 DeepMD、数据集查重     |
 | GPUMD  | thermo 图、loss 合并、NEP 训练图        |
 | DPA4   | 结构优化、批量优化、单点计算、NEB       |
@@ -131,7 +133,7 @@ matflowkit/
 ├── matflowkit/        # Python 包
 │   ├── cli.py         # CLI 入口
 │   ├── menu.py        # 交互菜单
-│   ├── abacus/ cp2k/ deepmd/ dpdata/ dpa4/ gpumd/
+│   ├── abacus/ cp2k/ vasp/ deepmd/ dpdata/ dpa4/ gpumd/
 │   └── common/        # 共用代码和画图样式
 ├── tests/             # 测试
 ├── examples/          # 使用例子
@@ -156,6 +158,7 @@ matflowkit/
 - [dpdata documentation](https://docs.deepmodeling.com/projects/dpdata/en/master/)
 - [ABACUS documentation](https://abacus.deepmodeling.com/en/latest/)
 - [CP2K manual](https://manual.cp2k.org/)
+- [VASP documentation](https://www.vasp.at/wiki/)
 
 ## 贡献
 
