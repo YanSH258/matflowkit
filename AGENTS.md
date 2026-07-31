@@ -2,17 +2,24 @@
 
 ## 这是什么
 
-MatFlowKit 是一个个人科研工具箱（分子动力学 / 第一性原理计算方向），Python 包名
-`mdkit`，命令行入口 `mfk`，基于 typer。覆盖 ABACUS / CP2K / dpdata / DeePMD / GPUMD / DPA4 的前处理、
-过程分析与后处理。设计模式：单一入口 + 子命令分发 + 双模式（命令行直跑 / 交互式菜单）。
+MatFlowKit 是一个科研工具箱（分子动力学 / 第一性原理计算方向），Python 包名
+`matflowkit`，命令行入口 `mfk`，基于 typer。覆盖 ABACUS / CP2K / dpdata / DeePMD /
+GPUMD / DPA4 的前处理、过程分析与后处理。设计模式：单一入口 + 子命令分发 +
+双模式（命令行直跑 / 交互式菜单）。
 
-## 安装
+注意：PyPI 上的 `mdkit` 是无关的第三方包，本项目只通过源码安装。
+
+## 安装与验证
 
 ```bash
-cd MatFlowKit
-pip install -e .    # 装进当前 python 环境
-mfk --help          # 验证
+uv sync --extra dev --extra plot --extra dpdata --extra structure
+uv run mfk --help          # 验证 CLI
+uv run pytest tests/       # 验证测试
 ```
+
+不用 uv 时也可在任何 Python 3.9+ 环境 `pip install -e .`。
+DPA4 命令需要独立的 deepmd-kit + dftd3 环境（暂不随主环境安装，
+见 `matflowkit/dpa4/README.md`）。
 
 ## 双模式用法
 
@@ -47,108 +54,9 @@ mfk --help          # 验证
 
 ## 命令的输入/输出约定
 
-### `mfk abacus check-relax [DIR]`（默认当前目录）
-- 输入：DIR 下的 `OUT.*/running_relax.log` 或 `running_relax.log`（ABACUS relax 日志）。
-- 输出（stdout）：日志路径；是否发现收敛标记（列出匹配行）；最后一步离子步序号；
-  总能（匹配 `final etot` / `!FINAL` 行，找不到会明说"未找到总能行"）；最大力。
-- 日志不存在：stderr 报错，退出码 1。
-
-### `mfk deepmd stat [DIR]`（默认当前目录）
-- 输入：DeePMD raw/npy 数据集。DIR 下每个子目录是一个 system（含 `type.raw` +
-  `set.*/{coord,energy,force,box}.npy`，可选 `type_map.raw`）；DIR 本身是单个 system 也兼容。
-- 输出（stdout）：system 数量、每个 system 的 frame 数与原子数、各元素原子计数
-  （有 type_map.raw 时显示元素符号）、能量范围、力分量绝对值范围；`--json` 输出机器可读 JSON。
-- 找不到数据：stderr 报错，退出码 1。仅依赖 numpy，不依赖 dpdata。
-
-### `mfk abacus audit [ROOT]`
-- 输入：ROOT 下由 `INPUT` 标识的 ABACUS 任务目录。
-- 判断：正常结束、SCF/结构收敛、最终能量、力和应力证据。
-- 输出：`abacus_audit.csv` 和 `abacus_audit.json`。
-- `--strict`：存在未完成任务时返回退出码 2。
-
-### `mfk abacus to-deepmd ROOT OUTPUT`
-- 输入：一批已完成的 ABACUS SCF、relax、cell-relax 或 MD 任务。
-- 解析：dpdata；自动读取 `INPUT` 中的 `calculation` 与 `basis_type`，生成 `abacus/{lcao,pw}/{scf,relax,md}` 格式。
-- 输出：`deepmd_npy/<exact_formula>/`、逐任务审计、逐帧 manifest、汇总和 SHA256。
-- 默认要求 virial；不接受缺失标签，不覆盖非空输出目录。
-
-### `mfk deepmd merge INPUT... --output DIR`
-- 输入：两个或多个 DeepMD NPY 数据集。
-- 按精确化学组成合并，并统一 type map。
-- 默认拒绝重复的 cell+coord+atom-type 帧。
-
-### `mfk dpdata convert INPUT OUTPUT --from FMT --to FMT`
-- 对 dpdata 支持的标注数据格式执行单一格式转换。
-- `dpdata` 是可选依赖，缺失时给出安装命令。
-- 输出已存在时拒绝覆盖。
-
-### `mfk dpdata xyz-to-deepmd [INPUT] [OUTPUT]`
-- 输入：带 `Lattice`、`energy`、`force`（可选 `virial`）标注的 GPUMD/extxyz；
-  默认 `train.xyz`。
-- 解析：使用 `dpdata.MultiSystems`，允许输入中存在多种化学组成。
-- 输出：默认写入 `deepmd/`，按精确组成分 system，同时生成 DeepMD raw 与 NPY；
-  `--set-size` 控制 NPY 分片大小。
-- 输出目录已存在且非空时拒绝覆盖；`dpdata` 缺失或解析失败时写 stderr 并非零退出。
-
-### `mfk dpdata overlap REFERENCE CANDIDATE`
-- 输入：ASE 可读取的两个单帧或多帧结构数据集。
-- 比较：元素、PBC、晶胞和坐标按指定小数位规范化后计算哈希；可选忽略原子顺序和 wrap。
-- 输出：JSON 汇总与匹配帧 CSV；只判断规范化重复，不代表近似结构相似度。
-
-### `mfk gpumd thermo [FILE]`（默认 `thermo.out`）
-- 输入：空格分隔数值列的 thermo.out，列数不固定（典型 12 列）。
-- 输出（stdout）：行数、列数、每列 mean/min/max/末值，标注第 1 列通常为温度。
-- `--plot`：画第 1 列随步数曲线，保存当前目录 `thermo_col1.png`；
-  未安装 matplotlib 时改为保存 `thermo_col1.csv` 并提示，不崩溃。
-- 文件不存在：stderr 报错，退出码 1。
-
-### `mfk gpumd merge-loss [FIRST] [RESTART]`
-- 输入：首次训练和续训产生的两个 `loss.out`；默认分别为 `loss.out` 和
-  `restart/loss.out`。
-- 处理：默认将续训步数加上首次训练最后一个步数；`--offset` 可显式指定偏移。
-- 输出：默认 `loss_merged.out`；输出已存在时拒绝覆盖。
-
-### `mfk gpumd plot-nep-training [DIR]`
-- 输入：`loss.out`、`energy_train.out`、`force_train.out`；可选
-  `stress_train.out`。
-- 统计：完整数据上的 RMSE、MAE 和 R2；大数据只在散点绘制阶段抽样。
-- 输出：默认 `nep_training.png` 和 `nep_training_metrics.json`，已存在时拒绝覆盖。
-
-### `mfk dpa4 relax INPUT`
-- 输入：ASE 可读取的结构文件；DPA4 模型由 `--model`、`DPA4_MODEL` 或
-  `~/dpa4/Neo-MPtrj/model.pt` 提供。
-- 默认：固定晶胞、BFGS、`fmax=0.05 eV/Å`、DPA4 + PBE-D3(BJ)。
-- 可选：`--relax-cell` 变胞；`--fix-indices-file` 固定从 1 开始编号的原子。
-- 输出：优化结构、日志、extxyz 轨迹和 JSON 状态；不覆盖已有结果。
-
-### `mfk dpa4 neb INITIAL FINAL`
-- 输入：已优化且原子顺序、晶胞和周期性完全匹配的初态与末态。
-- 流程：IDPP 插值、普通 ASE NEB；普通 NEB 收敛且最高点位于路径内部时默认继续
-  CI-NEB。
-- 可选：`--images`、两阶段 `fmax/steps`、`--fix-indices-file`、`--no-climb`、
-  `--no-d3`。
-- 输出：插值及优化路径、能量 CSV、最高能图像和状态 JSON；结果明确标为 DPA4
-  最低能量路径，不冒充 DFT NEB。
-
-### `mfk dpa4 batch-relax [CSV]`
-- 输入：至少包含 `input` 列的 CSV，可选 `id` 列；相对路径以 CSV 所在目录为准。
-- 输出：每个任务一个目录，持续更新 `batch_status.csv` 和 `batch_summary.json`。
-- 恢复：默认跳过已通过任务；`--retry-failed` 仅清理并重跑本命令生成的失败任务文件。
-
-### `mfk cp2k audit [ROOT]`
-- 输入：单个 CP2K 输出或根目录；默认递归查找 `**/output.log`。
-- 判断：正常结束、所有 SCF 收敛、最终能量、原子力块和晶胞是否齐全。
-- 输出：逐任务 CSV 和 JSON 汇总；`PROGRAM ENDED AT` 本身不是通过的充分条件。
-
-### `mfk cp2k collect [ROOT] [OUTPUT]`
-- 输入：每个输出目录中的 CP2K 单点 `output.log` 与对应单帧 `structure.xyz`。
-- 输出：按精确组成拆分的 DeepMD NPY、extxyz、任务审计、frame manifest 和校验报告。
-- 边界：不从 GEO_OPT 日志重建末态，不推断缺失标签，也不自动验证 DFT 方法一致性。
-
-### `mfk dpa4 evaluate INPUT`
-- 输入：ASE 可读取的单帧或多帧结构；`--index` 使用 ASE 帧选择语法。
-- 输出：带 DPA4 单点标签的 extxyz、逐帧能量/力指标 CSV 和汇总 JSON。
-- 默认只计算能量和原子力；`--stress` 显式请求应力；不执行结构优化。
+每个命令的输入约定、参数、输出与边界条件，见对应软件子包的 README
+（`matflowkit/<software>/README.md`），由各软件独立维护。本文件不再重复细节，
+只保留路由表。不确定时以 `mfk <软件> <命令> -h` 为准。
 
 ## 补充脚本的原则（加命令前先读）
 
@@ -164,22 +72,13 @@ mfk --help          # 验证
    未安装时清晰提示而非 ImportError。加新依赖前先确认无法用现有依赖解决，并声明进
    `pyproject.toml`。
 6. **文档与命令同生同死**：每加一个命令，同一次提交必须包含：写清"输入约定/参数/输出/
-   示例"的 docstring、菜单注册、本文件路由表更新。做不到这条，AI 可用性就断档。
+   示例"的 docstring、菜单注册、对应子包 README（`matflowkit/<software>/README.md`）、
+   本文件路由表更新。做不到这条，AI 可用性就断档。
 7. **可验证**：新命令配最小测试数据（放 /tmp，不进仓库）实际跑一遍验收；
    有真实案例后按 `examples/` 格式（命令 + 输入 + 输出 + 解释）收录。
 8. **提交纪律**：一个命令一个 commit，message 写清命令名与用途；积累 5~10 个命令打一次 tag。
 
 ## 添加新命令的规范
 
-1. 实现放在对应软件子包：`mdkit/<software>/<command_name>.py`，
-   新软件则新建 `mdkit/<software>/` 子包。跨命令共享代码放 `mdkit/common/`。
-2. 在 `mdkit/cli.py` 中 import 并用 `<software>_app.command("<cmd-name>")(func)` 注册；
-   新软件需新建 typer 子组并 `app.add_typer(...)`。
-3. 在 `mdkit/menu.py` 的 `MENU` 中追加对应条目（编号、一句话说明、参数提示列表），
-   菜单通过 CliRunner 复用命令，禁止在菜单里另写实现。
-4. 硬性要求：
-   - 必须支持 `-h`（用 typer 声明参数即可获得）；
-   - 路径输入默认当前目录（或当前目录下的约定文件名）；
-   - 产出文件（图、csv 等）写到当前目录，命名固定、见名知意；
-   - 报错走 stderr 且退出码非零；不许编造解析不到的数据（找不到就明说）。
-5. 装依赖前先确认 `pyproject.toml` 已声明；画图类功能对 matplotlib 必须延迟导入。
+见 [CONTRIBUTING.md](CONTRIBUTING.md)（实现位置、cli.py 注册、菜单注册、
+子包 README、硬性要求）。AI agent 加命令时同样必须遵守，并同时更新本文件路由表。
