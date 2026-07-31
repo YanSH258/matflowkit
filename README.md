@@ -1,6 +1,6 @@
 # MatFlowKit
 
-个人科研工具箱（分子动力学 / 第一性原理计算方向），覆盖 **ABACUS / dpdata / DeePMD / GPUMD / DPA4**
+个人科研工具箱（分子动力学 / 第一性原理计算方向），覆盖 **ABACUS / CP2K / dpdata / DeePMD / GPUMD / DPA4**
 三条工作线的前处理 → 过程分析 → 后处理。设计借鉴 GPUMDkit：单一入口 `mfk` +
 子命令分发，支持**命令行直跑**和**交互式菜单**两种模式。
 

@@ -30,7 +30,7 @@ _CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
 app = typer.Typer(
     name="mfk",
-    help="MatFlowKit: 个人科研工具箱（ABACUS / DeePMD / GPUMD）。不带参数运行进入交互菜单。",
+    help="MatFlowKit: 个人科研工具箱（ABACUS / CP2K / DeePMD / GPUMD / DPA4）。不带参数运行进入交互菜单。",
     invoke_without_command=True,
     no_args_is_help=False,
     add_completion=False,

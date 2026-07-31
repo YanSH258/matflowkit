@@ -3,7 +3,7 @@
 ## 这是什么
 
 MatFlowKit 是一个个人科研工具箱（分子动力学 / 第一性原理计算方向），Python 包名
-`mdkit`，命令行入口 `mfk`，基于 typer。覆盖 ABACUS / dpdata / DeePMD / GPUMD / DPA4 的前处理、
+`mdkit`，命令行入口 `mfk`，基于 typer。覆盖 ABACUS / CP2K / dpdata / DeePMD / GPUMD / DPA4 的前处理、
 过程分析与后处理。设计模式：单一入口 + 子命令分发 + 双模式（命令行直跑 / 交互式菜单）。
 
 ## 安装
