@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mdkit"
-version = "0.1.0"
+version = "0.2.0"
 description = "MatFlowKit: 个人科研工具箱（ABACUS / DeePMD / GPUMD）"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -15,6 +15,8 @@ dependencies = [
 
 [project.optional-dependencies]
 plot = ["matplotlib>=3.5"]
+dpdata = ["dpdata>=0.2.18"]
+all = ["matplotlib>=3.5", "dpdata>=0.2.18"]
 
 [project.scripts]
 mfk = "mdkit.cli:app"

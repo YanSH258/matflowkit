@@ -22,18 +22,35 @@ MENU = {
     "1": ("ABACUS", [
         ("check-relax", "检查 relax 计算是否收敛",
          [("dir", "计算目录", ".", False)]),
+        ("audit", "批量审计 ABACUS 任务完成状态",
+         [("root", "任务根目录", ".", False)]),
+        ("plot-convergence", "绘制 relax/cell-relax 收敛曲线",
+         [("dir", "计算目录", ".", False)]),
+        ("to-deepmd", "将完成的 ABACUS scf/relax/md 任务转为 DeepMD NPY（自动识别 basis_type）",
+         [("root", "任务根目录", ".", False),
+          ("output", "输出目录", "deepmd_from_abacus", False)]),
     ]),
     "2": ("DeePMD", [
         ("stat", "统计 DeePMD 数据集（frame/原子数/能量与力范围）",
          [("dir", "数据目录", ".", False)]),
+        ("merge", "按精确组成合并多个 DeepMD NPY 数据集",
+         [("@args", "输入目录（空格分隔）", "data_a data_b", False),
+          ("--output", "输出目录", "deepmd_merged", False)]),
     ]),
     "3": ("GPUMD", [
         ("thermo", "分析 thermo.out 各列统计，可选画图",
          [("file", "thermo 文件", "thermo.out", False),
           ("plot", "是否画第 1 列曲线 (y/n)", "n", True)]),
     ]),
+    "4": ("dpdata", [
+        ("convert", "转换 dpdata 支持的结构/标注数据格式",
+         [("input", "输入文件或目录", ".", False),
+          ("output", "输出文件或目录", "converted_data", False),
+          ("--from", "输入格式", "deepmd/npy", False),
+          ("--to", "输出格式", "extxyz", False)]),
+    ]),
 }
-_GROUP_NAME = {"1": "abacus", "2": "deepmd", "3": "gpumd"}
+_GROUP_NAME = {"1": "abacus", "2": "deepmd", "3": "gpumd", "4": "dpdata"}
 
 
 def _prompt(text: str, default: str) -> str:
@@ -62,8 +79,17 @@ def _run_command(app, group: str, cmd: str, params: list) -> None:
             if value is None:
                 print("  已取消，返回上级菜单。")
                 return
-            args.append(value)
-            display.append(value)
+            if name == "@args":
+                import shlex
+                values = shlex.split(value)
+                args.extend(values)
+                display.extend(values)
+            elif name.startswith("--"):
+                args.extend([name, value])
+                display.extend([name, value])
+            else:
+                args.append(value)
+                display.append(value)
 
     print(f"\n等价命令: {' '.join(display)}\n{'-' * 50}")
     try:

@@ -3,7 +3,7 @@
 ## 这是什么
 
 MatFlowKit 是一个个人科研工具箱（分子动力学 / 第一性原理计算方向），Python 包名
-`mdkit`，命令行入口 `mfk`，基于 typer。覆盖 ABACUS / DeePMD / GPUMD 的前处理、
+`mdkit`，命令行入口 `mfk`，基于 typer。覆盖 ABACUS / dpdata / DeePMD / GPUMD 的前处理、
 过程分析与后处理。设计模式：单一入口 + 子命令分发 + 双模式（命令行直跑 / 交互式菜单）。
 
 ## 安装
@@ -25,8 +25,13 @@ mfk --help          # 验证
 | 场景 | 命令 |
 | --- | --- |
 | 看 ABACUS relax 算完没有、收敛没有、最后能量和最大力 | `mfk abacus check-relax [DIR]` |
+| 批量检查 ABACUS SCF/relax/cell-relax 任务 | `mfk abacus audit [ROOT]` |
+| 绘制 ABACUS 结构优化收敛曲线 | `mfk abacus plot-convergence [DIR]` |
+| 将完成的 ABACUS 任务转换为 DeepMD NPY | `mfk abacus to-deepmd ROOT OUTPUT` |
 | 拿到一批 DeePMD 训练数据，先看规模、元素组成、能量/力范围 | `mfk deepmd stat [DIR]` |
+| 按精确组成合并多个 DeepMD NPY 数据集 | `mfk deepmd merge INPUT... --output DIR` |
 | 需要程序化读取 DeePMD 数据集统计（接脚本/管道） | `mfk deepmd stat [DIR] --json` |
+| 在 ABACUS/CP2K/DeepMD/extxyz/GPUMD 格式间转换 | `mfk dpdata convert INPUT OUTPUT --from FMT --to FMT` |
 | GPUMD 跑完后看 thermo.out 各列统计（温度、能量、压力走势） | `mfk gpumd thermo [FILE]` |
 | 想快速看一眼温度随步数的演化曲线 | `mfk gpumd thermo [FILE] --plot` |
 
@@ -44,6 +49,28 @@ mfk --help          # 验证
 - 输出（stdout）：system 数量、每个 system 的 frame 数与原子数、各元素原子计数
   （有 type_map.raw 时显示元素符号）、能量范围、力分量绝对值范围；`--json` 输出机器可读 JSON。
 - 找不到数据：stderr 报错，退出码 1。仅依赖 numpy，不依赖 dpdata。
+
+### `mfk abacus audit [ROOT]`
+- 输入：ROOT 下由 `INPUT` 标识的 ABACUS 任务目录。
+- 判断：正常结束、SCF/结构收敛、最终能量、力和应力证据。
+- 输出：`abacus_audit.csv` 和 `abacus_audit.json`。
+- `--strict`：存在未完成任务时返回退出码 2。
+
+### `mfk abacus to-deepmd ROOT OUTPUT`
+- 输入：一批已完成的 ABACUS SCF、relax、cell-relax 或 MD 任务。
+- 解析：dpdata；自动读取 `INPUT` 中的 `calculation` 与 `basis_type`，生成 `abacus/{lcao,pw}/{scf,relax,md}` 格式。
+- 输出：`deepmd_npy/<exact_formula>/`、逐任务审计、逐帧 manifest、汇总和 SHA256。
+- 默认要求 virial；不接受缺失标签，不覆盖非空输出目录。
+
+### `mfk deepmd merge INPUT... --output DIR`
+- 输入：两个或多个 DeepMD NPY 数据集。
+- 按精确化学组成合并，并统一 type map。
+- 默认拒绝重复的 cell+coord+atom-type 帧。
+
+### `mfk dpdata convert INPUT OUTPUT --from FMT --to FMT`
+- 对 dpdata 支持的标注数据格式执行单一格式转换。
+- `dpdata` 是可选依赖，缺失时给出安装命令。
+- 输出已存在时拒绝覆盖。
 
 ### `mfk gpumd thermo [FILE]`（默认 `thermo.out`）
 - 输入：空格分隔数值列的 thermo.out，列数不固定（典型 12 列）。

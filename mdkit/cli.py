@@ -6,8 +6,13 @@
 import typer
 
 from mdkit import __version__
+from mdkit.abacus.audit import audit
 from mdkit.abacus.check_relax import check_relax
+from mdkit.abacus.plot_convergence import plot_convergence
+from mdkit.abacus.to_deepmd import to_deepmd
+from mdkit.deepmd.merge import merge
 from mdkit.deepmd.stat import stat
+from mdkit.dpdata.convert import convert
 from mdkit.gpumd.thermo import thermo
 
 # 所有命令统一支持 -h / --help
@@ -28,14 +33,22 @@ deepmd_app = typer.Typer(help="DeePMD 相关命令", no_args_is_help=True,
                          context_settings=_CONTEXT_SETTINGS)
 gpumd_app = typer.Typer(help="GPUMD 相关命令", no_args_is_help=True,
                         context_settings=_CONTEXT_SETTINGS)
+dpdata_app = typer.Typer(help="dpdata 格式转换", no_args_is_help=True,
+                         context_settings=_CONTEXT_SETTINGS)
 
 abacus_app.command("check-relax")(check_relax)
+abacus_app.command("audit")(audit)
+abacus_app.command("plot-convergence")(plot_convergence)
+abacus_app.command("to-deepmd")(to_deepmd)
 deepmd_app.command("stat")(stat)
+deepmd_app.command("merge")(merge)
 gpumd_app.command("thermo")(thermo)
+dpdata_app.command("convert")(convert)
 
 app.add_typer(abacus_app, name="abacus")
 app.add_typer(deepmd_app, name="deepmd")
 app.add_typer(gpumd_app, name="gpumd")
+app.add_typer(dpdata_app, name="dpdata")
 
 
 @app.callback()
