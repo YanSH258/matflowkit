@@ -8,8 +8,8 @@ from pathlib import Path
 
 import typer
 
-from mdkit.common.io import write_csv, write_json
-from mdkit.cp2k.parser import parse_cp2k_output
+from matflowkit.common.io import write_csv, write_json
+from matflowkit.cp2k.parser import parse_cp2k_output
 
 
 def discover_outputs(root: Path, pattern: str) -> list[Path]:

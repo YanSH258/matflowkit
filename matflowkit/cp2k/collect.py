@@ -12,7 +12,7 @@ from typing import Optional
 import numpy as np
 import typer
 
-from mdkit.common.dpdata_utils import (
+from matflowkit.common.dpdata_utils import (
     append_system,
     exact_formula,
     finite_labeled,
@@ -20,14 +20,14 @@ from mdkit.common.dpdata_utils import (
     parse_type_map,
     require_dpdata,
 )
-from mdkit.common.io import (
+from matflowkit.common.io import (
     ensure_empty_output,
     write_csv,
     write_json,
     write_sha256_manifest,
 )
-from mdkit.cp2k.audit import discover_outputs, public_row
-from mdkit.cp2k.parser import parse_cp2k_output
+from matflowkit.cp2k.audit import discover_outputs, public_row
+from matflowkit.cp2k.parser import parse_cp2k_output
 
 
 def require_ase_read():

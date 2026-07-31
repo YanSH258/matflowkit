@@ -3,8 +3,8 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mdkit"
-version = "0.2.0"
+name = "matflowkit"
+version = "0.3.0"
 description = "MatFlowKit: computational materials workflow toolkit"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -17,6 +17,7 @@ dependencies = [
 plot = ["matplotlib>=3.5"]
 dpdata = ["dpdata>=0.2.18"]
 structure = ["ase>=3.23"]
+dev = ["pytest>=7"]
 dpa4 = ["ase>=3.23", "deepmd-kit>=3.1", "dftd3>=1.1"]
 all = [
     "matplotlib>=3.5",
@@ -27,7 +28,7 @@ all = [
 ]
 
 [project.scripts]
-mfk = "mdkit.cli:app"
+mfk = "matflowkit.cli:app"
 
 [tool.setuptools.packages.find]
-include = ["mdkit*"]
+include = ["matflowkit*"]

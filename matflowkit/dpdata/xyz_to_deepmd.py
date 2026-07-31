@@ -7,7 +7,7 @@ from pathlib import Path
 
 import typer
 
-from mdkit.common.dpdata_utils import require_dpdata
+from matflowkit.common.dpdata_utils import require_dpdata
 
 
 def xyz_to_deepmd(

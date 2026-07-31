@@ -1,29 +1,29 @@
 """MatFlowKit 命令行入口：typer app + 子命令注册。
 
-不带参数运行 `mfk` 时进入交互式菜单（见 mdkit/menu.py）。
+不带参数运行 `mfk` 时进入交互式菜单（见 matflowkit/menu.py）。
 """
 
 import typer
 
-from mdkit import __version__
-from mdkit.abacus.audit import audit
-from mdkit.abacus.check_relax import check_relax
-from mdkit.abacus.plot_convergence import plot_convergence
-from mdkit.abacus.to_deepmd import to_deepmd
-from mdkit.cp2k.audit import audit as cp2k_audit
-from mdkit.cp2k.collect import collect as cp2k_collect
-from mdkit.deepmd.merge import merge
-from mdkit.deepmd.stat import stat
-from mdkit.dpdata.convert import convert
-from mdkit.dpdata.overlap import overlap
-from mdkit.dpdata.xyz_to_deepmd import xyz_to_deepmd
-from mdkit.dpa4.batch_relax import batch_relax
-from mdkit.dpa4.evaluate import evaluate as dpa4_evaluate
-from mdkit.dpa4.neb import neb as dpa4_neb
-from mdkit.dpa4.relax import relax as dpa4_relax
-from mdkit.gpumd.merge_loss import merge_loss
-from mdkit.gpumd.plot_nep_training import plot_nep_training
-from mdkit.gpumd.thermo import thermo
+from matflowkit import __version__
+from matflowkit.abacus.audit import audit
+from matflowkit.abacus.check_relax import check_relax
+from matflowkit.abacus.plot_convergence import plot_convergence
+from matflowkit.abacus.to_deepmd import to_deepmd
+from matflowkit.cp2k.audit import audit as cp2k_audit
+from matflowkit.cp2k.collect import collect as cp2k_collect
+from matflowkit.deepmd.merge import merge
+from matflowkit.deepmd.stat import stat
+from matflowkit.dpdata.convert import convert
+from matflowkit.dpdata.overlap import overlap
+from matflowkit.dpdata.xyz_to_deepmd import xyz_to_deepmd
+from matflowkit.dpa4.batch_relax import batch_relax
+from matflowkit.dpa4.evaluate import evaluate as dpa4_evaluate
+from matflowkit.dpa4.neb import neb as dpa4_neb
+from matflowkit.dpa4.relax import relax as dpa4_relax
+from matflowkit.gpumd.merge_loss import merge_loss
+from matflowkit.gpumd.plot_nep_training import plot_nep_training
+from matflowkit.gpumd.thermo import thermo
 
 # 所有命令统一支持 -h / --help
 _CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
@@ -87,7 +87,7 @@ def _callback(
         typer.echo(f"mfk (MatFlowKit) {__version__}")
         raise typer.Exit()
     if ctx.invoked_subcommand is None:
-        from mdkit.menu import run_menu
+        from matflowkit.menu import run_menu
 
         run_menu(app)
 

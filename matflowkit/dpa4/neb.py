@@ -10,7 +10,7 @@ from pathlib import Path
 import numpy as np
 import typer
 
-from mdkit.dpa4.common import (
+from matflowkit.dpa4.common import (
     build_calculator,
     maximum_force,
     read_fixed_indices,

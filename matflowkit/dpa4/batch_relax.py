@@ -11,8 +11,8 @@ from pathlib import Path
 
 import typer
 
-from mdkit.common.io import sha256_file, write_csv, write_json
-from mdkit.dpa4.relax import relaxation_paths, run_relaxation
+from matflowkit.common.io import sha256_file, write_csv, write_json
+from matflowkit.dpa4.relax import relaxation_paths, run_relaxation
 
 
 def read_manifest(path: Path) -> list[dict[str, str]]:

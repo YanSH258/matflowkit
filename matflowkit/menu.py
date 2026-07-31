@@ -7,7 +7,7 @@
 import typer
 from typer.testing import CliRunner
 
-from mdkit import __version__
+from matflowkit import __version__
 
 BANNER = r"""
   __  __       _   _____ _              _  ___ _

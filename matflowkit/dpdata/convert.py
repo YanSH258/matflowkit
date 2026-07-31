@@ -9,7 +9,7 @@ from typing import Optional
 import numpy as np
 import typer
 
-from mdkit.common.dpdata_utils import (
+from matflowkit.common.dpdata_utils import (
     finite_labeled,
     normalize,
     parse_type_map,

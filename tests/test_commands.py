@@ -6,14 +6,14 @@ from pathlib import Path
 import numpy as np
 from typer.testing import CliRunner
 
-from mdkit.abacus.audit import discover_tasks, inspect_task, parse_basis_type
-from mdkit.abacus.plot_convergence import parse_series
-from mdkit.cli import app
-from mdkit.dpa4.common import read_fixed_indices
-from mdkit.dpa4.batch_relax import read_manifest, safe_case_id
-from mdkit.dpa4.evaluate import frame_metrics
-from mdkit.dpdata.overlap import frame_hash
-from mdkit.cp2k.parser import parse_cp2k_output
+from matflowkit.abacus.audit import discover_tasks, inspect_task, parse_basis_type
+from matflowkit.abacus.plot_convergence import parse_series
+from matflowkit.cli import app
+from matflowkit.dpa4.common import read_fixed_indices
+from matflowkit.dpa4.batch_relax import read_manifest, safe_case_id
+from matflowkit.dpa4.evaluate import frame_metrics
+from matflowkit.dpdata.overlap import frame_hash
+from matflowkit.cp2k.parser import parse_cp2k_output
 
 
 def write_deepmd(path: Path, x: float, energy: float) -> None:

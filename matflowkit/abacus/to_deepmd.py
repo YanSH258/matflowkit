@@ -11,13 +11,13 @@ from typing import Optional
 import numpy as np
 import typer
 
-from mdkit.abacus.audit import (
+from matflowkit.abacus.audit import (
     discover_tasks,
     inspect_task,
     parse_basis_type,
     parse_calculation,
 )
-from mdkit.common.dpdata_utils import (
+from matflowkit.common.dpdata_utils import (
     append_system,
     exact_formula,
     finite_labeled,
@@ -25,7 +25,7 @@ from mdkit.common.dpdata_utils import (
     parse_type_map,
     require_dpdata,
 )
-from mdkit.common.io import (
+from matflowkit.common.io import (
     ensure_empty_output,
     write_csv,
     write_json,

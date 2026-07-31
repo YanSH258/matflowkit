@@ -10,7 +10,7 @@ from typing import Optional
 
 import typer
 
-from mdkit.common.io import write_csv, write_json
+from matflowkit.common.io import write_csv, write_json
 
 _CALC_RE = re.compile(r"^\s*calculation\s+(\S+)", re.I | re.M)
 _BASIS_RE = re.compile(r"^\s*basis_type\s+(\S+)", re.I | re.M)
