@@ -7,9 +7,6 @@ analyzing data generated from electronic structure calculations and machine-lear
 potential simulations. It is designed to work with your **existing** computational
 environments — ABACUS, CP2K, DeepMD-kit, GPUMD, DPA4 — not to replace or manage them.
 
-> 中文说明：MatFlowKit 是一个轻量级科研流程工具箱，用统一 CLI（`mfk`）管理
-> 计算材料研究中的重复性操作。它只提供工具层，不管理软件环境。
-> 注意：PyPI 上的 `mdkit` 是别人的包，与本项目无关，本项目只通过源码安装。
 
 ## Why MatFlowKit?
 
@@ -27,18 +24,16 @@ MD 模拟 (GPUMD)
 后处理分析
 ```
 
-每一步都有大量重复的手动操作：检查任务收敛没有、把输出转成训练数据、
-统计数据集规模、画训练曲线…… 这些操作通常散落在每个人自己的脚本里。
+每一步都有大量重复的手动操作：检查任务收敛没有、把输出转成训练数据、统计数据集规模、画训练曲线…… 这些操作通常散落在每个人自己的脚本里。
 
-MatFlowKit 把这些**被反复验证过的操作**收进一个统一命令行入口，
-让课题组共用同一套工具，而不是各写各的脚本。
+MatFlowKit 把这些**被反复验证过的操作**收进一个统一命令行入口，共用同一套工具，而不是各写各的脚本。
 
 ## Features
 
 ### 数据准备（DFT → ML 势数据集）
 - 从 ABACUS / CP2K 输出提取能量、力、virial，生成 DeepMD NPY 数据集
 - extxyz / DeepMD / CP2K / ABACUS 等格式互转（基于 dpdata）
-- 按精确化学组成合并数据集、检查训练/测试集重复帧
+- 按化学组成合并数据集、检查训练/测试集重复帧
 
 ### 过程检查与审计
 - 批量审计 ABACUS / CP2K 任务：算完没有、收敛没有、标签齐不齐
@@ -151,5 +146,5 @@ matflowkit/
 
 ## 贡献
 
-欢迎课题组成员把反复手动做的操作搬进来。原则与步骤见
+欢迎把反复手动做的操作搬进来。原则与步骤见
 [CONTRIBUTING.md](CONTRIBUTING.md)，核心一条：**第三次手动做同一件事时才变成命令**。
