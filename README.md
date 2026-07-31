@@ -26,7 +26,7 @@ MD 模拟（GPUMD）
 漏查未收敛任务等问题。MatFlowKit 只收录实际会重复使用的操作，并为它们提供固定命令、
 输入约定和输出格式。
 
-## 能做什么
+## 主要功能
 
 - 检查 ABACUS 和 CP2K 任务是否结束、是否收敛、标签是否完整；
 - 从 ABACUS 或 CP2K 输出中收集能量、力和 virial，生成 DeepMD 数据；
@@ -114,14 +114,15 @@ mfk gpumd plot-nep-training ./train
 
 ## 支持的模块
 
-| 模块 | 目前包含的命令 |
-| --- | --- |
+
+| 模块   | 目前包含的命令                          |
+| -------- | ----------------------------------------- |
 | ABACUS | relax 检查、批量审计、收敛图、转 DeepMD |
-| CP2K | 输出审计、单点数据收集 |
-| DeepMD | 数据集统计、按组成合并 |
-| dpdata | 格式转换、XYZ 转 DeepMD、数据集查重 |
-| GPUMD | thermo 统计、loss 合并、NEP 训练图 |
-| DPA4 | 结构优化、批量优化、单点计算、NEB |
+| CP2K   | 输出审计、单点数据收集                  |
+| DeepMD | 数据集统计、按组成合并                  |
+| dpdata | 格式转换、XYZ 转 DeepMD、数据集查重     |
+| GPUMD  | thermo 图、loss 合并、NEP 训练图        |
+| DPA4   | 结构优化、批量优化、单点计算、NEB       |
 
 ## 项目目录
 
@@ -146,6 +147,23 @@ matflowkit/
 - 绘图规范：[knowledge/plotting_standard.md](knowledge/plotting_standard.md)
 - 添加命令：[CONTRIBUTING.md](CONTRIBUTING.md)
 - 命令路由：[AGENTS.md](AGENTS.md)
+
+## 参考文档
+
+MatFlowKit 只负责调用和整理数据。具体格式与计算参数以各项目的原始文档为准：
+
+- [GPUMD documentation](https://gpumd.org/)
+- [GPUMD `thermo.out`](https://gpumd.org/gpumd/output_files/thermo_out.html)
+- [GPUMDkit](https://github.com/zhyan0603/GPUMDkit)
+- [GPUMDkit plotting scripts](https://zhyan0603.github.io/GPUMDkit/htmls/plot_scripts.html)
+- [DeePMD-kit documentation](https://docs.deepmodeling.com/projects/deepmd/en/latest/)
+- [dpdata documentation](https://docs.deepmodeling.com/projects/dpdata/en/master/)
+- [ABACUS documentation](https://abacus.deepmodeling.com/en/latest/)
+- [CP2K manual](https://manual.cp2k.org/)
+
+`mfk gpumd thermo --plot` 的功能参考了 GPUMDkit 的 `gpumdkit.sh -plt thermo`：
+读取 `run.in` 中的时间步长和输出间隔，并绘制温度、压力、能量、晶格长度、体积及晶格角。
+MatFlowKit 中的实现为重新编写的 Python 版本，输出样式使用本项目的统一绘图规范。
 
 ## 贡献
 

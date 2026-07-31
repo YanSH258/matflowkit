@@ -38,9 +38,9 @@ MENU = {
           ("--output", "输出目录", "deepmd_merged", False)]),
     ]),
     "3": ("GPUMD", [
-        ("thermo", "统计 thermo.out",
+        ("thermo", "统计并绘制 thermo.out",
          [("file", "thermo 文件", "thermo.out", False),
-          ("plot", "是否画第 1 列曲线 (y/n)", "n", True)]),
+          ("plot", "是否生成热力学图 (y/n)", "n", True)]),
         ("merge-loss", "合并首次训练与续训的 loss.out",
          [("first", "首次训练 loss 文件", "loss.out", False),
           ("restart", "续训 loss 文件", "restart/loss.out", False),

@@ -20,6 +20,7 @@ from matflowkit.common.plot_style import (
     apply_plot_style,
     figure_size,
 )
+from matflowkit.gpumd.thermo import cell_series, read_time_interval
 
 
 def write_deepmd(path: Path, x: float, energy: float) -> None:
@@ -419,6 +420,44 @@ class CommandTests(unittest.TestCase):
         )
         self.assertEqual(result.exit_code, 1, result.output)
         self.assertEqual(output.read_text(), "keep\n")
+
+    def test_gpumd_thermo_plot_matches_gpumd_layout(self):
+        run_in = self.root / "run.in"
+        run_in.write_text("time_step 2\ndump_thermo 50\n")
+        self.assertAlmostEqual(read_time_interval(run_in), 0.1)
+
+        data = np.array(
+            [
+                [300, 1, -5, 0.1, 0.2, 0.3, 0, 0, 0, 10, 11, 12],
+                [310, 2, -6, 0.2, 0.3, 0.4, 0, 0, 0, 10.1, 11.1, 12.1],
+            ],
+            dtype=float,
+        )
+        thermo_file = self.root / "thermo.out"
+        np.savetxt(thermo_file, data)
+        cell = cell_series(data)
+        self.assertAlmostEqual(cell["volume"][0], 1320.0)
+
+        plot = self.root / "thermo.png"
+        averages = self.root / "thermo_averages.txt"
+        result = self.runner.invoke(
+            app,
+            [
+                "gpumd",
+                "thermo",
+                str(thermo_file),
+                "--plot",
+                "--run-in",
+                str(run_in),
+                "--output",
+                str(plot),
+                "--averages",
+                str(averages),
+            ],
+        )
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertTrue(plot.is_file())
+        self.assertIn("Temperature: 310", averages.read_text())
 
     def test_gpumd_plot_nep_training_writes_plot_and_metrics(self):
         data_dir = self.root / "nep"

@@ -3,10 +3,14 @@
 GPUMD 输出分析与 NEP 训练过程分析。每个命令的详细参数见 `mfk gpumd <命令> -h`。
 
 ## `mfk gpumd thermo [FILE]`（默认 `thermo.out`）
-- 输入：空格分隔数值列的 thermo.out，列数不固定（典型 12 列）。
-- 输出（stdout）：行数、列数、每列 mean/min/max/末值，标注第 1 列通常为温度。
-- `--plot`：画第 1 列随步数曲线，保存当前目录 `thermo_col1.png`；
-  未安装 matplotlib 时改为保存 `thermo_col1.csv` 并提示，不崩溃。
+- 输入：GPUMD `thermo.out`；统计模式可读取任意数值列。
+- 输出（stdout）：每列的 mean、min、max 和末值。
+- `--plot`：支持旧版 12 列正交晶胞和当前 18 列 triclinic 格式，默认读取同目录
+  `run.in` 中的 `time_step` 与 `dump_thermo`。
+- 图片：`thermo.png`，包括温度、压力、动能/势能、晶格长度、体积和晶格角；
+  12 列格式没有晶格角时改画总能量。
+- 平均值：`thermo_averages.txt`，默认统计后 50%；用 `--start-fraction` 修改。
+- 实现参考 GPUMDkit 的 `gpumdkit.sh -plt thermo` 使用方式，但代码在本项目中重新编写。
 - 文件不存在：stderr 报错，退出码 1。
 
 ## `mfk gpumd merge-loss [FIRST] [RESTART]`
@@ -22,4 +26,10 @@ GPUMD 输出分析与 NEP 训练过程分析。每个命令的详细参数见 `m
 
 ## 依赖
 
-`thermo` / `merge-loss` 仅依赖 numpy；`plot-nep-training` 需要 matplotlib（延迟导入）。
+`thermo` 统计和 `merge-loss` 仅依赖 numpy；画图和 `plot-nep-training` 需要 matplotlib。
+
+## 参考
+
+- [GPUMD thermo.out](https://gpumd.org/gpumd/output_files/thermo_out.html)
+- [GPUMD dump_thermo](https://gpumd.org/gpumd/input_parameters/dump_thermo.html)
+- [GPUMDkit plotting scripts](https://zhyan0603.github.io/GPUMDkit/htmls/plot_scripts.html)
