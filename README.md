@@ -29,6 +29,7 @@ mfk deepmd stat ./data           # 统计 DeePMD 数据集（system/frame/元素
 mfk deepmd stat ./data --json    # 机器可读 JSON 输出
 mfk deepmd merge a b -o merged   # 按精确组成合并 NPY 数据集
 mfk dpdata convert in out --from deepmd/npy --to extxyz
+mfk dpdata xyz-to-deepmd train.xyz deepmd  # GPUMD/extxyz 转 DeepMD raw + NPY
 mfk gpumd thermo thermo.out      # 统计 thermo.out 各列
 mfk gpumd thermo --plot          # 同时画第 1 列（温度）演化，保存 thermo_col1.png
 ```
@@ -134,3 +135,12 @@ mfk dpdata convert cp2k_work cp2k_npy \
 mfk dpdata convert deepmd_system train.xyz \
   --from deepmd/npy --to extxyz
 ```
+
+### GPUMD/extxyz 转 DeepMD raw + NPY
+
+```bash
+mfk dpdata xyz-to-deepmd train.xyz deepmd
+```
+
+输入需包含晶胞、能量和原子力标注；多种化学组成会自动拆成多个 system。输出目录
+同时包含 DeepMD raw 文件与 `set.*/*.npy`，默认拒绝覆盖非空目录。

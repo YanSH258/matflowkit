@@ -181,6 +181,42 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(result.exit_code, 2, result.output)
         self.assertTrue((output / "duplicate_frames.csv").is_file())
 
+    def test_xyz_to_deepmd_writes_raw_and_npy(self):
+        xyz = self.root / "train.xyz"
+        xyz.write_text(
+            "2\n"
+            'Lattice="10 0 0 0 10 0 0 0 10" '
+            "Properties=species:S:1:pos:R:3:force:R:3 "
+            'energy=-1.0 virial="0 0 0 0 0 0 0 0 0" pbc="T T T"\n'
+            "H 0 0 0 0 0 0\n"
+            "H 0.7 0 0 0 0 0\n"
+        )
+        output = self.root / "deepmd"
+        result = self.runner.invoke(
+            app,
+            ["dpdata", "xyz-to-deepmd", str(xyz), str(output), "--set-size", "1"],
+        )
+        self.assertEqual(result.exit_code, 0, result.output)
+        summary = json.loads(result.output)
+        self.assertEqual(summary["systems"], 1)
+        self.assertEqual(summary["frames"], 1)
+        systems = [path for path in output.iterdir() if path.is_dir()]
+        self.assertEqual(len(systems), 1)
+        self.assertTrue((systems[0] / "coord.raw").is_file())
+        self.assertTrue((systems[0] / "set.000" / "coord.npy").is_file())
+
+    def test_xyz_to_deepmd_rejects_nonempty_output(self):
+        xyz = self.root / "train.xyz"
+        xyz.write_text("not parsed")
+        output = self.root / "deepmd"
+        output.mkdir()
+        (output / "keep").write_text("do not overwrite")
+        result = self.runner.invoke(
+            app, ["dpdata", "xyz-to-deepmd", str(xyz), str(output)]
+        )
+        self.assertEqual(result.exit_code, 1, result.output)
+        self.assertIn("输出路径已存在且非空", result.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()

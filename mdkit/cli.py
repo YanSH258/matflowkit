@@ -13,6 +13,7 @@ from mdkit.abacus.to_deepmd import to_deepmd
 from mdkit.deepmd.merge import merge
 from mdkit.deepmd.stat import stat
 from mdkit.dpdata.convert import convert
+from mdkit.dpdata.xyz_to_deepmd import xyz_to_deepmd
 from mdkit.gpumd.thermo import thermo
 
 # 所有命令统一支持 -h / --help
@@ -44,6 +45,7 @@ deepmd_app.command("stat")(stat)
 deepmd_app.command("merge")(merge)
 gpumd_app.command("thermo")(thermo)
 dpdata_app.command("convert")(convert)
+dpdata_app.command("xyz-to-deepmd")(xyz_to_deepmd)
 
 app.add_typer(abacus_app, name="abacus")
 app.add_typer(deepmd_app, name="deepmd")

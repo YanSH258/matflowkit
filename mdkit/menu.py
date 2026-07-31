@@ -48,6 +48,9 @@ MENU = {
           ("output", "输出文件或目录", "converted_data", False),
           ("--from", "输入格式", "deepmd/npy", False),
           ("--to", "输出格式", "extxyz", False)]),
+        ("xyz-to-deepmd", "将带标注的 GPUMD/extxyz 转为 DeepMD raw + NPY",
+         [("input", "输入 xyz 文件", "train.xyz", False),
+          ("output", "输出目录", "deepmd", False)]),
     ]),
 }
 _GROUP_NAME = {"1": "abacus", "2": "deepmd", "3": "gpumd", "4": "dpdata"}

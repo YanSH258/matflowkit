@@ -32,6 +32,7 @@ mfk --help          # 验证
 | 按精确组成合并多个 DeepMD NPY 数据集 | `mfk deepmd merge INPUT... --output DIR` |
 | 需要程序化读取 DeePMD 数据集统计（接脚本/管道） | `mfk deepmd stat [DIR] --json` |
 | 在 ABACUS/CP2K/DeepMD/extxyz/GPUMD 格式间转换 | `mfk dpdata convert INPUT OUTPUT --from FMT --to FMT` |
+| 将带标注的 GPUMD/extxyz 转为 DeepMD raw + NPY | `mfk dpdata xyz-to-deepmd [INPUT] [OUTPUT]` |
 | GPUMD 跑完后看 thermo.out 各列统计（温度、能量、压力走势） | `mfk gpumd thermo [FILE]` |
 | 想快速看一眼温度随步数的演化曲线 | `mfk gpumd thermo [FILE] --plot` |
 
@@ -71,6 +72,14 @@ mfk --help          # 验证
 - 对 dpdata 支持的标注数据格式执行单一格式转换。
 - `dpdata` 是可选依赖，缺失时给出安装命令。
 - 输出已存在时拒绝覆盖。
+
+### `mfk dpdata xyz-to-deepmd [INPUT] [OUTPUT]`
+- 输入：带 `Lattice`、`energy`、`force`（可选 `virial`）标注的 GPUMD/extxyz；
+  默认 `train.xyz`。
+- 解析：使用 `dpdata.MultiSystems`，允许输入中存在多种化学组成。
+- 输出：默认写入 `deepmd/`，按精确组成分 system，同时生成 DeepMD raw 与 NPY；
+  `--set-size` 控制 NPY 分片大小。
+- 输出目录已存在且非空时拒绝覆盖；`dpdata` 缺失或解析失败时写 stderr 并非零退出。
 
 ### `mfk gpumd thermo [FILE]`（默认 `thermo.out`）
 - 输入：空格分隔数值列的 thermo.out，列数不固定（典型 12 列）。
