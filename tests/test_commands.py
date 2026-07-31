@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 from typer.testing import CliRunner
 
-from mdkit.abacus.audit import inspect_task, parse_basis_type
+from mdkit.abacus.audit import discover_tasks, inspect_task, parse_basis_type
 from mdkit.abacus.plot_convergence import parse_series
 from mdkit.cli import app
 
@@ -74,6 +74,15 @@ class CommandTests(unittest.TestCase):
         (task / "INPUT").write_text("INPUT_PARAMETERS\nbasis_type pw\n")
         self.assertEqual(parse_basis_type(task), "pw")
         self.assertEqual(parse_basis_type(self.root / "missing"), "lcao")
+
+    def test_discover_tasks_skips_out_hap_input(self):
+        task = self.root / "task"
+        out = task / "OUT.test"
+        out.mkdir(parents=True)
+        (task / "INPUT").write_text("INPUT_PARAMETERS\ncalculation scf\n")
+        (out / "INPUT").write_text("INPUT_PARAMETERS\ncalculation scf\n")
+        tasks = discover_tasks(self.root, "**/INPUT")
+        self.assertEqual(tasks, [task])
 
     def test_parse_convergence_series(self):
         log = self.root / "running_relax.log"

@@ -101,12 +101,19 @@ def inspect_task(task: Path) -> dict:
     return row
 
 
+def _inside_out_dir(path: Path) -> bool:
+    """排除位于 ABACUS OUT.*/ 目录下的 INPUT（避免与任务目录重复）。"""
+    return any(part.startswith("OUT.") for part in path.parent.parts)
+
+
 def discover_tasks(root: Path, pattern: str) -> list[Path]:
     if (root / "INPUT").is_file():
         return [root]
     if pattern == "**/INPUT":
-        return sorted({path.parent for path in root.rglob("INPUT")})
-    return sorted({path.parent for path in root.glob(pattern) if path.name == "INPUT"})
+        paths = root.rglob("INPUT")
+    else:
+        paths = (path for path in root.glob(pattern) if path.name == "INPUT")
+    return sorted({path.parent for path in paths if not _inside_out_dir(path)})
 
 
 def audit(
