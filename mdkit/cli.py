@@ -14,6 +14,7 @@ from mdkit.deepmd.merge import merge
 from mdkit.deepmd.stat import stat
 from mdkit.dpdata.convert import convert
 from mdkit.dpdata.xyz_to_deepmd import xyz_to_deepmd
+from mdkit.dpa4.relax import relax as dpa4_relax
 from mdkit.gpumd.merge_loss import merge_loss
 from mdkit.gpumd.plot_nep_training import plot_nep_training
 from mdkit.gpumd.thermo import thermo
@@ -38,6 +39,8 @@ gpumd_app = typer.Typer(help="GPUMD 相关命令", no_args_is_help=True,
                         context_settings=_CONTEXT_SETTINGS)
 dpdata_app = typer.Typer(help="dpdata 格式转换", no_args_is_help=True,
                          context_settings=_CONTEXT_SETTINGS)
+dpa4_app = typer.Typer(help="DPA4 结构优化与反应路径", no_args_is_help=True,
+                       context_settings=_CONTEXT_SETTINGS)
 
 abacus_app.command("check-relax")(check_relax)
 abacus_app.command("audit")(audit)
@@ -50,11 +53,13 @@ gpumd_app.command("merge-loss")(merge_loss)
 gpumd_app.command("plot-nep-training")(plot_nep_training)
 dpdata_app.command("convert")(convert)
 dpdata_app.command("xyz-to-deepmd")(xyz_to_deepmd)
+dpa4_app.command("relax")(dpa4_relax)
 
 app.add_typer(abacus_app, name="abacus")
 app.add_typer(deepmd_app, name="deepmd")
 app.add_typer(gpumd_app, name="gpumd")
 app.add_typer(dpdata_app, name="dpdata")
+app.add_typer(dpa4_app, name="dpa4")
 
 
 @app.callback()

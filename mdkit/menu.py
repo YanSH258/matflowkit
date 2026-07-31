@@ -60,8 +60,20 @@ MENU = {
          [("input", "输入 xyz 文件", "train.xyz", False),
           ("output", "输出目录", "deepmd", False)]),
     ]),
+    "5": ("DPA4", [
+        ("relax", "使用 DPA4 优化结构",
+         [("input", "输入结构", "structure.xyz", False),
+          ("--output", "输出结构", "structure_dpa4_relaxed.extxyz", False),
+          ("--model", "DPA4 model.pt", "~/dpa4/Neo-MPtrj/model.pt", False)]),
+    ]),
 }
-_GROUP_NAME = {"1": "abacus", "2": "deepmd", "3": "gpumd", "4": "dpdata"}
+_GROUP_NAME = {
+    "1": "abacus",
+    "2": "deepmd",
+    "3": "gpumd",
+    "4": "dpdata",
+    "5": "dpa4",
+}
 
 
 def _prompt(text: str, default: str) -> str:

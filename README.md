@@ -1,6 +1,6 @@
 # MatFlowKit
 
-个人科研工具箱（分子动力学 / 第一性原理计算方向），覆盖 **ABACUS / dpdata / DeePMD / GPUMD**
+个人科研工具箱（分子动力学 / 第一性原理计算方向），覆盖 **ABACUS / dpdata / DeePMD / GPUMD / DPA4**
 三条工作线的前处理 → 过程分析 → 后处理。设计借鉴 GPUMDkit：单一入口 `mfk` +
 子命令分发，支持**命令行直跑**和**交互式菜单**两种模式。
 
@@ -34,6 +34,7 @@ mfk gpumd thermo thermo.out      # 统计 thermo.out 各列
 mfk gpumd thermo --plot          # 同时画第 1 列（温度）演化，保存 thermo_col1.png
 mfk gpumd merge-loss             # 合并首次训练与续训的 loss.out
 mfk gpumd plot-nep-training .    # 绘制 loss 与能量/力/应力预测误差
+mfk dpa4 relax structure.xyz     # DPA4 固定晶胞结构优化
 ```
 
 所有命令的路径参数都默认为当前目录（或当前目录下的默认文件），支持 `-h` 查看帮助。
@@ -165,3 +166,15 @@ mfk gpumd plot-nep-training ./train
 读取 `loss.out`、`energy_train.out` 和 `force_train.out`；存在
 `stress_train.out` 时自动加入应力面板。生成 `nep_training.png` 和
 `nep_training_metrics.json`。误差使用完整数据计算，散点图对超大数据自动抽样。
+
+### DPA4 结构优化
+
+```bash
+mfk dpa4 relax structure.xyz \
+  --model ~/dpa4/Neo-MPtrj/model.pt \
+  --fmax 0.05 --fixed-cell
+```
+
+默认执行固定晶胞优化，并叠加 PBE-D3(BJ)。使用 `--relax-cell` 显式启用变胞优化，
+使用 `--fix-indices-file fixed.txt` 固定从 1 开始编号的原子。输出包括优化结构、
+日志、逐步 extxyz 轨迹和 JSON 状态文件。

@@ -3,7 +3,7 @@
 ## 这是什么
 
 MatFlowKit 是一个个人科研工具箱（分子动力学 / 第一性原理计算方向），Python 包名
-`mdkit`，命令行入口 `mfk`，基于 typer。覆盖 ABACUS / dpdata / DeePMD / GPUMD 的前处理、
+`mdkit`，命令行入口 `mfk`，基于 typer。覆盖 ABACUS / dpdata / DeePMD / GPUMD / DPA4 的前处理、
 过程分析与后处理。设计模式：单一入口 + 子命令分发 + 双模式（命令行直跑 / 交互式菜单）。
 
 ## 安装
@@ -37,6 +37,7 @@ mfk --help          # 验证
 | 想快速看一眼温度随步数的演化曲线 | `mfk gpumd thermo [FILE] --plot` |
 | 合并 NEP 首次训练与续训的 loss.out | `mfk gpumd merge-loss [FIRST] [RESTART]` |
 | 绘制 NEP loss 与能量/力/应力预测误差 | `mfk gpumd plot-nep-training [DIR]` |
+| 使用 DPA4 优化结构 | `mfk dpa4 relax INPUT` |
 
 ## 命令的输入/输出约定
 
@@ -101,6 +102,13 @@ mfk --help          # 验证
   `stress_train.out`。
 - 统计：完整数据上的 RMSE、MAE 和 R2；大数据只在散点绘制阶段抽样。
 - 输出：默认 `nep_training.png` 和 `nep_training_metrics.json`，已存在时拒绝覆盖。
+
+### `mfk dpa4 relax INPUT`
+- 输入：ASE 可读取的结构文件；DPA4 模型由 `--model`、`DPA4_MODEL` 或
+  `~/dpa4/Neo-MPtrj/model.pt` 提供。
+- 默认：固定晶胞、BFGS、`fmax=0.05 eV/Å`、DPA4 + PBE-D3(BJ)。
+- 可选：`--relax-cell` 变胞；`--fix-indices-file` 固定从 1 开始编号的原子。
+- 输出：优化结构、日志、extxyz 轨迹和 JSON 状态；不覆盖已有结果。
 
 ## 补充脚本的原则（加命令前先读）
 

@@ -9,6 +9,7 @@ from typer.testing import CliRunner
 from mdkit.abacus.audit import discover_tasks, inspect_task, parse_basis_type
 from mdkit.abacus.plot_convergence import parse_series
 from mdkit.cli import app
+from mdkit.dpa4.common import read_fixed_indices
 
 
 def write_deepmd(path: Path, x: float, energy: float) -> None:
@@ -323,6 +324,19 @@ class CommandTests(unittest.TestCase):
         self.assertIn("force_components", values)
         self.assertIn("stress_components", values)
         self.assertAlmostEqual(values["energy"]["rmse"], 0.01)
+
+    def test_dpa4_fixed_indices_are_one_based(self):
+        indices = self.root / "fixed.txt"
+        indices.write_text("1 3 5\n")
+        self.assertEqual(read_fixed_indices(indices, 5), [0, 2, 4])
+
+    def test_dpa4_relax_rejects_missing_input(self):
+        result = self.runner.invoke(
+            app,
+            ["dpa4", "relax", str(self.root / "missing.xyz")],
+        )
+        self.assertEqual(result.exit_code, 1, result.output)
+        self.assertIn("输入结构不存在", result.stderr)
 
 
 if __name__ == "__main__":
