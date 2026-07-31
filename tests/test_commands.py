@@ -10,6 +10,7 @@ from mdkit.abacus.audit import discover_tasks, inspect_task, parse_basis_type
 from mdkit.abacus.plot_convergence import parse_series
 from mdkit.cli import app
 from mdkit.dpa4.common import read_fixed_indices
+from mdkit.dpa4.batch_relax import read_manifest, safe_case_id
 
 
 def write_deepmd(path: Path, x: float, energy: float) -> None:
@@ -75,6 +76,19 @@ class CommandTests(unittest.TestCase):
         (task / "INPUT").write_text("INPUT_PARAMETERS\nbasis_type pw\n")
         self.assertEqual(parse_basis_type(task), "pw")
         self.assertEqual(parse_basis_type(self.root / "missing"), "lcao")
+
+    def test_dpa4_batch_manifest_and_case_id(self):
+        manifest = self.root / "structures.csv"
+        manifest.write_text("id,input\ncase one,a.xyz\n")
+        rows = read_manifest(manifest)
+        self.assertEqual(rows[0]["input"], "a.xyz")
+        self.assertEqual(safe_case_id(rows[0]["id"]), "case_one")
+
+    def test_dpa4_batch_manifest_requires_input(self):
+        manifest = self.root / "bad.csv"
+        manifest.write_text("id,path\none,a.xyz\n")
+        with self.assertRaises(ValueError):
+            read_manifest(manifest)
 
     def test_discover_tasks_skips_out_hap_input(self):
         task = self.root / "task"

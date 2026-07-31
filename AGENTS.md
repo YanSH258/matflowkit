@@ -38,6 +38,7 @@ mfk --help          # 验证
 | 合并 NEP 首次训练与续训的 loss.out | `mfk gpumd merge-loss [FIRST] [RESTART]` |
 | 绘制 NEP loss 与能量/力/应力预测误差 | `mfk gpumd plot-nep-training [DIR]` |
 | 使用 DPA4 优化结构 | `mfk dpa4 relax INPUT` |
+| 按 manifest 批量运行并恢复 DPA4 优化 | `mfk dpa4 batch-relax [CSV]` |
 | 使用 DPA4 计算 NEB/CI-NEB 路径 | `mfk dpa4 neb INITIAL FINAL` |
 
 ## 命令的输入/输出约定
@@ -119,6 +120,11 @@ mfk --help          # 验证
   `--no-d3`。
 - 输出：插值及优化路径、能量 CSV、最高能图像和状态 JSON；结果明确标为 DPA4
   最低能量路径，不冒充 DFT NEB。
+
+### `mfk dpa4 batch-relax [CSV]`
+- 输入：至少包含 `input` 列的 CSV，可选 `id` 列；相对路径以 CSV 所在目录为准。
+- 输出：每个任务一个目录，持续更新 `batch_status.csv` 和 `batch_summary.json`。
+- 恢复：默认跳过已通过任务；`--retry-failed` 仅清理并重跑本命令生成的失败任务文件。
 
 ## 补充脚本的原则（加命令前先读）
 

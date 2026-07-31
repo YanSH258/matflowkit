@@ -35,6 +35,7 @@ mfk gpumd thermo --plot          # 同时画第 1 列（温度）演化，保存
 mfk gpumd merge-loss             # 合并首次训练与续训的 loss.out
 mfk gpumd plot-nep-training .    # 绘制 loss 与能量/力/应力预测误差
 mfk dpa4 relax structure.xyz     # DPA4 固定晶胞结构优化
+mfk dpa4 batch-relax structures.csv  # 按 manifest 批量优化并断点续跑
 mfk dpa4 neb IS.xyz FS.xyz       # DPA4 NEB 与 CI-NEB
 ```
 
@@ -199,3 +200,22 @@ mfk dpa4 neb initial.extxyz final.extxyz \
 普通 NEB，收敛且最高能图像位于路径内部时继续执行 CI-NEB。输出包括各阶段路径、
 `energy_profile.csv`、最高能图像和 `status.json`。所得势垒属于 DPA4 预测，
 不是第一性原理 NEB 势垒。
+
+### DPA4 批量结构优化
+
+准备至少包含 `input` 列的 CSV，可选 `id` 列；相对路径以 CSV 所在目录为准：
+
+```csv
+id,input
+hap_001,structures/hap_001.cif
+hap_010,structures/hap_010.cif
+```
+
+```bash
+mfk dpa4 batch-relax structures.csv \
+  --output-dir dpa4_batch_relax \
+  --model ~/dpa4/Neo-MPtrj/model.pt
+```
+
+每个任务写入独立目录，`batch_status.csv` 和 `batch_summary.json` 持续记录状态。
+重复运行会跳过已经通过的任务；使用 `--retry-failed` 重新运行失败或未收敛任务。
