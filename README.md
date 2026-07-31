@@ -36,6 +36,7 @@ mfk gpumd merge-loss             # 合并首次训练与续训的 loss.out
 mfk gpumd plot-nep-training .    # 绘制 loss 与能量/力/应力预测误差
 mfk dpa4 relax structure.xyz     # DPA4 固定晶胞结构优化
 mfk dpa4 batch-relax structures.csv  # 按 manifest 批量优化并断点续跑
+mfk dpa4 evaluate structures.extxyz  # 批量预测能量、力和可选应力
 mfk dpa4 neb IS.xyz FS.xyz       # DPA4 NEB 与 CI-NEB
 ```
 
@@ -219,3 +220,13 @@ mfk dpa4 batch-relax structures.csv \
 
 每个任务写入独立目录，`batch_status.csv` 和 `batch_summary.json` 持续记录状态。
 重复运行会跳过已经通过的任务；使用 `--retry-failed` 重新运行失败或未收敛任务。
+
+### DPA4 单点批量预测
+
+```bash
+mfk dpa4 evaluate structures.extxyz \
+  --model ~/dpa4/Neo-MPtrj/model.pt
+```
+
+默认读取全部帧并计算能量和原子力，生成带标签 extxyz、逐帧指标 CSV 和汇总 JSON。
+使用 `--index` 选择帧，使用 `--stress` 额外计算应力。该命令不会优化结构。

@@ -11,6 +11,7 @@ from mdkit.abacus.plot_convergence import parse_series
 from mdkit.cli import app
 from mdkit.dpa4.common import read_fixed_indices
 from mdkit.dpa4.batch_relax import read_manifest, safe_case_id
+from mdkit.dpa4.evaluate import frame_metrics
 
 
 def write_deepmd(path: Path, x: float, energy: float) -> None:
@@ -89,6 +90,19 @@ class CommandTests(unittest.TestCase):
         manifest.write_text("id,path\none,a.xyz\n")
         with self.assertRaises(ValueError):
             read_manifest(manifest)
+
+    def test_dpa4_evaluate_frame_metrics(self):
+        result = frame_metrics(
+            energy=-4.0,
+            forces=np.array([[3.0, 0.0, 0.0], [0.0, 4.0, 0.0]]),
+            atom_count=2,
+        )
+        self.assertAlmostEqual(result["energy_per_atom_eV"], -2.0)
+        self.assertAlmostEqual(result["maximum_atomic_force_eV_A"], 4.0)
+        self.assertAlmostEqual(
+            result["force_component_rms_eV_A"],
+            np.sqrt(25.0 / 6.0),
+        )
 
     def test_discover_tasks_skips_out_hap_input(self):
         task = self.root / "task"

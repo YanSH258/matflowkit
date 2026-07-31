@@ -39,6 +39,7 @@ mfk --help          # 验证
 | 绘制 NEP loss 与能量/力/应力预测误差 | `mfk gpumd plot-nep-training [DIR]` |
 | 使用 DPA4 优化结构 | `mfk dpa4 relax INPUT` |
 | 按 manifest 批量运行并恢复 DPA4 优化 | `mfk dpa4 batch-relax [CSV]` |
+| 使用 DPA4 为单帧或多帧结构计算能量和力 | `mfk dpa4 evaluate INPUT` |
 | 使用 DPA4 计算 NEB/CI-NEB 路径 | `mfk dpa4 neb INITIAL FINAL` |
 
 ## 命令的输入/输出约定
@@ -125,6 +126,11 @@ mfk --help          # 验证
 - 输入：至少包含 `input` 列的 CSV，可选 `id` 列；相对路径以 CSV 所在目录为准。
 - 输出：每个任务一个目录，持续更新 `batch_status.csv` 和 `batch_summary.json`。
 - 恢复：默认跳过已通过任务；`--retry-failed` 仅清理并重跑本命令生成的失败任务文件。
+
+### `mfk dpa4 evaluate INPUT`
+- 输入：ASE 可读取的单帧或多帧结构；`--index` 使用 ASE 帧选择语法。
+- 输出：带 DPA4 单点标签的 extxyz、逐帧能量/力指标 CSV 和汇总 JSON。
+- 默认只计算能量和原子力；`--stress` 显式请求应力；不执行结构优化。
 
 ## 补充脚本的原则（加命令前先读）
 

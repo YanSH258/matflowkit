@@ -15,6 +15,7 @@ from mdkit.deepmd.stat import stat
 from mdkit.dpdata.convert import convert
 from mdkit.dpdata.xyz_to_deepmd import xyz_to_deepmd
 from mdkit.dpa4.batch_relax import batch_relax
+from mdkit.dpa4.evaluate import evaluate as dpa4_evaluate
 from mdkit.dpa4.neb import neb as dpa4_neb
 from mdkit.dpa4.relax import relax as dpa4_relax
 from mdkit.gpumd.merge_loss import merge_loss
@@ -57,6 +58,7 @@ dpdata_app.command("convert")(convert)
 dpdata_app.command("xyz-to-deepmd")(xyz_to_deepmd)
 dpa4_app.command("relax")(dpa4_relax)
 dpa4_app.command("batch-relax")(batch_relax)
+dpa4_app.command("evaluate")(dpa4_evaluate)
 dpa4_app.command("neb")(dpa4_neb)
 
 app.add_typer(abacus_app, name="abacus")
