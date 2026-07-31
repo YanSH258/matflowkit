@@ -1,4 +1,4 @@
-# matflowkit/gpumd — GPUMD / NEP 相关命令
+# GPUMD / NEP
 
 GPUMD 输出分析与 NEP 训练过程分析。每个命令的详细参数见 `mfk gpumd <命令> -h`。
 
@@ -23,8 +23,3 @@ GPUMD 输出分析与 NEP 训练过程分析。每个命令的详细参数见 `m
 ## 依赖
 
 `thermo` / `merge-loss` 仅依赖 numpy；`plot-nep-training` 需要 matplotlib（延迟导入）。
-
-## 维护说明
-
-本子包独立维护：新增/修改 GPUMD 命令时，必须同一次提交更新本 README、
-`matflowkit/menu.py` 菜单条目和根 `AGENTS.md` 路由表。规范见根 `CONTRIBUTING.md`。

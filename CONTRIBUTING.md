@@ -1,7 +1,6 @@
 # CONTRIBUTING — 添加新命令的规范
 
-欢迎把反复手动做的操作搬进 MatFlowKit。动手前请先读 `AGENTS.md` 里的
-"补充脚本的原则"，核心一条：**第三次手动做同一件事时才变成命令**，不为凑模块写命令。
+只把确实会重复使用的操作做成命令。开始前先读 `AGENTS.md` 的“补充脚本的原则”。
 
 ## 开发环境
 
@@ -33,6 +32,7 @@ uv run mfk <软件> <命令> -h  # 验证帮助
 - 硬依赖只有 typer + numpy；其余依赖在命令内延迟导入，未安装时清晰提示；
   加新依赖前先确认无法用现有依赖解决，并声明进 `pyproject.toml` 的 extras；
 - 画图类功能对 matplotlib 必须延迟导入。
+- 画图使用 `matflowkit/common/plot_style.py`，默认保存 PNG。
 
 ## 提交纪律
 

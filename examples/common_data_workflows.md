@@ -1,6 +1,6 @@
-# Common data workflows
+# 常用数据流程
 
-## Audit and collect ABACUS tasks
+## 检查并收集 ABACUS 任务
 
 ```bash
 mfk abacus audit ./tasks --expected 120 --strict
@@ -9,20 +9,19 @@ mfk abacus to-deepmd ./tasks ./dataset_v1 \
   --type-map "Ca Mg P O H"
 ```
 
-The output contains composition-resolved NPY systems, task and frame manifests,
-validation summaries, and SHA256 checksums.
+输出目录里会有按组成拆分的 NPY、任务记录、帧记录和校验值。
 
-## Merge datasets
+## 合并数据集
 
 ```bash
 mfk deepmd merge relaxation_data strain_data \
   --output combined_data
 ```
 
-Different compositions remain in separate systems. Exact coordinate duplicates
-stop the command unless `--allow-duplicates` is explicit.
+不同组成仍放在不同 system 中。发现完全重复的结构时命令会停止；确认需要保留时再加
+`--allow-duplicates`。
 
-## Convert formats
+## 转换格式
 
 ```bash
 mfk dpdata convert work training_data \

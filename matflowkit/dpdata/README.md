@@ -1,4 +1,4 @@
-# matflowkit/dpdata — 通用格式转换命令
+# dpdata
 
 基于 dpdata / ASE 的通用结构与标注数据格式转换、数据集重叠检查。
 每个命令的详细参数见 `mfk dpdata <命令> -h`。
@@ -25,8 +25,3 @@
 ## 依赖
 
 `convert` / `xyz-to-deepmd` 需要 dpdata；`overlap` 需要 ASE。均为延迟导入。
-
-## 维护说明
-
-本子包独立维护：新增/修改转换命令时，必须同一次提交更新本 README、
-`matflowkit/menu.py` 菜单条目和根 `AGENTS.md` 路由表。规范见根 `CONTRIBUTING.md`。

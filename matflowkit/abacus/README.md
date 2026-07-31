@@ -1,4 +1,4 @@
-# matflowkit/abacus — ABACUS 相关命令
+# ABACUS
 
 ABACUS 任务的检查、批量审计、收敛分析与数据提取。每个命令的详细参数见
 `mfk abacus <命令> -h`。
@@ -31,8 +31,3 @@ ABACUS 任务的检查、批量审计、收敛分析与数据提取。每个命�
 - 硬依赖：仅 typer + numpy。
 - `plot-convergence`：matplotlib（延迟导入）。
 - `to-deepmd`：dpdata（延迟导入）。
-
-## 维护说明
-
-本子包独立维护：新增/修改 ABACUS 命令时，必须同一次提交更新本 README、
-`matflowkit/menu.py` 菜单条目和根 `AGENTS.md` 路由表。规范见根 `CONTRIBUTING.md`。

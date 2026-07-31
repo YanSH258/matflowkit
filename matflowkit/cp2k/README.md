@@ -1,4 +1,4 @@
-# matflowkit/cp2k — CP2K 相关命令
+# CP2K
 
 CP2K 输出的批量审计与单点数据收集。每个命令的详细参数见 `mfk cp2k <命令> -h`。
 
@@ -15,8 +15,3 @@ CP2K 输出的批量审计与单点数据收集。每个命令的详细参数见
 ## 依赖
 
 硬依赖仅 typer + numpy；`cp2k/parser.py` 为自实现解析器，不依赖 cp2k 官方工具。
-
-## 维护说明
-
-本子包独立维护：新增/修改 CP2K 命令时，必须同一次提交更新本 README、
-`matflowkit/menu.py` 菜单条目和根 `AGENTS.md` 路由表。规范见根 `CONTRIBUTING.md`。

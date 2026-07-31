@@ -1,16 +1,9 @@
 # MatFlowKit
 
-A lightweight workflow and analysis toolkit for computational materials simulations.
+我平时处理 ABACUS、CP2K、DeepMD、GPUMD 和 DPA4 数据时用的一组命令行工具。
+入口统一为 `mfk`，各计算软件仍按原来的方式安装和运行。
 
-MatFlowKit provides unified command-line utilities for managing, processing and
-analyzing data generated from electronic structure calculations and machine-learning
-potential simulations. It is designed to work with your **existing** computational
-environments — ABACUS, CP2K, DeepMD-kit, GPUMD, DPA4 — not to replace or manage them.
-
-
-## Why MatFlowKit?
-
-计算材料研究的日常流程涉及一串彼此独立的工具：
+## 主要流程
 
 ```
 DFT 计算 (ABACUS / CP2K)
@@ -24,11 +17,9 @@ MD 模拟 (GPUMD)
 后处理分析
 ```
 
-每一步都有大量重复的手动操作：检查任务收敛没有、把输出转成训练数据、统计数据集规模、画训练曲线…… 这些操作通常散落在每个人自己的脚本里。
+目前收录的是我已经实际用过的操作：检查任务、转换数据、查重和画训练曲线。
 
-MatFlowKit 把这些**被反复验证过的操作**收进一个统一命令行入口，共用同一套工具，而不是各写各的脚本。
-
-## Features
+## 功能
 
 ### 数据准备（DFT → ML 势数据集）
 - 从 ABACUS / CP2K 输出提取能量、力、virial，生成 DeepMD NPY 数据集
@@ -57,8 +48,7 @@ MatFlowKit 把这些**被反复验证过的操作**收进一个统一命令行�
 
 ## Installation
 
-MatFlowKit 只管理自己的 Python 依赖；ABACUS / DeepMD-kit / GPUMD 等外部
-计算软件请按各自文档单独安装。
+MatFlowKit 只安装自己的 Python 依赖。ABACUS、DeepMD-kit 和 GPUMD 等软件需要另外安装。
 
 需要 [uv](https://docs.astral.sh/uv/)（`curl -LsSf https://astral.sh/uv/install.sh | sh`）：
 
@@ -75,9 +65,9 @@ uv run mfk --help    # 验证
 uv tool install --editable '.[plot,dpdata,structure]'
 ```
 
-其他方式：不用 uv 时可在任何 Python 3.9+ 环境 `pip install -e .`（extras 见
-`pyproject.toml`）；依赖锁定在 `uv.lock`，组内环境可复现。DPA4 命令需要独立的
-deepmd-kit + dftd3 环境，见 `matflowkit/dpa4/README.md`。
+不用 uv 时也可以在 Python 3.9+ 环境运行 `pip install -e .`。可选依赖见
+`pyproject.toml`。DPA4 需要单独的 deepmd-kit + dftd3 环境，见
+`matflowkit/dpa4/README.md`。
 
 ## Quick Start
 
@@ -91,12 +81,11 @@ mfk gpumd thermo --plot             # thermo.out 统计 + 温度曲线
 mfk dpdata overlap train.xyz test.xyz  # 检查训练/测试集重复帧
 ```
 
-所有命令支持 `-h`；路径参数默认当前目录；产出文件写到当前目录；
-报错走 stderr 且退出码非零。
+所有命令都支持 `-h`。路径没有指定时通常使用当前目录。
 
 ## Typical Workflow
 
-以"DFT 数据 → ML 势训练 → 分析"为例，每一步对应一条 `mfk` 命令：
+下面是一套常用的数据处理顺序：
 
 ```bash
 mfk abacus audit ./tasks --strict                    # 1. 确认 DFT 任务全部完成
@@ -107,44 +96,32 @@ mfk dpdata overlap train.extxyz test.extxyz          # 4. 训练/测试集查重
 mfk gpumd plot-nep-training ./train                  # 5. 分析训练误差
 ```
 
-更多组合流程见 [examples/common_data_workflows.md](examples/common_data_workflows.md)，
-多步串联脚本见 `workflow/`。
+其他例子见 [examples/common_data_workflows.md](examples/common_data_workflows.md)。
 
 ## Project Structure
 
 ```
 matflowkit/
-├── matflowkit/        # Python 包（每个软件子包有自己的 README，独立维护）
+├── matflowkit/        # Python 包
 │   ├── cli.py         #   typer 入口与子命令注册
 │   ├── menu.py        #   交互式菜单（复用 cli.py，无独立逻辑）
 │   ├── abacus/ cp2k/ deepmd/ dpdata/ dpa4/ gpumd/
-│   └── common/        #   跨命令共享代码
+│   └── common/        #   共用代码和画图样式
 ├── tests/             # pytest（uv run pytest tests/）
 ├── examples/          # 命令使用案例与常用工作流
 ├── workflow/          # 串联多条 mfk 命令的流程脚本
-├── knowledge/         # 给 AI / 人看的经验文档
-├── AGENTS.md          # AI agent 路由文档（场景 → 命令）
+├── knowledge/         # 使用记录和约定
+├── AGENTS.md          # 命令路由和开发约定
 └── CONTRIBUTING.md    # 添加新命令的规范
 ```
 
 ## Documentation
 
 - 各软件命令的输入/输出约定：`matflowkit/<software>/README.md`
-- AI agent / 场景路由：`AGENTS.md`
+- 命令路由和开发约定：`AGENTS.md`
 - 贡献指南：`CONTRIBUTING.md`
 - 使用案例：`examples/`
 
-## Roadmap
-
-- [x] 统一 CLI（`mfk`）+ 交互式菜单
-- [x] ABACUS / CP2K / DeepMD / dpdata / GPUMD 工具集
-- [x] DPA4 结构优化与 NEB
-- [x] uv 锁定环境、命令测试
-- [ ] workflow 自动化（多命令串联的模板化）
-- [ ] 分析报告自动生成
-- [ ] AI 辅助知识库（`knowledge/` 持续积累）
-
 ## 贡献
 
-欢迎把反复手动做的操作搬进来。原则与步骤见
-[CONTRIBUTING.md](CONTRIBUTING.md)，核心一条：**第三次手动做同一件事时才变成命令**。
+只添加确实会重复使用的命令。具体做法见 [CONTRIBUTING.md](CONTRIBUTING.md)。

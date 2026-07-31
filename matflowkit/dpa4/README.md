@@ -1,11 +1,10 @@
-# matflowkit/dpa4 — DPA4 结构优化与反应路径
+# DPA4
 
 使用 DPA4 机器学习势（DeepMD 格式模型 + PBE-D3(BJ) 色散修正）做结构优化、
 单点预测和 NEB 路径计算。每个命令的详细参数见 `mfk dpa4 <命令> -h`。
 
-> 注意：本组命令需要独立的重依赖环境（deepmd-kit + PyTorch + ASE + dftd3），
-> 不随主环境安装；环境方案待补充。所有结果应明确标注为 DPA4 预测，
-> 不冒充第一性原理结果。
+> 这些命令需要单独安装 deepmd-kit、PyTorch、ASE 和 dftd3。计算结果是 DPA4
+> 预测值，不是 DFT 结果。
 
 ## `mfk dpa4 relax INPUT`
 - 输入：ASE 可读取的结构文件；DPA4 模型由 `--model`、`DPA4_MODEL` 或
@@ -28,14 +27,9 @@
 - 输入：已优化且原子顺序、晶胞和周期性完全匹配的初态与末态。
 - 流程：IDPP 插值、普通 ASE NEB；普通 NEB 收敛且最高点位于路径内部时默认继续 CI-NEB。
 - 可选：`--images`、两阶段 `fmax/steps`、`--fix-indices-file`、`--no-climb`、`--no-d3`。
-- 输出：插值及优化路径、能量 CSV、最高能图像和状态 JSON；结果明确标为 DPA4
-  最低能量路径，不冒充 DFT NEB。
+- 输出：插值及优化路径、能量 CSV、最高能图像和状态 JSON。报告中注明这是 DPA4
+  路径，不写成 DFT NEB。
 
 ## 依赖
 
 deepmd-kit + ASE + dftd3（均为延迟导入，未安装时给出环境提示）。
-
-## 维护说明
-
-本子包独立维护：新增/修改 DPA4 命令时，必须同一次提交更新本 README、
-`matflowkit/menu.py` 菜单条目和根 `AGENTS.md` 路由表。规范见根 `CONTRIBUTING.md`。
