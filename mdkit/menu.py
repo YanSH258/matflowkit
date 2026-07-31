@@ -45,6 +45,10 @@ MENU = {
          [("first", "首次训练 loss 文件", "loss.out", False),
           ("restart", "续训 loss 文件", "restart/loss.out", False),
           ("--output", "输出文件", "loss_merged.out", False)]),
+        ("plot-nep-training", "绘制 NEP loss 与能量/力/应力预测误差",
+         [("directory", "训练或预测目录", ".", False),
+          ("--output", "输出图片", "nep_training.png", False),
+          ("--metrics", "误差指标 JSON", "nep_training_metrics.json", False)]),
     ]),
     "4": ("dpdata", [
         ("convert", "转换 dpdata 支持的结构/标注数据格式",

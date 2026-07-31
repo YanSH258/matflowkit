@@ -33,6 +33,7 @@ mfk dpdata xyz-to-deepmd train.xyz deepmd  # GPUMD/extxyz 转 DeepMD raw + NPY
 mfk gpumd thermo thermo.out      # 统计 thermo.out 各列
 mfk gpumd thermo --plot          # 同时画第 1 列（温度）演化，保存 thermo_col1.png
 mfk gpumd merge-loss             # 合并首次训练与续训的 loss.out
+mfk gpumd plot-nep-training .    # 绘制 loss 与能量/力/应力预测误差
 ```
 
 所有命令的路径参数都默认为当前目录（或当前目录下的默认文件），支持 `-h` 查看帮助。
@@ -154,3 +155,13 @@ mfk gpumd merge-loss loss.out restart/loss.out -o loss_merged.out
 
 默认将续训文件第一列加上首次训练的最后一个步数。续训文件已使用全局步数时，
 使用 `--offset 0`。
+
+### 绘制 NEP 训练与预测误差
+
+```bash
+mfk gpumd plot-nep-training ./train
+```
+
+读取 `loss.out`、`energy_train.out` 和 `force_train.out`；存在
+`stress_train.out` 时自动加入应力面板。生成 `nep_training.png` 和
+`nep_training_metrics.json`。误差使用完整数据计算，散点图对超大数据自动抽样。

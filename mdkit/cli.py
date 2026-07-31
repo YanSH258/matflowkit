@@ -15,6 +15,7 @@ from mdkit.deepmd.stat import stat
 from mdkit.dpdata.convert import convert
 from mdkit.dpdata.xyz_to_deepmd import xyz_to_deepmd
 from mdkit.gpumd.merge_loss import merge_loss
+from mdkit.gpumd.plot_nep_training import plot_nep_training
 from mdkit.gpumd.thermo import thermo
 
 # 所有命令统一支持 -h / --help
@@ -46,6 +47,7 @@ deepmd_app.command("stat")(stat)
 deepmd_app.command("merge")(merge)
 gpumd_app.command("thermo")(thermo)
 gpumd_app.command("merge-loss")(merge_loss)
+gpumd_app.command("plot-nep-training")(plot_nep_training)
 dpdata_app.command("convert")(convert)
 dpdata_app.command("xyz-to-deepmd")(xyz_to_deepmd)
 

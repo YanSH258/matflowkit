@@ -36,6 +36,7 @@ mfk --help          # 验证
 | GPUMD 跑完后看 thermo.out 各列统计（温度、能量、压力走势） | `mfk gpumd thermo [FILE]` |
 | 想快速看一眼温度随步数的演化曲线 | `mfk gpumd thermo [FILE] --plot` |
 | 合并 NEP 首次训练与续训的 loss.out | `mfk gpumd merge-loss [FIRST] [RESTART]` |
+| 绘制 NEP loss 与能量/力/应力预测误差 | `mfk gpumd plot-nep-training [DIR]` |
 
 ## 命令的输入/输出约定
 
@@ -94,6 +95,12 @@ mfk --help          # 验证
   `restart/loss.out`。
 - 处理：默认将续训步数加上首次训练最后一个步数；`--offset` 可显式指定偏移。
 - 输出：默认 `loss_merged.out`；输出已存在时拒绝覆盖。
+
+### `mfk gpumd plot-nep-training [DIR]`
+- 输入：`loss.out`、`energy_train.out`、`force_train.out`；可选
+  `stress_train.out`。
+- 统计：完整数据上的 RMSE、MAE 和 R2；大数据只在散点绘制阶段抽样。
+- 输出：默认 `nep_training.png` 和 `nep_training_metrics.json`，已存在时拒绝覆盖。
 
 ## 补充脚本的原则（加命令前先读）
 
