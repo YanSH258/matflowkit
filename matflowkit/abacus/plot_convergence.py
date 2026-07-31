@@ -8,6 +8,8 @@ from typing import Optional
 
 import typer
 
+from matflowkit.common.plot_style import COLORS, apply_plot_style, figure_size, save_figure
+
 def parse_series(log: Path) -> dict:
     text = log.read_text(errors="replace")
     number = r"([-+]?\d*\.?\d+(?:[Ee][-+]?\d+)?)"
@@ -38,7 +40,7 @@ def find_logs(directory: Path) -> list[Path]:
 def plot_convergence(
     dir: Path = typer.Argument(Path("."), help="ABACUS relax/cell-relax 任务目录"),
     output: Optional[Path] = typer.Option(None, "-o", "--output", help="PNG 输出路径"),
-    dpi: int = typer.Option(180, min=72, max=600),
+    dpi: int = typer.Option(300, min=72, max=600),
 ):
     """画 ABACUS relax 收敛曲线。"""
     logs = find_logs(dir)
@@ -66,7 +68,8 @@ def plot_convergence(
             err=True,
         )
         raise typer.Exit(1) from exc
-    fig, axes = plt.subplots(len(panels), 1, figsize=(7, 2.7 * len(panels)))
+    apply_plot_style()
+    fig, axes = plt.subplots(len(panels), 1, figsize=figure_size("double", 0.32 * len(panels)))
     if len(panels) == 1:
         axes = [axes]
     for ax, key in zip(axes, panels):
@@ -74,19 +77,21 @@ def plot_convergence(
         steps = range(1, len(values) + 1)
         shown = [value - values[-1] for value in values] if key == "energy" else values
         if key in {"force", "stress"} and all(value > 0 for value in shown):
-            ax.semilogy(steps, shown, "o-", ms=3)
+            ax.semilogy(steps, shown, "o-", color=COLORS["blue"])
         else:
-            ax.plot(steps, shown, "o-", ms=3)
+            ax.plot(steps, shown, "o-", color=COLORS["blue"])
         ax.set_ylabel(
-            {"energy": "E - E_last (eV)", "force": "max force (eV/A)", "stress": "max stress"}[key]
+            {
+                "energy": r"$E-E_{\mathrm{last}}$ (eV)",
+                "force": r"Max force (eV/$\mathrm{\AA}$)",
+                "stress": "Max stress",
+            }[key]
         )
-        ax.set_xlabel("ionic step")
-        ax.grid(alpha=0.3)
+        ax.set_xlabel("Ionic step")
+        ax.grid(axis="y", color=COLORS["light_gray"], linewidth=0.6)
     fig.suptitle("ABACUS relaxation" + (" - converged" if data["converged"] else ""))
     fig.tight_layout()
     target = output or (dir / "abacus_relax_convergence.png")
-    target.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(target, dpi=dpi)
-    plt.close(fig)
+    save_figure(fig, target, dpi=dpi)
     typer.echo(f"日志: {log}")
     typer.echo(f"图片: {target}")

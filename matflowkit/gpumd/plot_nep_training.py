@@ -8,6 +8,10 @@ from pathlib import Path
 import numpy as np
 import typer
 
+from matflowkit.common.plot_style import (
+    COLORS, add_panel_labels, apply_plot_style, figure_size, save_figure,
+)
+
 
 def _load_table(path: Path, minimum_columns: int) -> np.ndarray:
     if not path.is_file():
@@ -157,18 +161,8 @@ def plot_nep_training(
         )
         raise typer.Exit(3) from exc
 
-    plt.rcParams.update(
-        {
-            "font.family": "serif",
-            "font.serif": ["Times New Roman", "Times", "DejaVu Serif"],
-            "font.size": 9,
-            "mathtext.fontset": "stix",
-            "axes.linewidth": 0.8,
-            "xtick.direction": "in",
-            "ytick.direction": "in",
-        }
-    )
-    fig, axes = plt.subplots(2, 2, figsize=(7.2, 6.2), dpi=160)
+    apply_plot_style()
+    fig, axes = plt.subplots(2, 2, figsize=figure_size("double", 0.84))
 
     labels, series = _loss_series(loss)
     for column, label in enumerate(labels):
@@ -220,7 +214,7 @@ def plot_nep_training(
             "stress_train.out not found",
             ha="center",
             va="center",
-            color="0.45",
+            color=COLORS["gray"],
         )
 
     for ax, reference, predicted, xlabel, ylabel, metric, scale, unit in panels:
@@ -238,8 +232,9 @@ def plot_nep_training(
             alpha=0.35,
             linewidths=0,
             rasterized=True,
+            color=COLORS["blue"],
         )
-        ax.plot([lower, upper], [lower, upper], color="0.35", ls="--", lw=0.9)
+        ax.plot([lower, upper], [lower, upper], color=COLORS["gray"], ls="--", lw=0.9)
         ax.set_xlim(lower, upper)
         ax.set_ylim(lower, upper)
         ax.set_aspect("equal", adjustable="box")
@@ -255,21 +250,10 @@ def plot_nep_training(
             va="top",
         )
 
-    for ax, label in zip(axes.flat, ["a.", "b.", "c.", "d."]):
-        ax.text(
-            -0.13,
-            1.04,
-            label,
-            transform=ax.transAxes,
-            fontweight="bold",
-            fontsize=11,
-            ha="left",
-            va="bottom",
-        )
+    add_panel_labels(axes.flat)
 
     fig.tight_layout()
-    fig.savefig(output, dpi=300)
-    plt.close(fig)
+    save_figure(fig, output)
     metrics_output.write_text(
         json.dumps(results, ensure_ascii=False, indent=2) + "\n"
     )

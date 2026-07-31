@@ -5,6 +5,8 @@ from pathlib import Path
 import numpy as np
 import typer
 
+from matflowkit.common.plot_style import COLORS, apply_plot_style, figure_size, save_figure
+
 
 def thermo(
     file: Path = typer.Argument(Path("thermo.out"), help="thermo.out 路径"),
@@ -51,12 +53,12 @@ def thermo(
                 fg=typer.colors.YELLOW,
             )
             return
-        fig, ax = plt.subplots(figsize=(6, 4))
-        ax.plot(steps, data[:, 0], lw=1)
-        ax.set_xlabel("output step")
-        ax.set_ylabel("column 1 (usually T / K)")
+        apply_plot_style()
+        fig, ax = plt.subplots(figsize=figure_size("single", 0.72))
+        ax.plot(steps, data[:, 0], color=COLORS["blue"])
+        ax.set_xlabel("Output step")
+        ax.set_ylabel("Column 1 (usually T / K)")
         fig.tight_layout()
         out = Path("thermo_col1.png")
-        fig.savefig(out, dpi=150)
-        plt.close(fig)
+        save_figure(fig, out)
         typer.echo(f"\n已保存图片: {out}")

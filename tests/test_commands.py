@@ -14,6 +14,12 @@ from matflowkit.dpa4.batch_relax import read_manifest, safe_case_id
 from matflowkit.dpa4.evaluate import frame_metrics
 from matflowkit.dpdata.overlap import frame_hash
 from matflowkit.cp2k.parser import parse_cp2k_output
+from matflowkit.common.plot_style import (
+    COLOR_CYCLE,
+    SINGLE_COLUMN_MM,
+    apply_plot_style,
+    figure_size,
+)
 
 
 def write_deepmd(path: Path, x: float, energy: float) -> None:
@@ -41,6 +47,19 @@ class CommandTests(unittest.TestCase):
 
     def tearDown(self):
         self.temp.cleanup()
+
+    def test_shared_plot_style(self):
+        import matplotlib as mpl
+
+        apply_plot_style()
+        width, height = figure_size("single", 0.5)
+        self.assertAlmostEqual(width, SINGLE_COLUMN_MM / 25.4)
+        self.assertAlmostEqual(height, width * 0.5)
+        self.assertEqual(mpl.rcParams["font.family"], ["sans-serif"])
+        self.assertEqual(mpl.rcParams["svg.fonttype"], "none")
+        self.assertEqual(
+            mpl.rcParams["axes.prop_cycle"].by_key()["color"], COLOR_CYCLE
+        )
 
     def test_abacus_audit_passes_complete_scf(self):
         task = self.root / "task"

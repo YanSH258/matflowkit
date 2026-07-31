@@ -75,6 +75,8 @@ DPA4 命令需要独立的 deepmd-kit + dftd3 环境（暂不随主环境安装�
 7. **可验证**：新命令配最小测试数据（放 /tmp，不进仓库）实际跑一遍验收；
    有真实案例后按 `examples/` 格式（命令 + 输入 + 输出 + 解释）收录。
 8. **提交纪律**：一个命令一个 commit，message 写清命令名与用途；积累 5~10 个命令打一次 tag。
+9. **绘图统一**：Matplotlib 图复用 `matflowkit/common/plot_style.py`，规则见
+   `knowledge/plotting_standard.md`；不在命令内另设字体和色板。
 
 ## 添加新命令的规范
 
