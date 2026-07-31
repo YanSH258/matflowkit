@@ -29,15 +29,33 @@ def frame_hash(
     wrap: bool = False,
 ) -> str:
     """Hash one frame after explicit coordinate rounding and normalization."""
-    symbols = np.asarray(atoms.get_chemical_symbols())
     if wrap:
         positions = atoms.get_scaled_positions(wrap=True) @ atoms.cell.array
     else:
         positions = np.asarray(atoms.positions)
+    return normalized_frame_hash(
+        atoms.get_chemical_symbols(), atoms.cell.array, positions, atoms.pbc,
+        decimals=decimals, order_independent=order_independent,
+    )
+
+
+def normalized_frame_hash(
+    symbols,
+    cell,
+    positions,
+    pbc,
+    decimals: int = 6,
+    order_independent: bool = False,
+) -> str:
+    """Hash normalized frame arrays; shared by ASE overlap and DeepMD report."""
+    symbols = np.asarray(symbols)
+    positions = np.asarray(positions, dtype=float)
     positions = np.round(positions, decimals)
+    if positions.shape != (len(symbols), 3):
+        raise ValueError("coordinates must have shape (natoms, 3)")
     if order_independent:
         order = sorted(
-            range(len(atoms)),
+            range(len(symbols)),
             key=lambda index: (
                 symbols[index],
                 positions[index, 0],
@@ -50,10 +68,8 @@ def frame_hash(
 
     digest = hashlib.sha256()
     digest.update("\0".join(symbols).encode())
-    digest.update(np.asarray(atoms.pbc, dtype=np.uint8).tobytes())
-    digest.update(
-        np.round(atoms.cell.array, decimals).astype("<f8").tobytes()
-    )
+    digest.update(np.asarray(pbc, dtype=np.uint8).reshape(3).tobytes())
+    digest.update(np.round(np.asarray(cell).reshape(3, 3), decimals).astype("<f8").tobytes())
     digest.update(positions.astype("<f8").tobytes())
     return digest.hexdigest()
 

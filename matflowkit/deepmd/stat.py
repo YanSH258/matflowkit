@@ -1,50 +1,26 @@
 """mfk deepmd stat：统计 DeePMD raw/npy 格式数据集（纯 numpy 实现）。"""
 
 import json
-from collections import Counter
 from pathlib import Path
 
 import numpy as np
 import typer
 
-
-def _is_system(d: Path) -> bool:
-    return d.is_dir() and (d / "type.raw").is_file() and any(d.glob("set.*"))
-
-
-def find_systems(root: Path) -> list:
-    """DIR 本身是单个 system，或其每个子目录是一个 system。"""
-    if _is_system(root):
-        return [root]
-    return [d for d in sorted(root.iterdir()) if _is_system(d)]
-
-
-def _load_array(p: Path) -> np.ndarray:
-    return np.load(p) if p.suffix == ".npy" else np.loadtxt(p)
+from matflowkit.deepmd.dataset import find_systems, load_array, read_system
 
 
 def stat_system(sysdir: Path) -> dict:
     """统计单个 DeePMD system。"""
-    types = np.atleast_1d(np.loadtxt(sysdir / "type.raw", dtype=int))
-    natoms = len(types)
-
-    type_map = None
-    tmap_file = sysdir / "type_map.raw"
-    if tmap_file.is_file():
-        type_map = tmap_file.read_text().split()
-
-    counts = Counter(int(t) for t in types)
-    atom_counts = {}
-    for t in sorted(counts):
-        label = type_map[t] if type_map and t < len(type_map) else f"type_{t}"
-        atom_counts[label] = counts[t]
+    system = read_system(sysdir)
+    natoms = system.natoms
+    atom_counts = system.atom_counts
 
     nframes = 0
     e_min, e_max = np.inf, -np.inf
     f_min, f_max = np.inf, -np.inf
     for setdir in sorted(sysdir.glob("set.*")):
-        energy = _load_array(setdir / "energy.npy").reshape(-1)
-        force = np.abs(_load_array(setdir / "force.npy").reshape(energy.size, -1))
+        energy = load_array(setdir / "energy.npy").reshape(-1)
+        force = np.abs(load_array(setdir / "force.npy").reshape(energy.size, -1))
         nframes += energy.size
         e_min = min(e_min, float(energy.min()))
         e_max = max(e_max, float(energy.max()))

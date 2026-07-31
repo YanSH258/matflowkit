@@ -36,6 +36,9 @@ MENU = {
         ("merge", "合并 NPY 数据集",
          [("@args", "输入目录（空格分隔）", "data_a data_b", False),
           ("--output", "输出目录", "deepmd_merged", False)]),
+        ("report", "生成数据集审计报告",
+         [("dataset-path", "数据集目录", ".", False),
+          ("--output", "报告目录", "deepmd_report", False)]),
     ]),
     "3": ("GPUMD", [
         ("thermo", "统计并绘制 thermo.out",

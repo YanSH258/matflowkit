@@ -13,6 +13,7 @@ from matflowkit.abacus.to_deepmd import to_deepmd
 from matflowkit.cp2k.audit import audit as cp2k_audit
 from matflowkit.cp2k.collect import collect as cp2k_collect
 from matflowkit.deepmd.merge import merge
+from matflowkit.deepmd.report import report as deepmd_report
 from matflowkit.deepmd.stat import stat
 from matflowkit.dpdata.convert import convert
 from matflowkit.dpdata.overlap import overlap
@@ -56,6 +57,7 @@ abacus_app.command("plot-convergence")(plot_convergence)
 abacus_app.command("to-deepmd")(to_deepmd)
 deepmd_app.command("stat")(stat)
 deepmd_app.command("merge")(merge)
+deepmd_app.command("report")(deepmd_report)
 gpumd_app.command("thermo")(thermo)
 gpumd_app.command("merge-loss")(merge_loss)
 gpumd_app.command("plot-nep-training")(plot_nep_training)

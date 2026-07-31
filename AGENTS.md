@@ -34,6 +34,7 @@ DPA4 命令需要独立的 deepmd-kit + dftd3 环境（暂不随主环境安装�
 | 绘制 ABACUS 结构优化收敛曲线 | `mfk abacus plot-convergence [DIR]` |
 | 将完成的 ABACUS 任务转换为 DeepMD NPY | `mfk abacus to-deepmd ROOT OUTPUT` |
 | 拿到一批 DeePMD 训练数据，先看规模、元素组成、能量/力范围 | `mfk deepmd stat [DIR]` |
+| 生成可复查的 DeepMD NPY 数据集统计与质量审计报告 | `mfk deepmd report DATASET_PATH` |
 | 按精确组成合并多个 DeepMD NPY 数据集 | `mfk deepmd merge INPUT... --output DIR` |
 | 需要程序化读取 DeePMD 数据集统计（接脚本/管道） | `mfk deepmd stat [DIR] --json` |
 | 在 ABACUS/CP2K/DeepMD/extxyz/GPUMD 格式间转换 | `mfk dpdata convert INPUT OUTPUT --from FMT --to FMT` |
