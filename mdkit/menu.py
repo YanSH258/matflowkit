@@ -41,6 +41,10 @@ MENU = {
         ("thermo", "分析 thermo.out 各列统计，可选画图",
          [("file", "thermo 文件", "thermo.out", False),
           ("plot", "是否画第 1 列曲线 (y/n)", "n", True)]),
+        ("merge-loss", "合并首次训练与续训的 loss.out",
+         [("first", "首次训练 loss 文件", "loss.out", False),
+          ("restart", "续训 loss 文件", "restart/loss.out", False),
+          ("--output", "输出文件", "loss_merged.out", False)]),
     ]),
     "4": ("dpdata", [
         ("convert", "转换 dpdata 支持的结构/标注数据格式",

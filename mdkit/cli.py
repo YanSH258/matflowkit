@@ -14,6 +14,7 @@ from mdkit.deepmd.merge import merge
 from mdkit.deepmd.stat import stat
 from mdkit.dpdata.convert import convert
 from mdkit.dpdata.xyz_to_deepmd import xyz_to_deepmd
+from mdkit.gpumd.merge_loss import merge_loss
 from mdkit.gpumd.thermo import thermo
 
 # 所有命令统一支持 -h / --help
@@ -44,6 +45,7 @@ abacus_app.command("to-deepmd")(to_deepmd)
 deepmd_app.command("stat")(stat)
 deepmd_app.command("merge")(merge)
 gpumd_app.command("thermo")(thermo)
+gpumd_app.command("merge-loss")(merge_loss)
 dpdata_app.command("convert")(convert)
 dpdata_app.command("xyz-to-deepmd")(xyz_to_deepmd)
 

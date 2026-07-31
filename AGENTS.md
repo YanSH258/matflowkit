@@ -35,6 +35,7 @@ mfk --help          # 验证
 | 将带标注的 GPUMD/extxyz 转为 DeepMD raw + NPY | `mfk dpdata xyz-to-deepmd [INPUT] [OUTPUT]` |
 | GPUMD 跑完后看 thermo.out 各列统计（温度、能量、压力走势） | `mfk gpumd thermo [FILE]` |
 | 想快速看一眼温度随步数的演化曲线 | `mfk gpumd thermo [FILE] --plot` |
+| 合并 NEP 首次训练与续训的 loss.out | `mfk gpumd merge-loss [FIRST] [RESTART]` |
 
 ## 命令的输入/输出约定
 
@@ -87,6 +88,12 @@ mfk --help          # 验证
 - `--plot`：画第 1 列随步数曲线，保存当前目录 `thermo_col1.png`；
   未安装 matplotlib 时改为保存 `thermo_col1.csv` 并提示，不崩溃。
 - 文件不存在：stderr 报错，退出码 1。
+
+### `mfk gpumd merge-loss [FIRST] [RESTART]`
+- 输入：首次训练和续训产生的两个 `loss.out`；默认分别为 `loss.out` 和
+  `restart/loss.out`。
+- 处理：默认将续训步数加上首次训练最后一个步数；`--offset` 可显式指定偏移。
+- 输出：默认 `loss_merged.out`；输出已存在时拒绝覆盖。
 
 ## 补充脚本的原则（加命令前先读）
 

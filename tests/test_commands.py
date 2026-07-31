@@ -217,6 +217,55 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(result.exit_code, 1, result.output)
         self.assertIn("输出路径已存在且非空", result.stderr)
 
+    def test_gpumd_merge_loss_offsets_restart_steps(self):
+        first = self.root / "loss.out"
+        restart = self.root / "restart_loss.out"
+        output = self.root / "loss_merged.out"
+        first.write_text("100 1.0 0.5\n200 0.8 0.4\n")
+        restart.write_text("100 0.7 0.3\n200 0.6 0.2\n")
+        result = self.runner.invoke(
+            app,
+            [
+                "gpumd",
+                "merge-loss",
+                str(first),
+                str(restart),
+                "--output",
+                str(output),
+            ],
+        )
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertEqual(
+            output.read_text().splitlines(),
+            [
+                "100 1.0 0.5",
+                "200 0.8 0.4",
+                "300 0.7 0.3",
+                "400 0.6 0.2",
+            ],
+        )
+
+    def test_gpumd_merge_loss_rejects_existing_output(self):
+        first = self.root / "loss.out"
+        restart = self.root / "restart_loss.out"
+        output = self.root / "loss_merged.out"
+        first.write_text("100 1.0\n")
+        restart.write_text("100 0.8\n")
+        output.write_text("keep\n")
+        result = self.runner.invoke(
+            app,
+            [
+                "gpumd",
+                "merge-loss",
+                str(first),
+                str(restart),
+                "--output",
+                str(output),
+            ],
+        )
+        self.assertEqual(result.exit_code, 1, result.output)
+        self.assertEqual(output.read_text(), "keep\n")
+
 
 if __name__ == "__main__":
     unittest.main()
