@@ -84,6 +84,29 @@ class CommandTests(unittest.TestCase):
         tasks = discover_tasks(self.root, "**/INPUT")
         self.assertEqual(tasks, [task])
 
+    def test_check_relax_reports_concise_convergence(self):
+        task = self.root / "relax_task"
+        task.mkdir()
+        log = task / "running_relax.log"
+        log.write_text(
+            "STEP OF RELAXATION : 1\n"
+            "final etot is -2.0 eV\n"
+            "Largest gradient in force is 0.2 eV/A.\n"
+            "Relaxation is not converged yet!\n"
+            "STEP OF RELAXATION : 2\n"
+            "final etot is -2.1 eV\n"
+            "Largest gradient in force is 0.02 eV/A.\n"
+            "Relaxation is converged!\n"
+        )
+        result = self.runner.invoke(
+            app, ["abacus", "check-relax", str(task)]
+        )
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertIn("Relaxation is converged!", result.output)
+        self.assertNotIn("Relaxation is not converged yet!", result.output)
+        self.assertIn("离子步数: 最后一步为第 2 步", result.output)
+        self.assertIn("提取数值: 0.02", result.output)
+
     def test_parse_convergence_series(self):
         log = self.root / "running_relax.log"
         log.write_text(

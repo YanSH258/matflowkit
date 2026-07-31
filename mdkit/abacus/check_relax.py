@@ -5,10 +5,13 @@ from pathlib import Path
 
 import typer
 
-# 收敛标记：宽松关键词匹配
-_CONV_RE = re.compile(r"convergence has been achieved|relax.{0,10}converged|converged", re.IGNORECASE)
-# 离子步序号，形如 "STEP OF ION RELAXATION : 12"
-_STEP_RE = re.compile(r"STEP OF ION RELAXATION\s*:?\s*(\d+)", re.IGNORECASE)
+# 收敛标记：只匹配真正的收敛/完成，不匹中间 "not converged yet" 等未收敛状态
+_CONV_RE = re.compile(
+    r"convergence has been achieved|relax.{0,10}is converged|is converged!",
+    re.IGNORECASE,
+)
+# 离子步序号，形如 "STEP OF RELAXATION : 12"（ABACUS relax/cell-relax）
+_STEP_RE = re.compile(r"STEP OF RELAXATION\s*:?\s*(\d+)", re.IGNORECASE)
 # 总能行：形如 "final etot is ..." 或 "!FINAL etot is ..."
 _ETOT_RE = re.compile(r"final\s+etot|!FINAL", re.IGNORECASE)
 # 最大力行：形如 "LARGEST GRAD (eV/A)  : 0.00123" 或 "... max force ..."
@@ -52,17 +55,19 @@ def check_relax(
     conv_lines = [l.strip() for l in lines if _CONV_RE.search(l)]
     if conv_lines:
         typer.secho("收敛状态: 发现收敛标记", fg=typer.colors.GREEN)
-        for l in conv_lines:
-            typer.echo(f"  匹配行: {l}")
+        typer.echo(f"  最终匹配行: {conv_lines[-1]}")
+        if len(conv_lines) > 1:
+            typer.echo(f"  共 {len(conv_lines)} 条收敛记录")
     else:
         typer.secho("收敛状态: 未发现收敛标记（计算可能未收敛或仍在运行）", fg=typer.colors.YELLOW)
 
     # 2) 最后一步离子步序号
     steps = [int(m.group(1)) for l in lines for m in [_STEP_RE.search(l)] if m]
     if steps:
-        typer.echo(f"离子步数: 最后一步为第 {max(steps)} 步（共匹配 {len(steps)} 条步进记录）")
+        typer.echo(f"离子步数: 最后一步为第 {max(steps)} 步（共 {len(steps)} 条步进记录）")
     else:
-        typer.echo("离子步数: 未找到 'STEP OF ION RELAXATION' 行")
+        typer.echo("离子步数: 未找到 'STEP OF RELAXATION' 行")
+
 
     # 3) 总能
     etot_lines = [l.strip() for l in lines if _ETOT_RE.search(l)]
