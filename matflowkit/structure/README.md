@@ -14,7 +14,12 @@
 - `--basis lcao`：除赝势外，从 `ABACUS_ORB_PATH` 查找配套 `.orb`；默认 `pw`
   不写 `NUMERICAL_ORBITAL`。
 - `--pp-dir` / `--orb-dir`：临时切换资源库，不修改全局配置。
-- STRU 默认在输出目录创建赝势和轨道软链接；`--copy-files` 改为复制。
+- 转为 STRU 时同时生成单点 SCF 使用的 `INPUT`；默认在 INPUT 中直接引用资源库，
+  不创建软链接。`--copy-files` 会复制赝势和轨道，并把目录改为当前目录。
+- `INPUT` 的 `ecutwfc` 默认取赝势库 `ecutwfc.json` 和轨道文件头中的最大推荐值；
+  无推荐值时必须使用 `--ecutwfc` 指定。
+- LCAO 单点模板使用 Gamma 点，PW 模板使用 `kspacing 0.2`；正式计算前仍需按体系
+  检查 k 点、磁性和收敛参数。
 - `--output/-o`：覆盖默认输出文件名。已有文件不会覆盖。
 - 默认只打印输出路径和校验摘要；`--json` 输出完整校验、赝势和轨道文件记录。
 
