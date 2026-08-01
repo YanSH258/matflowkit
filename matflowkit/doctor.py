@@ -19,6 +19,7 @@ from matflowkit import __version__
 
 OPTIONAL_DEPENDENCIES = (
     ("dpdata", "dpdata", "dpdata"),
+    ("CP2KData", "cp2kdata", "cp2kdata"),
     ("ASE", "ase", "ase"),
     ("pymatgen", "pymatgen", "pymatgen"),
     ("matplotlib", "matplotlib", "matplotlib"),

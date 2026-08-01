@@ -44,20 +44,20 @@ MD 模拟（GPUMD）
 ```bash
 git clone git@github.com:YanSH258/matflowkit.git
 cd matflowkit
-uv sync --extra plot --extra dpdata --extra structure
+uv sync --extra plot --extra dpdata --extra cp2k --extra structure
 uv run mfk --help
 ```
 
 需要在任意目录直接运行 `mfk` 时：
 
 ```bash
-uv tool install --editable '.[plot,dpdata,structure]'
+uv tool install --editable '.[plot,dpdata,cp2k,structure]'
 ```
 
 也可以安装到现有 Python 3.9+ 环境：
 
 ```bash
-python -m pip install -e '.[plot,dpdata,structure]'
+python -m pip install -e '.[plot,dpdata,cp2k,structure]'
 mfk --help
 ```
 
@@ -76,6 +76,7 @@ mfk abacus audit ./tasks --strict
 mfk abacus report ./tasks
 mfk abacus to-deepmd ./tasks ./deepmd_data
 mfk vasp to-deepmd ./vasp_tasks ./vasp_data
+mfk cp2k aimd-to-deepmd ./cp2k_aimd ./cp2k_aimd_data
 mfk gpumd from-deepmd ./deepmd_data/deepmd_npy train.xyz
 mfk deepmd stat ./deepmd_data/deepmd_npy
 mfk dpdata overlap train.extxyz test.extxyz
@@ -127,7 +128,7 @@ mfk gpumd plot-nep-training ./train
 | 模块   | 目前包含的命令                          |
 | -------- | ----------------------------------------- |
 | ABACUS | relax 检查、批量审计、任务报告、收敛图、转 DeepMD |
-| CP2K   | 输出审计、单点数据收集                  |
+| CP2K   | 输出审计、单点数据收集、AIMD 转 DeepMD |
 | VASP   | OUTCAR 转 DeepMD NPY                    |
 | DeepMD | 数据集统计、按组成合并、数据集报告       |
 | dpdata | 格式转换、XYZ 转 DeepMD、数据集查重     |
@@ -167,6 +168,7 @@ matflowkit/
 - [GPUMDkit](https://github.com/zhyan0603/GPUMDkit)
 - [DeePMD-kit documentation](https://docs.deepmodeling.com/projects/deepmd/en/latest/)
 - [dpdata documentation](https://docs.deepmodeling.com/projects/dpdata/en/master/)
+- [CP2KData dpdata plugin](https://robinzyb.github.io/cp2kdata/docs/dpdata_plugin.html)
 - [ABACUS documentation](https://abacus.deepmodeling.com/en/latest/)
 - [CP2K manual](https://manual.cp2k.org/)
 - [VASP documentation](https://www.vasp.at/wiki/)

@@ -26,7 +26,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install MatFlowKit and test dependencies
-        run: uv sync --locked --extra dev --extra plot --extra dpdata --extra structure
+        run: uv sync --locked --extra dev --extra plot --extra dpdata --extra cp2k --extra structure
 
       - name: Run tests
         run: uv run pytest -q

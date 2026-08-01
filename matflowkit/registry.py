@@ -11,6 +11,7 @@ from matflowkit.abacus.plot_convergence import plot_convergence
 from matflowkit.abacus.report import report as abacus_report
 from matflowkit.abacus.to_deepmd import to_deepmd
 from matflowkit.cp2k.audit import audit as cp2k_audit
+from matflowkit.cp2k.aimd_to_deepmd import aimd_to_deepmd
 from matflowkit.cp2k.collect import collect as cp2k_collect
 from matflowkit.deepmd.merge import merge
 from matflowkit.deepmd.report import report as deepmd_report
@@ -144,6 +145,10 @@ GROUPS = (
         CommandSpec("collect", cp2k_collect, "CP2K 转 DeepMD", (
             ("root", "CP2K 单点任务根目录", ".", False),
             ("output", "新的数据集目录", "cp2k_dataset", False),
+        )),
+        CommandSpec("aimd-to-deepmd", aimd_to_deepmd, "AIMD 转 DeepMD", (
+            ("root", "CP2K AIMD 计算目录", ".", False),
+            ("output", "新的数据集目录", "cp2k_aimd_dataset", False),
         )),
     )),
     GroupSpec("7", "VASP", "vasp", "VASP", (

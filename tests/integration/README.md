@@ -13,6 +13,7 @@ MFK_REAL_SAMPLE_ROOT=/home/yan/脚本整理 uv run pytest tests/integration -q
 
 - ABACUS：真实 SCF 任务生成报告；
 - CP2K：4 个 352 原子单点输出审计；
+- CP2K AIMD：真实 352 原子、6 帧轨迹转 DeepMD NPY（需安装 `cp2k` extra）；
 - VASP：真实 Cu OUTCAR 转换为 DeepMD NPY；
 - DeepMD：对上述真实转换数据生成数据集报告。
 

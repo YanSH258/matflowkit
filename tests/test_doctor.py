@@ -31,6 +31,7 @@ def test_doctor_json_reports_dependencies_and_resources(tmp_path, monkeypatch):
     payload = json.loads(result.output)
     assert payload["matflowkit_version"]
     assert "dpdata" in payload["dependencies"]
+    assert "CP2KData" in payload["dependencies"]
     assert payload["abacus_resources"]["pseudopotentials"] == {
         "status": "ready",
         "path": str(pp_dir),

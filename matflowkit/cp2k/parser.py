@@ -13,11 +13,15 @@ BOHR_TO_ANGSTROM = 0.529177210903
 HARTREE_PER_BOHR_TO_EV_PER_ANGSTROM = HARTREE_TO_EV / BOHR_TO_ANGSTROM
 FLOAT = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[EeDd][-+]?\d+)?"
 ENERGY_PATTERN = re.compile(
-    rf"^\s*ENERGY\|\s+Total FORCE_EVAL.*?energy \[hartree\]\s+({FLOAT})",
+    rf"^\s*ENERGY\|\s+Total FORCE_EVAL.*?energy "
+    rf"\[(?:hartree|a\.u\.)\]\s*:?\s+({FLOAT})",
     re.MULTILINE,
 )
 FORCE_PATTERN = re.compile(
     rf"^\s*FORCES\|\s+(\d+)\s+({FLOAT})\s+({FLOAT})\s+({FLOAT})(?:\s+{FLOAT})?",
+)
+TABLE_FORCE_PATTERN = re.compile(
+    rf"^\s*(\d+)\s+\d+\s+\S+\s+({FLOAT})\s+({FLOAT})\s+({FLOAT})\s*$"
 )
 CELL_PATTERN = re.compile(
     rf"^\s*CELL\|\s+Vector\s+([abc])\s+\[angstrom\]:\s+"
@@ -35,7 +39,36 @@ def force_blocks(text: str) -> list[np.ndarray]:
     blocks: list[list[list[float]]] = []
     current: list[list[float]] = []
     expected_index = 1
+    table_active = False
     for line in text.splitlines():
+        if "ATOMIC FORCES in" in line:
+            if current:
+                blocks.append(current)
+            current = []
+            expected_index = 1
+            table_active = True
+            continue
+        if table_active:
+            if "SUM OF ATOMIC FORCES" in line:
+                if current:
+                    blocks.append(current)
+                current = []
+                expected_index = 1
+                table_active = False
+                continue
+            table_match = TABLE_FORCE_PATTERN.match(line)
+            if table_match:
+                atom_index = int(table_match.group(1))
+                if atom_index != expected_index:
+                    current = []
+                    expected_index = 1
+                    table_active = False
+                    continue
+                current.append(
+                    [_number(table_match.group(i)) for i in (2, 3, 4)]
+                )
+                expected_index += 1
+                continue
         match = FORCE_PATTERN.match(line)
         if not match:
             continue
@@ -52,7 +85,7 @@ def force_blocks(text: str) -> list[np.ndarray]:
                 continue
         current.append([_number(match.group(i)) for i in (2, 3, 4)])
         expected_index += 1
-    if current:
+    if current and not table_active:
         blocks.append(current)
     return [
         np.asarray(block, dtype=float)

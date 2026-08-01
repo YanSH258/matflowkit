@@ -6,7 +6,8 @@
 ## `mfk dpdata convert INPUT OUTPUT --from FMT --to FMT`
 - 对 dpdata 支持的标注数据格式执行单一格式转换（如
   `deepmd/npy`、`extxyz`、`cp2kdata/md`、`abacus/scf` 等）。
-- `dpdata` 是可选依赖，缺失时给出安装命令。
+- `dpdata` 是可选依赖。`cp2kdata/md` 还需要安装 `.[cp2k]`；常规格式只需
+  `.[dpdata]`。
 - 输出已存在时拒绝覆盖。
 
 ## `mfk dpdata xyz-to-deepmd [INPUT] [OUTPUT]`

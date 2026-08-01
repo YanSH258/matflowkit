@@ -10,7 +10,7 @@ GPUMD / DPA4 的前处理、过程分析与后处理。设计模式：单一入�
 ## 安装与验证
 
 ```bash
-uv sync --extra dev --extra plot --extra dpdata --extra structure
+uv sync --extra dev --extra plot --extra dpdata --extra cp2k --extra structure
 uv run mfk --help          # 验证 CLI
 uv run pytest tests/       # 验证测试
 ```
@@ -53,6 +53,7 @@ DPA4 命令需要独立的 deepmd-kit + dftd3 环境（暂不随主环境安装�
 | 使用 DPA4 计算 NEB/CI-NEB 路径 | `mfk dpa4 neb INITIAL FINAL` |
 | 批量审计 CP2K 单点输出的完成与标注证据 | `mfk cp2k audit [ROOT]` |
 | 收集 CP2K 单点能量和力为 DeepMD NPY/extxyz | `mfk cp2k collect [ROOT] [OUTPUT]` |
+| 将 CP2K AIMD 原生轨迹转为 DeepMD NPY/extxyz | `mfk cp2k aimd-to-deepmd [ROOT] [OUTPUT]` |
 | 将 VASP OUTCAR 转换为按组成拆分的 DeepMD NPY | `mfk vasp to-deepmd [ROOT] [OUTPUT]` |
 | 在 CIF、Extended XYZ、POSCAR 间转换或生成带赝势引用的 STRU | `mfk structure convert INPUT --to cif\|xyz\|poscar\|stru` |
 

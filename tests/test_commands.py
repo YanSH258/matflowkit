@@ -198,6 +198,29 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(result.exit_code, 0, result.output)
         self.assertTrue(output.is_file())
 
+    def test_cp2k_parser_accepts_current_energy_and_force_table(self):
+        log = self.root / "current_cp2k.log"
+        log.write_text(
+            " CELL| Vector a [angstrom]: 10.0 0.0 0.0\n"
+            " CELL| Vector b [angstrom]: 0.0 10.0 0.0\n"
+            " CELL| Vector c [angstrom]: 0.0 0.0 10.0\n"
+            " *** SCF run converged in 10 steps ***\n"
+            " ENERGY| Total FORCE_EVAL ( QS ) energy [a.u.]: -1.000000\n"
+            " ATOMIC FORCES in [a.u.]\n"
+            " # Atom Kind Element X Y Z\n"
+            " 1 1 H 1.0E-3 0.0 0.0\n"
+            " 2 1 H -1.0E-3 0.0 0.0\n"
+            " SUM OF ATOMIC FORCES 0.0 0.0 0.0 0.0\n"
+            " PROGRAM ENDED AT\n"
+        )
+
+        parsed = parse_cp2k_output(log)
+
+        self.assertEqual(parsed["status"], "PASS")
+        self.assertEqual(parsed["energy_records"], 1)
+        self.assertEqual(parsed["force_blocks"], 1)
+        self.assertEqual(parsed["final_force_atoms"], 2)
+
     def test_cp2k_collect_exports_single_point(self):
         task = self.root / "task"
         task.mkdir()

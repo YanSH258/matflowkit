@@ -78,6 +78,25 @@ def test_real_cp2k_audit(sample_root: Path, tmp_path: Path):
     assert summary["pass"] == 4
 
 
+def test_real_cp2k_aimd_to_deepmd(sample_root: Path, tmp_path: Path):
+    pytest.importorskip("cp2kdata")
+    source = _require(
+        sample_root / "conversion_test_inputs" / "cp2k" / "aimd_ni_drop_test"
+    )
+    output = tmp_path / "cp2k_aimd_dataset"
+    result = runner.invoke(
+        app,
+        ["cp2k", "aimd-to-deepmd", str(source), str(output)],
+    )
+    assert result.exit_code == 0, result.output
+    summary = json.loads((output / "reports" / "summary.json").read_text())
+    assert summary["frames"] == 6
+    assert summary["atoms"] == 352
+    assert summary["type_map"] == ["H", "O", "P", "Ca"]
+    assert summary["has_virial"] is True
+    assert summary["roundtrip_validation"] == "PASS"
+
+
 def test_real_vasp_to_deepmd(sample_root: Path, tmp_path: Path):
     source = _require(
         sample_root
