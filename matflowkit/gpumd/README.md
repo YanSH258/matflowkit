@@ -44,10 +44,11 @@ mfk gpumd npy-to-xyz ./deepmd_npy train.xyz --virial
 
 ## `mfk gpumd plot-nep-evaluation [DIR]`
 
-- 必需输入：`energy_test.out` 和 `force_test.out`。测试集是误差结论的主要证据。
-- 可选输入：成对出现的 `energy_train.out`、`force_train.out`，以及各 split 对应的
-  `stress_*.out` 或 `virial_*.out`；tensor 缺失时如实跳过。
-- 统计：对完整数组分别计算 RMSE、MAE 和 R2。测试集与训练集不会混在一起统计。
+- 输入：自动扫描 `energy/force/stress/virial` 对应的 `_train.out` 和 `_test.out`；
+  每个文件独立绘图，不要求 energy、force 或 train、test 成对出现。
+- 目录中只有训练文件时也会生成图，但 JSON 和终端会明确标记为“只有训练集误差”；
+  发现任何测试文件时，测试集才会标记为主要验证证据。
+- 统计：对完整数组分别计算 RMSE、MAE 和 R2；不同属性及 train/test 不混合统计。
 - 绘图：小数据画散点，大于 `--density-threshold` 的面板画二维密度；散点抽样只影响
   显示，不影响指标。
 - 输出：默认 `nep_evaluation.png` 和 `nep_evaluation_metrics.json`，已存在时拒绝覆盖。

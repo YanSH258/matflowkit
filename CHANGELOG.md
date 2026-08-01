@@ -21,6 +21,8 @@
 
 ### 调整
 
+- `mfk gpumd plot-nep-evaluation` 改为自动扫描已有的 train/test energy、force、
+  stress 和 virial 文件，每个文件可独立绘图。
 - CLI 与交互菜单改为共用一个命令注册表。
 - ABACUS 审计会列出缺少的完成证据，不再只写笼统的“完成证据不完整”。
 - 主菜单按 Structure、ABACUS、CP2K、VASP、dpdata、DeepMD、GPUMD、DPA4、System

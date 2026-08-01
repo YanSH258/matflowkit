@@ -1,10 +1,10 @@
-"""Plot held-out NEP predictions, with optional training-set comparison."""
+"""Plot whichever standard NEP train/test prediction files are available."""
 
 from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Optional
+from math import ceil
 
 import numpy as np
 import typer
@@ -24,42 +24,51 @@ from matflowkit.gpumd.plot_nep_training import (
 )
 
 
-def _read_split(directory: Path, split: str, required: bool) -> Optional[dict]:
-    energy_path = directory / f"energy_{split}.out"
-    force_path = directory / f"force_{split}.out"
-    present = (energy_path.is_file(), force_path.is_file())
-    if not any(present) and not required:
-        return None
-    if not all(present):
-        missing = energy_path if not present[0] else force_path
-        raise FileNotFoundError(f"{split} 数据不完整，缺少: {missing}")
+PROPERTY_SPECS = (
+    ("energy", 2, slice(0, 1), slice(1, 2), "eV/atom", 1000.0, "meV/atom"),
+    (
+        "force",
+        6,
+        slice(0, 3),
+        slice(3, 6),
+        "eV/angstrom",
+        1000.0,
+        "meV/Å",
+    ),
+    ("stress", 12, slice(0, 6), slice(6, 12), "GPa", 1.0, "GPa"),
+    ("virial", 12, slice(0, 6), slice(6, 12), "eV/atom", 1000.0, "meV/atom"),
+)
 
-    tensor = None
-    tensor_name = None
-    tensor_unit = None
-    tensor_scale = None
-    for name, unit, scale in (("stress", "GPa", 1.0), ("virial", "eV/atom", 1000.0)):
-        path = directory / f"{name}_{split}.out"
-        if path.is_file():
-            tensor = _load_table(path, 12)
-            valid = ~np.any(np.abs(tensor[:, :12]) >= 1.0e6, axis=1)
-            tensor = tensor[valid]
-            if len(tensor) == 0:
-                tensor = None
-            else:
-                tensor_name = name
-                tensor_unit = unit
-                tensor_scale = scale
-            break
 
-    return {
-        "energy": _load_table(energy_path, 2),
-        "force": _load_table(force_path, 6),
-        "tensor": tensor,
-        "tensor_name": tensor_name,
-        "tensor_unit": tensor_unit,
-        "tensor_scale": tensor_scale,
-    }
+def _discover_panels(directory: Path) -> list[dict]:
+    panels = []
+    for split in ("train", "test"):
+        for name, columns, predicted, reference, unit, scale, metric_unit in PROPERTY_SPECS:
+            path = directory / f"{name}_{split}.out"
+            if not path.is_file():
+                continue
+            data = _load_table(path, columns)
+            if name in ("stress", "virial"):
+                valid = ~np.any(np.abs(data[:, :12]) >= 1.0e6, axis=1)
+                data = data[valid]
+                if len(data) == 0:
+                    raise ValueError(f"{path} 没有可绘制的有限 tensor 行")
+            panels.append(
+                {
+                    "split": split,
+                    "property": name,
+                    "path": path,
+                    "predicted": data[:, predicted],
+                    "reference": data[:, reference],
+                    "unit": unit,
+                    "metric_scale": scale,
+                    "metric_unit": metric_unit,
+                }
+            )
+    if not panels:
+        names = ", ".join(f"{name}_{{train,test}}.out" for name, *_ in PROPERTY_SPECS)
+        raise FileNotFoundError(f"未找到可绘制的 NEP 输出；支持: {names}")
+    return panels
 
 
 def _metric_record(predicted: np.ndarray, reference: np.ndarray, unit: str) -> dict:
@@ -142,7 +151,7 @@ def plot_nep_evaluation(
         100_000, min=1000, help="达到该数据量时改用二维密度图"
     ),
 ) -> None:
-    """比较 NEP 训练集和测试集预测，测试集文件为必需输入。"""
+    """扫描目录并绘制已有的 NEP energy/force/stress/virial 预测文件。"""
     directory = directory.expanduser().resolve()
     output = output.expanduser().resolve()
     metrics_output = metrics_output.expanduser().resolve()
@@ -155,25 +164,22 @@ def plot_nep_evaluation(
             raise typer.Exit(1)
 
     try:
-        test = _read_split(directory, "test", required=True)
-        train = _read_split(directory, "train", required=False)
+        panels = _discover_panels(directory)
     except (FileNotFoundError, OSError, ValueError) as exc:
         typer.secho(f"错误: {exc}", err=True, fg=typer.colors.RED)
         raise typer.Exit(2) from exc
 
-    splits = [("test", test)]
-    if train is not None:
-        splits.insert(0, ("train", train))
+    has_test = any(panel["split"] == "test" for panel in panels)
     metrics: dict[str, object] = {
         "directory": str(directory),
-        "primary_evidence": "held-out test set",
+        "primary_evidence": (
+            "held-out test set"
+            if has_test
+            else "training set only; no held-out test files found"
+        ),
+        "files_used": [str(panel["path"]) for panel in panels],
         "splits": {},
     }
-    tensor_names = {
-        data["tensor_name"] for _, data in splits if data["tensor_name"] is not None
-    }
-    show_tensor = bool(tensor_names)
-    columns = 3 if show_tensor else 2
 
     try:
         import matplotlib
@@ -189,95 +195,67 @@ def plot_nep_evaluation(
         raise typer.Exit(3) from exc
 
     apply_plot_style()
+    columns = 2 if len(panels) == 4 else min(3, len(panels))
+    rows = ceil(len(panels) / columns)
+    size_kind = "single" if columns == 1 else "double"
+    height_ratio = 0.9 if columns == 1 else 0.40 * rows
     fig, axes = plt.subplots(
-        len(splits),
+        rows,
         columns,
         squeeze=False,
-        figsize=figure_size("double", 0.42 * len(splits)),
+        figsize=figure_size(size_kind, height_ratio),
     )
-    for row, (split_name, data) in enumerate(splits):
-        energy = data["energy"]
-        force = data["force"]
-        split_metrics = {
-            "energy": _metric_record(energy[:, 0], energy[:, 1], "eV/atom"),
-            "force_components": _metric_record(
-                force[:, :3], force[:, 3:6], "eV/angstrom"
-            ),
-        }
-        metrics["splits"][split_name] = split_metrics
-        split_metrics["energy"]["plot_mode"] = _plot_panel(
-            axes[row, 0],
-            energy[:, 1],
-            energy[:, 0],
-            f"DFT energy ({split_name}, eV/atom)",
-            f"NEP energy ({split_name}, eV/atom)",
-            split_metrics["energy"],
-            1000.0,
-            "meV/atom",
+    flat_axes = list(axes.flat)
+    used_axes = []
+    for ax, panel in zip(flat_axes, panels):
+        used_axes.append(ax)
+        split_name = panel["split"]
+        property_name = panel["property"]
+        key = property_name if property_name == "energy" else f"{property_name}_components"
+        split_metrics = metrics["splits"].setdefault(split_name, {})
+        metric = _metric_record(
+            panel["predicted"], panel["reference"], panel["unit"]
+        )
+        split_metrics[key] = metric
+        axis_unit = (
+            r"eV/$\mathrm{\AA}$" if property_name == "force" else panel["unit"]
+        )
+        metric["plot_mode"] = _plot_panel(
+            ax,
+            panel["reference"],
+            panel["predicted"],
+            f"DFT {property_name} ({split_name}, {axis_unit})",
+            f"NEP {property_name} ({split_name}, {axis_unit})",
+            metric,
+            panel["metric_scale"],
+            panel["metric_unit"],
             max_points,
             density_threshold,
         )
-        split_metrics["force_components"]["plot_mode"] = _plot_panel(
-            axes[row, 1],
-            force[:, 3:6],
-            force[:, :3],
-            rf"DFT force ({split_name}, eV/$\mathrm{{\AA}}$)",
-            rf"NEP force ({split_name}, eV/$\mathrm{{\AA}}$)",
-            split_metrics["force_components"],
-            1000.0,
-            r"meV/$\mathrm{\AA}$",
-            max_points,
-            density_threshold,
-        )
-
-        if show_tensor:
-            tensor = data["tensor"]
-            if tensor is None:
-                axes[row, 2].axis("off")
-                axes[row, 2].text(
-                    0.5,
-                    0.5,
-                    f"No stress/virial {split_name} data",
-                    ha="center",
-                    va="center",
-                    color=COLORS["gray"],
-                )
-            else:
-                tensor_name = data["tensor_name"]
-                tensor_unit = data["tensor_unit"]
-                tensor_metric = _metric_record(
-                    tensor[:, :6], tensor[:, 6:12], tensor_unit
-                )
-                split_metrics[f"{tensor_name}_components"] = tensor_metric
-                metric_scale = float(data["tensor_scale"])
-                metric_unit = "meV/atom" if tensor_name == "virial" else tensor_unit
-                tensor_metric["plot_mode"] = _plot_panel(
-                    axes[row, 2],
-                    tensor[:, 6:12],
-                    tensor[:, :6],
-                    f"DFT {tensor_name} ({split_name}, {tensor_unit})",
-                    f"NEP {tensor_name} ({split_name}, {tensor_unit})",
-                    tensor_metric,
-                    metric_scale,
-                    metric_unit,
-                    max_points,
-                    density_threshold,
-                )
-
-    add_panel_labels(axes.flat)
+    for ax in flat_axes[len(panels):]:
+        ax.axis("off")
+    add_panel_labels(used_axes)
     fig.tight_layout()
     output.parent.mkdir(parents=True, exist_ok=True)
     metrics_output.parent.mkdir(parents=True, exist_ok=True)
     save_figure(fig, output)
     metrics_output.write_text(json.dumps(metrics, ensure_ascii=False, indent=2) + "\n")
 
-    test_metrics = metrics["splits"]["test"]
     typer.echo(f"已保存图片: {output}")
     typer.echo(f"已保存误差指标: {metrics_output}")
-    typer.echo(
-        f"Test energy RMSE: {test_metrics['energy']['rmse'] * 1000:.3g} meV/atom"
-    )
-    typer.echo(
-        "Test force RMSE: "
-        f"{test_metrics['force_components']['rmse'] * 1000:.3g} meV/angstrom"
-    )
+    if not has_test:
+        typer.echo("提示: 未找到 test 输出；当前结果只有训练集误差。")
+    reported_split = "test" if has_test else "train"
+    for panel in panels:
+        if panel["split"] != reported_split:
+            continue
+        key = (
+            panel["property"]
+            if panel["property"] == "energy"
+            else f"{panel['property']}_components"
+        )
+        value = metrics["splits"][panel["split"]][key]["rmse"]
+        typer.echo(
+            f"{panel['split'].capitalize()} {panel['property']} RMSE: "
+            f"{value * panel['metric_scale']:.3g} {panel['metric_unit']}"
+        )

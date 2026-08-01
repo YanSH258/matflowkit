@@ -87,8 +87,12 @@ def test_gpumd_evaluation_accepts_test_only_and_optional_tensor(tmp_path):
     assert set(values["splits"]) == {"test"}
 
 
-def test_gpumd_evaluation_rejects_incomplete_test_files(tmp_path):
+def test_gpumd_evaluation_draws_each_available_file_independently(tmp_path):
     np.savetxt(tmp_path / "energy_test.out", np.array([[-1.0, -1.1]]))
+    np.savetxt(
+        tmp_path / "force_train.out",
+        np.array([[0.1, 0.2, 0.3, 0.11, 0.19, 0.31]]),
+    )
     result = runner.invoke(
         app,
         [
@@ -97,7 +101,40 @@ def test_gpumd_evaluation_rejects_incomplete_test_files(tmp_path):
             str(tmp_path),
             "--output",
             str(tmp_path / "evaluation.png"),
+            "--metrics",
+            str(tmp_path / "evaluation.json"),
         ],
     )
+    assert result.exit_code == 0, result.output
+    values = json.loads((tmp_path / "evaluation.json").read_text())
+    assert set(values["splits"]["test"]) == {"energy"}
+    assert set(values["splits"]["train"]) == {"force_components"}
+
+
+def test_gpumd_evaluation_marks_training_only_evidence(tmp_path):
+    np.savetxt(tmp_path / "energy_train.out", np.array([[-1.0, -1.1]]))
+    result = runner.invoke(
+        app,
+        [
+            "gpumd",
+            "plot-nep-evaluation",
+            str(tmp_path),
+            "--output",
+            str(tmp_path / "evaluation.png"),
+            "--metrics",
+            str(tmp_path / "evaluation.json"),
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    values = json.loads((tmp_path / "evaluation.json").read_text())
+    assert values["primary_evidence"].startswith("training set only")
+    assert "只有训练集误差" in result.output
+
+
+def test_gpumd_evaluation_rejects_directory_without_supported_files(tmp_path):
+    result = runner.invoke(
+        app,
+        ["gpumd", "plot-nep-evaluation", str(tmp_path)],
+    )
     assert result.exit_code != 0
-    assert "force_test.out" in result.output
+    assert "未找到可绘制的 NEP 输出" in result.output
