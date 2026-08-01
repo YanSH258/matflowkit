@@ -15,6 +15,7 @@ from matflowkit.cp2k.collect import collect as cp2k_collect
 from matflowkit.deepmd.merge import merge
 from matflowkit.deepmd.report import report as deepmd_report
 from matflowkit.deepmd.stat import stat
+from matflowkit.doctor import doctor
 from matflowkit.dpdata.convert import convert
 from matflowkit.dpdata.overlap import overlap
 from matflowkit.dpdata.xyz_to_deepmd import xyz_to_deepmd
@@ -80,6 +81,7 @@ cp2k_app.command("audit")(cp2k_audit)
 cp2k_app.command("collect")(cp2k_collect)
 vasp_app.command("to-deepmd")(vasp_to_deepmd)
 structure_app.command("convert")(structure_convert)
+app.command("doctor")(doctor)
 
 app.add_typer(abacus_app, name="abacus")
 app.add_typer(deepmd_app, name="deepmd")

@@ -71,6 +71,7 @@ DPA4 需要单独的 deepmd-kit + dftd3 环境，见
 
 ```bash
 mfk --help
+mfk doctor
 mfk abacus audit ./tasks --strict
 mfk abacus to-deepmd ./tasks ./deepmd_data
 mfk vasp to-deepmd ./vasp_tasks ./vasp_data
@@ -86,6 +87,9 @@ mfk gpumd plot-nep-training ./train
 ```bash
 mfk abacus audit -h
 ```
+
+安装后可运行 `mfk doctor`，检查可选依赖以及 `ABACUS_PP_PATH`、
+`ABACUS_ORB_PATH` 的配置状态；使用 `mfk doctor --json` 可获得机器可读结果。
 
 ### 交互菜单
 

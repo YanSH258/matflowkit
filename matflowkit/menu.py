@@ -112,6 +112,9 @@ MENU = {
          [("input", "输入 CIF", "structure.cif", False),
           ("--to", "目标格式 (xyz/poscar/stru)", "xyz", False),
           ("--basis", "STRU 基组 (pw/lcao)", "pw", False)]),
+        ]),
+    "9": ("System", [
+        ("doctor", "检查安装和计算资源", []),
     ]),
 }
 _GROUP_NAME = {
@@ -123,6 +126,7 @@ _GROUP_NAME = {
     "6": "cp2k",
     "7": "vasp",
     "8": "structure",
+    "9": "",
 }
 
 
@@ -139,8 +143,8 @@ def _prompt(text: str, default: str) -> str:
 
 def _run_command(app, group: str, cmd: str, params: list) -> None:
     """逐个收集参数，打印等价命令行，再复用 typer app 执行。"""
-    args = [group, cmd]
-    display = ["mfk", group, cmd]
+    args = [group, cmd] if group else [cmd]
+    display = ["mfk", group, cmd] if group else ["mfk", cmd]
     for name, text, default, is_flag in params:
         value = _prompt(text, default)
         if is_flag:
