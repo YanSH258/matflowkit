@@ -33,7 +33,7 @@ MD 模拟（GPUMD）
 - 转换 extxyz、DeepMD、CP2K、ABACUS、VASP 等常用格式；
 - 在 CIF、Extended XYZ、POSCAR 之间转换，并生成 ABACUS STRU；
 - 统计、合并和检查训练数据中的重复结构；
-- 分析 GPUMD `thermo.out` 和 NEP 训练结果；
+- 整理 GPUMD/NEP 训练数据并分析 NEP 训练结果；
 - 使用 DPA4 做结构优化、单点计算和 NEB；
 - 用同一套字体、配色和版式生成 PNG 科研图。
 
@@ -132,7 +132,7 @@ mfk gpumd plot-nep-training ./train
 | VASP   | OUTCAR 转 DeepMD NPY                    |
 | DeepMD | 数据集统计、按组成合并、数据集报告       |
 | dpdata | 格式转换、XYZ 转 DeepMD、数据集查重     |
-| GPUMD  | NPY 转训练 XYZ、thermo 图、loss 合并、NEP 训练图 |
+| GPUMD  | NPY 转训练 XYZ、loss 合并、NEP 训练结果分析 |
 | DPA4   | 结构优化、批量优化、单点计算、NEB       |
 | Structure | CIF、Extended XYZ、POSCAR 转换与 ABACUS STRU 生成 |
 
