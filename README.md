@@ -158,6 +158,7 @@ matflowkit/
 - 各模块的输入和输出：`matflowkit/<module>/README.md`
 - 绘图规范：[knowledge/plotting_standard.md](knowledge/plotting_standard.md)
 - 添加命令：[CONTRIBUTING.md](CONTRIBUTING.md)
+- 版本变化：[CHANGELOG.md](CHANGELOG.md)
 - 命令路由：[AGENTS.md](AGENTS.md)
 
 ## 参考文档

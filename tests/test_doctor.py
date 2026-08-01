@@ -1,12 +1,18 @@
 import json
+from importlib.metadata import version
 
 from typer.testing import CliRunner
 
 from matflowkit.cli import app
 from matflowkit.doctor import inspect_environment
+from matflowkit import __version__
 
 
 runner = CliRunner()
+
+
+def test_package_metadata_matches_runtime_version():
+    assert version("matflowkit") == __version__
 
 
 def test_doctor_json_reports_dependencies_and_resources(tmp_path, monkeypatch):

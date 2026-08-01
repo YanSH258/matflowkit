@@ -4,10 +4,23 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "matflowkit"
-version = "0.3.0"
+dynamic = ["version"]
 description = "MatFlowKit: computational materials workflow toolkit"
 readme = "README.md"
 requires-python = ">=3.9"
+authors = [
+    {name = "YanSH258"},
+]
+keywords = ["materials-science", "atomistic-simulation", "workflow", "deepmd", "abacus"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Physics",
+]
 dependencies = [
     "typer>=0.9",
     "numpy>=1.21",
@@ -31,8 +44,16 @@ all = [
 [project.scripts]
 mfk = "matflowkit.cli:app"
 
+[project.urls]
+Homepage = "https://github.com/YanSH258/matflowkit"
+Repository = "https://github.com/YanSH258/matflowkit.git"
+Issues = "https://github.com/YanSH258/matflowkit/issues"
+
 [tool.setuptools.packages.find]
 include = ["matflowkit*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "matflowkit.__version__"}
 
 [tool.pytest.ini_options]
 markers = [
