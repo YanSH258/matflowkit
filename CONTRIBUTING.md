@@ -10,6 +10,9 @@ uv run pytest tests/       # 全部测试
 uv run mfk <软件> <命令> -h  # 验证帮助
 ```
 
+仓库外真实样例的回归测试见 `tests/integration/README.md`。它们不会修改原始计算文件，
+需要通过 `MFK_REAL_SAMPLE_ROOT` 明确指定样例根目录。
+
 ## 添加一个命令的步骤
 
 1. 实现放在对应软件子包：`matflowkit/<software>/<command_name>.py`，

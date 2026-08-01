@@ -33,3 +33,8 @@ mfk = "matflowkit.cli:app"
 
 [tool.setuptools.packages.find]
 include = ["matflowkit*"]
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: requires external real calculation samples",
+]
