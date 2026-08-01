@@ -19,7 +19,25 @@ DeePMD raw/npy 数据集的统计与合并。每个命令的详细参数见 `mfk
 
 ```bash
 mfk deepmd report ./dataset
-mfk deepmd report ./dataset --output audit_2026_07 --force-threshold 10
+mfk deepmd report ./dataset --output audit_2026_07 \
+  --force-threshold 10 --minimum-distance --minimum-distance-threshold 0.8
+```
+
+## `mfk deepmd split DATASET`
+
+- 输入：一个 DeepMD NPY system，或递归包含多个 system 的数据集根目录；所有帧必须有
+  有限的晶胞、坐标、energy 和 force。`--virial` 可强制要求 virial。
+- 方法：`random`（默认，默认 seed 为 42）或 `uniform`。`--test-size 0.1` 表示比例，
+  `--test-size 100` 表示准确帧数。选择发生在按路径和帧号排列的全数据集帧序列上。
+- 输出：默认新建 `deepmd_split/`，其中 `train/` 和 `test/` 保留原 system 边界；
+  `frame_manifest.csv` 记录每一帧的来源和去向，`systems.csv` 记录各输出 system，
+  `summary.json` 保存方法、seed、帧数和依赖版本，`SHA256SUMS.csv` 保存文件校验值。
+- 验证：所有输出 system 都以 `deepmd/npy` 重新读取，核对帧数、type map、晶胞、
+  坐标、能量、力和已有 virial。输出目录非空时拒绝覆盖。
+
+```bash
+mfk deepmd split ./dataset --test-size 0.1 --method random --seed 42
+mfk deepmd split ./dataset -o split_uniform --test-size 100 --method uniform
 ```
 
 ## `mfk deepmd stat [DIR]`（默认当前目录）
@@ -36,5 +54,5 @@ mfk deepmd report ./dataset --output audit_2026_07 --force-threshold 10
 
 ## 依赖
 
-`stat` 仅依赖 numpy；`report` 画图需要 matplotlib（延迟导入）；`merge` 需要
-dpdata（延迟导入）。
+`stat` 仅依赖 numpy；`report` 需要 matplotlib 和 ASE（均延迟导入）；`merge` 和
+`split` 需要 dpdata（延迟导入）。

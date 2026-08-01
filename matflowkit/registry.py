@@ -15,6 +15,7 @@ from matflowkit.cp2k.aimd_to_deepmd import aimd_to_deepmd
 from matflowkit.cp2k.singlepoint_to_deepmd import singlepoint_to_deepmd
 from matflowkit.deepmd.merge import merge
 from matflowkit.deepmd.report import report as deepmd_report
+from matflowkit.deepmd.split import split as deepmd_split
 from matflowkit.deepmd.stat import stat
 from matflowkit.doctor import doctor
 from matflowkit.dpdata.convert import convert
@@ -116,6 +117,13 @@ GROUPS = (
         CommandSpec("merge", merge, "按组成合并 NPY 数据集", (
             ("@args", "输入目录（空格分隔）", "data_a data_b", False),
             ("--output", "输出目录", "deepmd_merged", False),
+        )),
+        CommandSpec("split", deepmd_split, "划分 NPY 训练集和测试集", (
+            ("dataset", "DeepMD NPY 数据集", ".", False),
+            ("--output", "新的划分目录", "deepmd_split", False),
+            ("--test-size", "测试集比例或帧数", "0.1", False),
+            ("--method", "选择方法 (random/uniform)", "random", False),
+            ("--seed", "随机种子", "42", False),
         )),
         CommandSpec("report", deepmd_report, "生成 NPY 数据集审计报告", (
             ("dataset-path", "数据集目录", ".", False),
