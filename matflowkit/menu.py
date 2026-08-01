@@ -9,6 +9,11 @@ from typer.testing import CliRunner
 
 from matflowkit import __version__
 
+try:
+    import readline  # noqa: F401  # Enable editing/history for input().
+except ImportError:  # pragma: no cover - Windows may not provide readline.
+    readline = None
+
 BANNER = r"""
   __  __       _   _____ _              _  ___ _
  |  \/  | __ _| |_|  ___| | _____      _| |/ (_) |_
