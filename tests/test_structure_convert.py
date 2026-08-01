@@ -24,6 +24,15 @@ def _write_cif(path: Path) -> None:
     write(path, atoms, format="cif")
 
 
+def _periodic_al() -> Atoms:
+    return Atoms(
+        "Al2",
+        positions=[[0.0, 0.0, 0.0], [2.0, 2.0, 2.0]],
+        cell=[4.0, 4.0, 4.0],
+        pbc=True,
+    )
+
+
 def _library(path: Path, filename: str) -> Path:
     path.mkdir()
     resource = path / filename
@@ -58,6 +67,79 @@ def test_cif_to_poscar_roundtrip(tmp_path: Path):
     restored = read(output, format="vasp")
     assert restored.get_chemical_formula() == "Al2"
     assert restored.get_volume() == pytest.approx(64.0)
+
+
+def test_poscar_to_extended_xyz_preserves_periodic_cell(tmp_path: Path):
+    source = tmp_path / "POSCAR"
+    write(source, _periodic_al(), format="vasp")
+    result = runner.invoke(app, ["structure", "convert", str(source), "--to", "xyz"])
+    assert result.exit_code == 0, result.output
+    restored = read(tmp_path / "POSCAR.xyz", format="extxyz")
+    assert restored.get_chemical_formula() == "Al2"
+    assert restored.get_volume() == pytest.approx(64.0)
+
+
+def test_extended_xyz_to_poscar(tmp_path: Path):
+    source = tmp_path / "Al.extxyz"
+    write(source, _periodic_al(), format="extxyz")
+    result = runner.invoke(
+        app, ["structure", "convert", str(source), "--to", "poscar"]
+    )
+    assert result.exit_code == 0, result.output
+    restored = read(tmp_path / "Al.vasp", format="vasp")
+    assert restored.get_chemical_formula() == "Al2"
+    assert restored.get_volume() == pytest.approx(64.0)
+
+
+def test_poscar_to_cif_and_json_records_input_format(tmp_path: Path):
+    source = tmp_path / "POSCAR"
+    output = tmp_path / "converted.cif"
+    write(source, _periodic_al(), format="vasp")
+    result = runner.invoke(
+        app,
+        [
+            "structure",
+            "convert",
+            str(source),
+            "--to",
+            "cif",
+            "--output",
+            str(output),
+            "--json",
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    assert json.loads(result.output)["input_format"] == "poscar"
+    restored = read(output, format="cif")
+    assert restored.get_chemical_formula() == "Al2"
+
+
+def test_extensionless_input_can_use_explicit_format(tmp_path: Path):
+    source = tmp_path / "structure"
+    write(source, _periodic_al(), format="vasp")
+    result = runner.invoke(
+        app,
+        ["structure", "convert", str(source), "--from", "poscar", "--to", "xyz"],
+    )
+    assert result.exit_code == 0, result.output
+    assert (tmp_path / "structure.xyz").is_file()
+
+
+def test_plain_xyz_without_periodic_cell_is_rejected(tmp_path: Path):
+    source = tmp_path / "Al.xyz"
+    write(source, _periodic_al(), format="xyz")
+    result = runner.invoke(app, ["structure", "convert", str(source), "--to", "poscar"])
+    assert result.exit_code == 2
+    assert "需要 Extended XYZ" in result.output
+    assert not (tmp_path / "Al.vasp").exists()
+
+
+def test_multiframe_extended_xyz_is_rejected(tmp_path: Path):
+    source = tmp_path / "frames.xyz"
+    write(source, [_periodic_al(), _periodic_al()], format="extxyz")
+    result = runner.invoke(app, ["structure", "convert", str(source), "--to", "poscar"])
+    assert result.exit_code == 2
+    assert "检测到 2 帧" in result.output
 
 
 def test_roundtrip_validation_tolerates_numeric_noise_at_rounding_boundary():
@@ -124,6 +206,29 @@ def test_cif_to_stru_uses_library_paths_without_links(tmp_path: Path):
     assert len(report["pseudopotentials"]["Al"]["sha256"]) == 64
     assert report["resource_mode"] == "absolute_path"
     assert report["pseudopotentials"]["Al"]["file"] == str(pp_file.resolve())
+
+
+def test_poscar_to_stru_uses_same_resource_validation(tmp_path: Path):
+    source = tmp_path / "POSCAR"
+    write(source, _periodic_al(), format="vasp")
+    pp_file = _library(tmp_path / "pp", "Al_test.upf")
+    output = tmp_path / "STRU"
+    result = runner.invoke(
+        app,
+        [
+            "structure",
+            "convert",
+            str(source),
+            "--to",
+            "stru",
+            "--pp-dir",
+            str(pp_file.parent),
+            "--output",
+            str(output),
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    assert str(pp_file.resolve()) in output.read_text()
 
 
 def test_structure_convert_uses_compact_output_by_default(tmp_path: Path):

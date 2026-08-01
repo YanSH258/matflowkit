@@ -1,4 +1,4 @@
-"""Convert a single CIF structure to Extended XYZ, POSCAR, or ABACUS STRU."""
+"""Convert periodic CIF, POSCAR, and Extended XYZ structures."""
 
 from __future__ import annotations
 
@@ -15,12 +15,21 @@ import typer
 
 
 TARGET_ALIASES = {
+    "cif": "cif",
     "xyz": "extxyz",
     "extxyz": "extxyz",
     "poscar": "poscar",
     "vasp": "poscar",
     "stru": "stru",
     "abacus": "stru",
+}
+
+SOURCE_ALIASES = {
+    "cif": "cif",
+    "xyz": "extxyz",
+    "extxyz": "extxyz",
+    "poscar": "poscar",
+    "vasp": "poscar",
 }
 
 
@@ -64,10 +73,10 @@ def read_single_cif(path: Path):
             primitive=False
         )
     if len(structures) != 1:
-        raise ValueError(f"第一版只支持单结构 CIF；检测到 {len(structures)} 个结构")
+        raise ValueError(f"只支持单结构输入；CIF 中检测到 {len(structures)} 个结构")
     structure = structures[0]
     if not structure.is_ordered:
-        raise ValueError("第一版不支持部分占位或无序 CIF")
+        raise ValueError("不支持部分占位或无序 CIF")
     from ase import Atoms
 
     atoms = Atoms(
@@ -86,6 +95,57 @@ def read_single_cif(path: Path):
         raise ValueError("CIF 坐标包含 NaN/Inf")
     parser_warnings = list(dict.fromkeys(str(item.message) for item in caught))
     return atoms, parser_warnings
+
+
+def _validate_input_atoms(atoms, source_format: str) -> None:
+    if len(atoms) < 1:
+        raise ValueError("输入结构中没有原子")
+    if not bool(np.all(atoms.pbc)):
+        if source_format == "extxyz":
+            raise ValueError("XYZ 缺少完整的 Lattice/pbc；周期结构转换需要 Extended XYZ")
+        raise ValueError("输入结构没有完整的三维 PBC")
+    if not np.isfinite(atoms.cell.array).all() or atoms.get_volume() <= 0:
+        raise ValueError("输入结构的晶胞无效")
+    if not np.isfinite(atoms.positions).all():
+        raise ValueError("输入结构的坐标包含 NaN/Inf")
+
+
+def _detect_source_format(path: Path, requested: Optional[str]) -> str:
+    if requested is not None:
+        normalized = SOURCE_ALIASES.get(requested.strip().lower())
+        if normalized is None:
+            raise ValueError(f"不支持的输入格式: {requested}")
+        return normalized
+    name = path.name.lower()
+    suffix = path.suffix.lower()
+    if suffix == ".cif":
+        return "cif"
+    if name in {"poscar", "contcar"} or suffix in {".vasp", ".poscar"}:
+        return "poscar"
+    if suffix in {".xyz", ".extxyz"}:
+        return "extxyz"
+    raise ValueError("无法根据文件名识别输入格式；请使用 --from cif|poscar|extxyz")
+
+
+def read_single_structure(path: Path, requested_format: Optional[str] = None):
+    """Read and validate one periodic CIF, POSCAR, or Extended XYZ structure."""
+    source_format = _detect_source_format(path, requested_format)
+    if source_format == "cif":
+        atoms, parser_warnings = read_single_cif(path)
+    else:
+        read, _ = _require_ase()
+        ase_format = "vasp" if source_format == "poscar" else "extxyz"
+        frames = read(str(path), format=ase_format, index=":")
+        if not isinstance(frames, list):
+            frames = [frames]
+        if len(frames) != 1:
+            raise ValueError(
+                f"只支持单结构输入；{source_format} 中检测到 {len(frames)} 帧"
+            )
+        atoms = frames[0]
+        parser_warnings = []
+    _validate_input_atoms(atoms, source_format)
+    return atoms, parser_warnings, source_format
 
 
 def _maximum_coordinate_deviation(
@@ -163,7 +223,9 @@ def validate_roundtrip(source, restored) -> Dict[str, Any]:
 
 
 def _default_output(input_path: Path, target: str) -> Path:
-    suffix = {"extxyz": ".xyz", "poscar": ".vasp", "stru": ".STRU"}[target]
+    suffix = {"cif": ".cif", "extxyz": ".xyz", "poscar": ".vasp", "stru": ".STRU"}[
+        target
+    ]
     return input_path.with_name(input_path.stem + suffix)
 
 
@@ -245,17 +307,21 @@ def _ase_from_dpdata(system):
 
 
 def convert(
-    input: Path = typer.Argument(..., help="单结构 CIF 文件"),
-    target: str = typer.Option("xyz", "--to", help="目标格式: xyz, poscar, stru"),
+    input: Path = typer.Argument(..., help="单结构 CIF、POSCAR 或 Extended XYZ 文件"),
+    target: str = typer.Option("xyz", "--to", help="目标格式: cif, xyz, poscar, stru"),
+    source_format: Optional[str] = typer.Option(
+        None, "--from", help="输入格式；默认根据文件名识别: cif, poscar, extxyz"
+    ),
     output: Optional[Path] = typer.Option(None, "--output", "-o", help="输出文件"),
     basis: str = typer.Option("pw", help="STRU 基组: pw 或 lcao"),
     pp_dir: Optional[Path] = typer.Option(None, help="赝势目录；默认读取 ABACUS_PP_PATH"),
     orb_dir: Optional[Path] = typer.Option(None, help="轨道目录；默认读取 ABACUS_ORB_PATH"),
     report_json: bool = typer.Option(False, "--json", help="输出完整 JSON 校验记录"),
 ) -> None:
-    """将单结构 CIF 转为 Extended XYZ、POSCAR 或可用的 ABACUS STRU。
+    """转换单个周期结构，支持 CIF、POSCAR、Extended XYZ 和 ABACUS STRU 输出。
 
-    XYZ 始终写为保留晶胞和 PBC 的 Extended XYZ。STRU 默认从
+    输入支持 CIF、POSCAR 和带 Lattice/pbc 的 Extended XYZ。XYZ 输出始终是
+    Extended XYZ。STRU 默认从
     ABACUS_PP_PATH 查找赝势；basis=lcao 时还会从 ABACUS_ORB_PATH 查找轨道。
     赝势和轨道的绝对路径直接写入 STRU。输出已存在、CIF 部分占位、
     资源缺失或回读验证失败时拒绝转换。
@@ -270,7 +336,7 @@ def convert(
         raise typer.Exit(1)
     input = input.expanduser()
     if not input.is_file():
-        typer.secho(f"错误: CIF 不存在: {input}", err=True, fg=typer.colors.RED)
+        typer.secho(f"错误: 输入结构不存在: {input}", err=True, fg=typer.colors.RED)
         raise typer.Exit(1)
     output = (
         output.expanduser()
@@ -282,14 +348,22 @@ def convert(
         raise typer.Exit(1)
     temporary: Optional[Path] = None
     try:
-        atoms, parser_warnings = read_single_cif(input)
+        atoms, parser_warnings, normalized_source = read_single_structure(
+            input, source_format
+        )
         output.parent.mkdir(parents=True, exist_ok=True)
         temporary = output.with_name(f".{output.name}.mfk-{uuid.uuid4().hex}.tmp")
         _, write = _require_ase()
         pseudo_files: Dict[str, Path] = {}
         orbital_files: Dict[str, Path] = {}
 
-        if normalized_target == "extxyz":
+        if normalized_target == "cif":
+            write(str(temporary), atoms, format="cif")
+            restored, output_warnings = read_single_cif(temporary)
+            parser_warnings.extend(
+                warning for warning in output_warnings if warning not in parser_warnings
+            )
+        elif normalized_target == "extxyz":
             write(str(temporary), atoms, format="extxyz")
             read, _ = _require_ase()
             restored = read(str(temporary), format="extxyz")
@@ -345,10 +419,14 @@ def convert(
 
     report: Dict[str, Any] = {
         "input": str(input.resolve()),
+        "input_format": normalized_source,
         "output": str(output.resolve()),
-        "format": {"extxyz": "extended_xyz", "poscar": "vasp_poscar", "stru": "abacus_stru"}[
-            normalized_target
-        ],
+        "format": {
+            "cif": "cif",
+            "extxyz": "extended_xyz",
+            "poscar": "vasp_poscar",
+            "stru": "abacus_stru",
+        }[normalized_target],
         "validation": validation,
         "warnings": parser_warnings,
     }

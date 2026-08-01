@@ -108,9 +108,9 @@ MENU = {
           ("output", "输出目录", "vasp_dataset", False)]),
     ]),
     "8": ("Structure", [
-        ("convert", "CIF 转 XYZ / POSCAR / STRU",
-         [("input", "输入 CIF", "structure.cif", False),
-          ("--to", "目标格式 (xyz/poscar/stru)", "xyz", False),
+        ("convert", "周期结构格式转换",
+         [("input", "输入 CIF / POSCAR / Extended XYZ", "structure.cif", False),
+          ("--to", "目标格式 (cif/xyz/poscar/stru)", "xyz", False),
           ("--basis", "STRU 基组 (pw/lcao)", "pw", False)]),
         ]),
     "9": ("System", [
