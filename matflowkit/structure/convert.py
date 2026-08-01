@@ -286,6 +286,7 @@ def convert(
     pp_dir: Optional[Path] = typer.Option(None, help="赝势目录；默认读取 ABACUS_PP_PATH"),
     orb_dir: Optional[Path] = typer.Option(None, help="轨道目录；默认读取 ABACUS_ORB_PATH"),
     copy_files: bool = typer.Option(False, "--copy-files", help="复制赝势/轨道；默认创建软链接"),
+    report_json: bool = typer.Option(False, "--json", help="输出完整 JSON 校验记录"),
 ) -> None:
     """将单结构 CIF 转为 Extended XYZ、POSCAR 或可用的 ABACUS STRU。
 
@@ -397,4 +398,20 @@ def convert(
             element: {"file": path.name, "sha256": _sha256(path)}
             for element, path in orbital_files.items()
         }
-    typer.echo(json.dumps(report, ensure_ascii=False, indent=2))
+    if report_json:
+        typer.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    typer.echo(f"转换完成: {report['output']}")
+    typer.echo(
+        f"结构: {validation['formula']}, {validation['natoms']} atoms | "
+        f"校验: passed | 最大坐标偏差: "
+        f"{validation['maximum_coordinate_deviation_A']:.3g} Å"
+    )
+    if normalized_target == "stru":
+        typer.echo(
+            f"STRU: {normalized_basis.upper()} | 赝势: {len(pseudo_files)} | "
+            f"轨道: {len(orbital_files)} | 资源: {report['resource_mode']}"
+        )
+    if parser_warnings:
+        typer.echo(f"解析提示: {len(parser_warnings)} 条（使用 --json 查看详情）")

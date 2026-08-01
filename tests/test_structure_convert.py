@@ -108,6 +108,7 @@ def test_cif_to_stru_uses_mapping_and_links_pseudopotential(tmp_path: Path):
             "stru",
             "--pp-dir",
             str(pp_file.parent),
+            "--json",
             "-o",
             str(output),
         ],
@@ -122,6 +123,16 @@ def test_cif_to_stru_uses_mapping_and_links_pseudopotential(tmp_path: Path):
     report = json.loads(result.output)
     assert report["validation"]["status"] == "passed"
     assert len(report["pseudopotentials"]["Al"]["sha256"]) == 64
+
+
+def test_structure_convert_uses_compact_output_by_default(tmp_path: Path):
+    source = tmp_path / "Al.cif"
+    _write_cif(source)
+    result = runner.invoke(app, ["structure", "convert", str(source), "--to", "xyz"])
+    assert result.exit_code == 0, result.output
+    assert "转换完成:" in result.output
+    assert "校验: passed" in result.output
+    assert '"pseudopotentials"' not in result.output
 
 
 def test_cif_to_lcao_stru_adds_matching_orbital(tmp_path: Path):
