@@ -26,6 +26,7 @@ from matflowkit.gpumd.merge_loss import merge_loss
 from matflowkit.gpumd.from_deepmd import from_deepmd
 from matflowkit.gpumd.plot_nep_training import plot_nep_training
 from matflowkit.gpumd.thermo import thermo
+from matflowkit.structure.convert import convert as structure_convert
 from matflowkit.vasp.to_deepmd import to_deepmd as vasp_to_deepmd
 
 # 所有命令统一支持 -h / --help
@@ -54,6 +55,8 @@ cp2k_app = typer.Typer(help="CP2K", no_args_is_help=True,
                        context_settings=_CONTEXT_SETTINGS)
 vasp_app = typer.Typer(help="VASP", no_args_is_help=True,
                        context_settings=_CONTEXT_SETTINGS)
+structure_app = typer.Typer(help="周期结构格式转换", no_args_is_help=True,
+                            context_settings=_CONTEXT_SETTINGS)
 
 abacus_app.command("check-relax")(check_relax)
 abacus_app.command("audit")(audit)
@@ -76,6 +79,7 @@ dpa4_app.command("neb")(dpa4_neb)
 cp2k_app.command("audit")(cp2k_audit)
 cp2k_app.command("collect")(cp2k_collect)
 vasp_app.command("to-deepmd")(vasp_to_deepmd)
+structure_app.command("convert")(structure_convert)
 
 app.add_typer(abacus_app, name="abacus")
 app.add_typer(deepmd_app, name="deepmd")
@@ -84,6 +88,7 @@ app.add_typer(dpdata_app, name="dpdata")
 app.add_typer(dpa4_app, name="dpa4")
 app.add_typer(cp2k_app, name="cp2k")
 app.add_typer(vasp_app, name="vasp")
+app.add_typer(structure_app, name="structure")
 
 
 @app.callback()

@@ -31,6 +31,7 @@ MD 模拟（GPUMD）
 - 检查 ABACUS 和 CP2K 任务是否结束、是否收敛、标签是否完整；
 - 从 ABACUS、CP2K 或 VASP 输出中收集标注，生成 DeepMD NPY；
 - 转换 extxyz、DeepMD、CP2K、ABACUS、VASP 等常用格式；
+- 将 CIF 转为保留晶胞的 Extended XYZ、POSCAR 或 ABACUS STRU；
 - 统计、合并和检查训练数据中的重复结构；
 - 分析 GPUMD `thermo.out` 和 NEP 训练结果；
 - 使用 DPA4 做结构优化、单点计算和 NEB；
@@ -76,6 +77,7 @@ mfk vasp to-deepmd ./vasp_tasks ./vasp_data
 mfk gpumd from-deepmd ./deepmd_data/deepmd_npy train.xyz
 mfk deepmd stat ./deepmd_data/deepmd_npy
 mfk dpdata overlap train.extxyz test.extxyz
+mfk structure convert structure.cif --to stru
 mfk gpumd plot-nep-training ./train
 ```
 
@@ -126,6 +128,7 @@ mfk gpumd plot-nep-training ./train
 | dpdata | 格式转换、XYZ 转 DeepMD、数据集查重     |
 | GPUMD  | NPY 转训练 XYZ、thermo 图、loss 合并、NEP 训练图 |
 | DPA4   | 结构优化、批量优化、单点计算、NEB       |
+| Structure | CIF 转 Extended XYZ、POSCAR、ABACUS STRU |
 
 ## 项目目录
 
@@ -134,7 +137,7 @@ matflowkit/
 ├── matflowkit/        # Python 包
 │   ├── cli.py         # CLI 入口
 │   ├── menu.py        # 交互菜单
-│   ├── abacus/ cp2k/ vasp/ deepmd/ dpdata/ dpa4/ gpumd/
+│   ├── abacus/ cp2k/ vasp/ deepmd/ dpdata/ dpa4/ gpumd/ structure/
 │   └── common/        # 共用代码和画图样式
 ├── tests/             # 测试
 ├── examples/          # 使用例子

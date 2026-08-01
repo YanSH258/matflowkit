@@ -102,6 +102,12 @@ MENU = {
          [("root", "任务根目录或 OUTCAR", ".", False),
           ("output", "输出目录", "vasp_dataset", False)]),
     ]),
+    "8": ("Structure", [
+        ("convert", "CIF 转 XYZ / POSCAR / STRU",
+         [("input", "输入 CIF", "structure.cif", False),
+          ("--to", "目标格式 (xyz/poscar/stru)", "xyz", False),
+          ("--basis", "STRU 基组 (pw/lcao)", "pw", False)]),
+    ]),
 }
 _GROUP_NAME = {
     "1": "abacus",
@@ -111,6 +117,7 @@ _GROUP_NAME = {
     "5": "dpa4",
     "6": "cp2k",
     "7": "vasp",
+    "8": "structure",
 }
 
 

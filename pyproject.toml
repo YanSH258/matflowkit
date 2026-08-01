@@ -16,13 +16,14 @@ dependencies = [
 [project.optional-dependencies]
 plot = ["matplotlib>=3.5"]
 dpdata = ["dpdata>=0.2.18"]
-structure = ["ase>=3.23"]
+structure = ["ase>=3.23", "pymatgen>=2024.5"]
 dev = ["pytest>=7"]
 dpa4 = ["ase>=3.23", "deepmd-kit>=3.1", "dftd3>=1.1"]
 all = [
     "matplotlib>=3.5",
     "dpdata>=0.2.18",
     "ase>=3.23",
+    "pymatgen>=2024.5",
     "deepmd-kit>=3.1",
     "dftd3>=1.1",
 ]
