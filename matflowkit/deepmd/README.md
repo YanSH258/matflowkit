@@ -10,8 +10,12 @@ DeePMD raw/npy 数据集的统计与合并。每个命令的详细参数见 `mfk
 - 输出：默认写入新的 `deepmd_report/` 目录，包括 `report.html`、`report.json`、
   `systems.csv`、`duplicates.csv` 和三张 PNG 图。
 - 统计：总能、每原子能量、同组成相对能量、力分量、原子力模长、逐帧最大原子力、
-  组成分布和 exact normalized duplicate。
+  组成分布和 exact normalized duplicate；使用 `--minimum-distance` 时增加 PBC 下的
+  逐帧/逐元素对最小原子距离。
 - `--force-threshold VALUE` 只统计超过阈值的原子数，不据此评价数据质量。
+- `--minimum-distance` 对全部帧计算最小距离；默认关闭，避免大型数据集的报告明显变慢。
+- `--minimum-distance-threshold VALUE` 会自动开启最小距离检查，只统计低于阈值的帧数，
+  不自动删除结构，也不据此评价数据质量。
 - 重复帧按元素、PBC、晶胞和坐标在 6 位小数归一化后判断；不做近似结构或 RMSD 聚类。
 - 输出目录非空、必需结构数组缺失或数组形状不一致时退出码非零。
 

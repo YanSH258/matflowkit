@@ -43,6 +43,42 @@ def _symbols(system: DeepMDSystem) -> list[str]:
     ]
 
 
+def _minimum_distances(
+    symbols: list[str], coords: np.ndarray, box: np.ndarray, pbc: tuple[bool, bool, bool]
+) -> tuple[Optional[float], dict[str, float]]:
+    """Return exact MIC minima for one frame using ASE's distance matrix."""
+    try:
+        from ase import Atoms
+    except ImportError as exc:
+        raise RuntimeError(
+            "最小距离审计需要 ASE；请运行 `pip install -e '.[structure]'`"
+        ) from exc
+
+    if len(symbols) < 2:
+        return None, {}
+    # Distances do not depend on atomic numbers; dummy H avoids rejecting type_N labels.
+    atoms = Atoms(numbers=np.ones(len(symbols), dtype=int), positions=coords, cell=box, pbc=pbc)
+    distances = atoms.get_all_distances(mic=True)
+    indices_by_element = {
+        element: np.flatnonzero(np.asarray(symbols) == element)
+        for element in sorted(set(symbols))
+    }
+    elements = sorted(indices_by_element)
+    pair_minima: dict[str, float] = {}
+    for left_index, left in enumerate(elements):
+        left_indices = indices_by_element[left]
+        for right in elements[left_index:]:
+            right_indices = indices_by_element[right]
+            values = distances[np.ix_(left_indices, right_indices)]
+            if left == right:
+                values = values[np.triu_indices(len(left_indices), k=1)]
+            finite = values[np.isfinite(values) & (values >= 0.0)]
+            if finite.size:
+                pair_minima[f"{left}-{right}"] = float(finite.min())
+    overall = min(pair_minima.values()) if pair_minima else None
+    return overall, pair_minima
+
+
 def _warn(warnings: list[dict], code: str, message: str, system: Optional[str] = None) -> None:
     item = {"code": code, "message": message}
     if system is not None:
@@ -98,7 +134,13 @@ def _write_figures(output: Path, analysis: dict) -> None:
     save_figure(fig, figures / "composition.png")
 
 
-def analyze_dataset(root: Path, force_threshold: Optional[float], decimals: int = 6) -> tuple[dict, list[dict], list[dict], dict]:
+def analyze_dataset(
+    root: Path,
+    force_threshold: Optional[float],
+    minimum_distance_threshold: Optional[float] = None,
+    analyze_minimum_distance: bool = False,
+    decimals: int = 6,
+) -> tuple[dict, list[dict], list[dict], dict]:
     """Return schema report, systems rows, duplicate rows, and plotting arrays."""
     systems_paths = find_systems(root)
     if not systems_paths:
@@ -120,6 +162,10 @@ def analyze_dataset(root: Path, force_threshold: Optional[float], decimals: int 
     hashes: dict[str, list[str]] = defaultdict(list)
     all_elements: set[str] = set()
     total_frames = 0
+    minimum_distances: list[float] = []
+    minimum_distance_by_pair: dict[str, float] = {}
+    minimum_distance_per_system: dict[str, Optional[float]] = {}
+    frames_below_minimum_distance = 0
 
     for system_path in systems_paths:
         system = read_system(system_path)
@@ -139,6 +185,7 @@ def analyze_dataset(root: Path, force_threshold: Optional[float], decimals: int 
         label_set_counts = {name: 0 for name in ("energy", "force", "virial")}
         nonempty_sets = 0
         local_force_max: list[np.ndarray] = []
+        local_minimum_distances: list[float] = []
         symbols = _symbols(system)
         for setdir in setdirs:
             coord_path, box_path = setdir / "coord.npy", setdir / "box.npy"
@@ -189,6 +236,25 @@ def analyze_dataset(root: Path, force_threshold: Optional[float], decimals: int 
             for index, (coord, box) in enumerate(zip(coords, boxes)):
                 value = normalized_frame_hash(symbols, box, coord, system.pbc, decimals=decimals)
                 hashes[value].append(f"{system_name}/{setdir.name}:{index}")
+                frame_minimum, frame_pairs = (None, {})
+                if analyze_minimum_distance:
+                    frame_minimum, frame_pairs = _minimum_distances(
+                        symbols, coord, box, system.pbc
+                    )
+                if frame_minimum is not None:
+                    minimum_distances.append(frame_minimum)
+                    local_minimum_distances.append(frame_minimum)
+                    if (
+                        minimum_distance_threshold is not None
+                        and frame_minimum < minimum_distance_threshold
+                    ):
+                        frames_below_minimum_distance += 1
+                for pair, distance in frame_pairs.items():
+                    if (
+                        pair not in minimum_distance_by_pair
+                        or distance < minimum_distance_by_pair[pair]
+                    ):
+                        minimum_distance_by_pair[pair] = distance
 
         total_frames += frame_count
         composition_frames[system.composition] += frame_count
@@ -206,11 +272,15 @@ def analyze_dataset(root: Path, force_threshold: Optional[float], decimals: int 
         local_values = _concat(local_force_max)
         local_finite = local_values[np.isfinite(local_values)]
         system_force_max[system_name] = float(local_finite.max()) if local_finite.size else None
+        minimum_distance_per_system[system_name] = (
+            float(min(local_minimum_distances)) if local_minimum_distances else None
+        )
         systems_rows.append({
             "system": system_name, "frames": frame_count, "natoms": system.natoms,
             "elements": " ".join(system.elements), "composition": system.composition,
             "has_energy": labels_present["energy"], "has_force": labels_present["force"],
             "has_virial": labels_present["virial"],
+            "minimum_distance_A": minimum_distance_per_system[system_name],
         })
 
     relative: list[np.ndarray] = []
@@ -256,6 +326,30 @@ def analyze_dataset(root: Path, force_threshold: Optional[float], decimals: int 
         "definition": "exact normalized duplicate, not structural similarity",
         "normalization": {"elements": True, "cell": True, "coordinates": True, "pbc": True, "decimals": decimals, "atom_order_independent": False, "wrapped": False},
     }
+    result["geometry"] = {
+        "minimum_distance": {
+            "status": "calculated" if analyze_minimum_distance else "not_calculated",
+            "unit": "angstrom",
+            "per_frame": _stats(minimum_distances),
+            "overall": min(minimum_distances) if minimum_distances else None,
+            "by_element_pair": dict(sorted(minimum_distance_by_pair.items())),
+            "minimum_per_system": minimum_distance_per_system,
+            "threshold": minimum_distance_threshold,
+            "frames_below_threshold": (
+                frames_below_minimum_distance
+                if minimum_distance_threshold is not None
+                else None
+            ),
+            "definition": "minimum distance between distinct atoms with the frame cell and PBC",
+        }
+    }
+    if minimum_distance_threshold is not None and frames_below_minimum_distance:
+        _warn(
+            warnings,
+            "minimum_distance_below_threshold",
+            f"有 {frames_below_minimum_distance} 帧的最小原子距离小于 "
+            f"{minimum_distance_threshold} Å",
+        )
     plotting = {
         "energy_per_atom": _concat(energy_per_atom), "force_components": _concat(force_components),
         "force_magnitudes": _concat(force_magnitudes), "frame_max_forces": _concat(frame_max_forces),
@@ -268,6 +362,17 @@ def report(
     dataset_path: Path = typer.Argument(..., help="DeepMD NPY 数据集目录"),
     output: Path = typer.Option(Path("deepmd_report"), "--output", "-o", help="报告输出目录"),
     force_threshold: Optional[float] = typer.Option(None, "--force-threshold", min=0.0, help="统计超过该原子力模长的原子数 (eV/Å)"),
+    minimum_distance_threshold: Optional[float] = typer.Option(
+        None,
+        "--minimum-distance-threshold",
+        min=0.0,
+        help="统计最小原子距离低于该值的帧数 (Å)",
+    ),
+    minimum_distance: bool = typer.Option(
+        False,
+        "--minimum-distance/--no-minimum-distance",
+        help="是否对全部帧计算 PBC 最小原子距离（大型数据集较慢）",
+    ),
 ) -> None:
     """生成 DeepMD NPY 数据集的静态统计与质量审计报告。"""
     dataset_path = dataset_path.expanduser().resolve()
@@ -278,7 +383,15 @@ def report(
     try:
         if output.exists() and any(output.iterdir()):
             raise FileExistsError(f"输出目录非空，请使用新的目录: {output}")
-        result, systems, duplicates, plotting = analyze_dataset(dataset_path, force_threshold)
+        calculate_minimum_distance = (
+            minimum_distance or minimum_distance_threshold is not None
+        )
+        result, systems, duplicates, plotting = analyze_dataset(
+            dataset_path,
+            force_threshold,
+            minimum_distance_threshold,
+            calculate_minimum_distance,
+        )
         ensure_empty_output(output)
         write_json(output / "report.json", result)
         write_csv(output / "systems.csv", systems)

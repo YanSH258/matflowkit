@@ -52,6 +52,18 @@ def render_deepmd_report(report: dict, systems: list[dict]) -> str:
         f"{properties['force']['atoms_above_threshold']}</p>"
         if threshold is not None else ""
     )
+    minimum_distance = report.get("geometry", {}).get("minimum_distance", {})
+    distance_rows = "".join(
+        f"<tr><td>{escape(pair)}</td><td>{_value(distance)}</td></tr>"
+        for pair, distance in minimum_distance.get("by_element_pair", {}).items()
+    )
+    distance_threshold = minimum_distance.get("threshold")
+    distance_threshold_text = (
+        f"<p>Frames below {_value(distance_threshold)} Å: "
+        f"{minimum_distance.get('frames_below_threshold')}</p>"
+        if distance_threshold is not None
+        else ""
+    )
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <title>DeepMD dataset report</title><style>
@@ -66,6 +78,9 @@ th{{background:#f2f2f2}}img{{max-width:100%;height:auto;border:1px solid #ddd}}c
 <h2>Systems</h2><table><thead><tr><th>system</th><th>frames</th><th>natoms</th><th>elements</th><th>energy</th><th>force</th><th>virial</th></tr></thead><tbody>{rows}</tbody></table>
 <h2>Energy statistics (eV)</h2><table><thead><tr><th>quantity</th><th>count</th><th>min</th><th>max</th><th>mean</th><th>std</th></tr></thead><tbody>{''.join(statistic_rows)}</tbody></table>
 <h2>Force statistics (eV/Å)</h2><table><thead><tr><th>quantity</th><th>count</th><th>min</th><th>max</th><th>mean</th><th>std</th></tr></thead><tbody>{''.join(force_rows)}</tbody></table>{threshold_text}
+<h2>Minimum interatomic distance</h2>
+<p>Overall minimum: {_value(minimum_distance.get('overall'))} Å.</p>{distance_threshold_text}
+<table><thead><tr><th>element pair</th><th>minimum distance (Å)</th></tr></thead><tbody>{distance_rows}</tbody></table>
 <h2>Figures</h2>
 <h3>Energy per atom</h3><a href="figures/energy_per_atom_distribution.png"><img src="figures/energy_per_atom_distribution.png" alt="Energy per atom distribution"></a>
 <h3>Forces</h3><a href="figures/force_distribution.png"><img src="figures/force_distribution.png" alt="Force distributions"></a>

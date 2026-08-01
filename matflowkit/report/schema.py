@@ -14,6 +14,7 @@ def deepmd_dataset_schema() -> dict:
         "properties": {"energy": {}, "force": {}, "virial": {}},
         "composition": {},
         "duplicates": {},
+        "geometry": {},
         "warnings": [],
     }
 

@@ -128,6 +128,7 @@ GROUPS = (
         CommandSpec("report", deepmd_report, "生成 NPY 数据集审计报告", (
             ("dataset-path", "数据集目录", ".", False),
             ("--output", "报告目录", "deepmd_report", False),
+            ("minimum-distance", "是否检查全部帧的 PBC 最小距离 (y/n)", "n", True),
         )),
     )),
     GroupSpec("7", "GPUMD", "gpumd", "train.xyz 准备与 NEP 结果分析", (

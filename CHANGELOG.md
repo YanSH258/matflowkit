@@ -4,6 +4,12 @@
 
 ### 新增
 
+- `mfk gpumd plot-nep-evaluation`：分别统计和绘制 NEP 训练集、独立测试集的
+  energy/force/stress 或 virial 预测误差，并对大数据自动使用密度图。
+- `mfk deepmd split`：使用固定 seed 的 random 或 uniform 方法划分 DeepMD NPY，
+  输出逐帧 manifest、校验值并进行 NPY 回读验证。
+- DeepMD 数据集报告可选全帧 PBC 最小原子距离、逐元素对最小距离和阈值计数；
+  大型数据集默认不运行该耗时检查。
 - `mfk cp2k aimd-to-deepmd`：使用 dpdata + CP2KData 将原生 CP2K AIMD
   位置、力、能量、晶胞和可用位力转换为经过回读验证的 DeepMD NPY。
 - `mfk doctor`：检查 MatFlowKit 版本、可选依赖和 ABACUS 赝势/轨道目录。

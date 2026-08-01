@@ -78,11 +78,13 @@ mfk abacus to-deepmd ./tasks ./deepmd_data
 mfk vasp outcar-to-deepmd ./vasp_tasks ./vasp_data
 mfk cp2k singlepoint-to-deepmd ./cp2k_tasks ./cp2k_data
 mfk cp2k aimd-to-deepmd ./cp2k_aimd ./cp2k_aimd_data
+mfk deepmd split ./deepmd_data/deepmd_npy --test-size 0.1 --seed 42
 mfk gpumd npy-to-xyz ./deepmd_data/deepmd_npy train.xyz
 mfk deepmd stat ./deepmd_data/deepmd_npy
 mfk dpdata overlap train.extxyz test.extxyz
 mfk structure convert structure.cif --to stru
 mfk gpumd plot-nep-training ./train
+mfk gpumd plot-nep-evaluation ./train
 ```
 
 所有命令都支持 `-h`：
@@ -111,14 +113,16 @@ mfk abacus audit ./tasks --strict
 # 2. 收集 DeepMD NPY
 mfk abacus to-deepmd ./tasks ./deepmd_data
 
-# 3. 检查数据规模和数值范围
-mfk deepmd stat ./deepmd_data/deepmd_npy
+# 3. 生成全量数据审计报告并划分训练集/测试集
+mfk deepmd report ./deepmd_data/deepmd_npy
+mfk deepmd split ./deepmd_data/deepmd_npy --test-size 0.1 --seed 42
 
 # 4. 检查训练集与测试集是否重复
 mfk dpdata overlap train.extxyz test.extxyz
 
-# 5. 训练结束后画误差图
+# 5. 训练结束后检查 loss，并以独立测试集误差作为主要证据
 mfk gpumd plot-nep-training ./train
+mfk gpumd plot-nep-evaluation ./train
 ```
 
 更多例子见 [常用数据流程](examples/common_data_workflows.md)。
