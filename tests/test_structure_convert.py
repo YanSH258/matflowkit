@@ -136,7 +136,7 @@ def test_structure_convert_uses_compact_output_by_default(tmp_path: Path):
     assert '"pseudopotentials"' not in result.output
 
 
-def test_cif_to_lcao_stru_adds_matching_orbital(tmp_path: Path):
+def test_cif_to_lcao_stru_uses_absolute_resource_paths(tmp_path: Path):
     source = tmp_path / "Al.cif"
     _write_cif(source)
     pp_file = _library(tmp_path / "pp", "Al_test.upf")
@@ -156,20 +156,17 @@ def test_cif_to_lcao_stru_adds_matching_orbital(tmp_path: Path):
             str(pp_file.parent),
             "--orb-dir",
             str(orb_file.parent),
-            "--copy-files",
             "-o",
             str(output),
         ],
     )
     assert result.exit_code == 0, result.output
-    assert "资源: 已复制" in result.output
+    assert "资源: 绝对路径" in result.output
     assert "NUMERICAL_ORBITAL" in output.read_text()
-    assert orb_file.name in output.read_text()
-    assert str(pp_file.resolve()) not in output.read_text()
-    assert str(orb_file.resolve()) not in output.read_text()
-    assert (output.parent / pp_file.name).is_file()
-    assert not (output.parent / pp_file.name).is_symlink()
-    assert (output.parent / orb_file.name).is_file()
+    assert str(pp_file.resolve()) in output.read_text()
+    assert str(orb_file.resolve()) in output.read_text()
+    assert not (output.parent / pp_file.name).exists()
+    assert not (output.parent / orb_file.name).exists()
     assert not (output.parent / "INPUT").exists()
 
 

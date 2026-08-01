@@ -15,7 +15,6 @@
   不写 `NUMERICAL_ORBITAL`。
 - `--pp-dir` / `--orb-dir`：临时切换资源库，不修改全局配置。
 - STRU 默认直接写入赝势和轨道的绝对路径，不创建软链接，也不生成 `INPUT`。
-- `--copy-files` 会把赝势和轨道复制到输出目录，并在 STRU 中改写为文件名。
 - `--output/-o`：覆盖默认输出文件名。已有文件不会覆盖。
 - 默认只打印输出路径和校验摘要；`--json` 输出完整校验、赝势和轨道文件记录。
 
@@ -26,7 +25,7 @@
 mfk structure convert Al.cif --to xyz
 mfk structure convert Al.cif --to poscar --output POSCAR
 mfk structure convert Al.cif --to stru --output STRU
-mfk structure convert Al.cif --to stru --basis lcao --copy-files
+mfk structure convert Al.cif --to stru --basis lcao
 ```
 
 格式转换不会判断某套赝势是否适合具体研究。续接已有计算或机器学习数据时，应使用原项目

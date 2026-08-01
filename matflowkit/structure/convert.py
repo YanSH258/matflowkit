@@ -5,11 +5,10 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import shutil
 import uuid
 import warnings
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, Optional
 
 import numpy as np
 import typer
@@ -245,34 +244,6 @@ def _ase_from_dpdata(system):
     )
 
 
-def _preflight_copy_targets(output_dir: Path, files: Iterable[Path]) -> None:
-    seen: Dict[str, Path] = {}
-    for source in files:
-        previous = seen.get(source.name)
-        if previous is not None and previous != source:
-            raise ValueError(f"两个资源文件使用同一文件名: {source.name}")
-        seen[source.name] = source
-        destination = output_dir / source.name
-        if destination.exists() or destination.is_symlink():
-            try:
-                same = destination.resolve() == source.resolve()
-            except OSError:
-                same = False
-            if not same:
-                raise ValueError(f"资源文件目标已存在且来源不同: {destination}")
-
-
-def _copy_resource_files(output_dir: Path, files: Iterable[Path]) -> List[Path]:
-    created: List[Path] = []
-    for source in files:
-        destination = output_dir / source.name
-        if destination.exists() or destination.is_symlink():
-            continue
-        shutil.copy2(source, destination)
-        created.append(destination)
-    return created
-
-
 def convert(
     input: Path = typer.Argument(..., help="单结构 CIF 文件"),
     target: str = typer.Option("xyz", "--to", help="目标格式: xyz, poscar, stru"),
@@ -280,15 +251,14 @@ def convert(
     basis: str = typer.Option("pw", help="STRU 基组: pw 或 lcao"),
     pp_dir: Optional[Path] = typer.Option(None, help="赝势目录；默认读取 ABACUS_PP_PATH"),
     orb_dir: Optional[Path] = typer.Option(None, help="轨道目录；默认读取 ABACUS_ORB_PATH"),
-    copy_files: bool = typer.Option(False, "--copy-files", help="将赝势和轨道复制到输出目录"),
     report_json: bool = typer.Option(False, "--json", help="输出完整 JSON 校验记录"),
 ) -> None:
     """将单结构 CIF 转为 Extended XYZ、POSCAR 或可用的 ABACUS STRU。
 
     XYZ 始终写为保留晶胞和 PBC 的 Extended XYZ。STRU 默认从
     ABACUS_PP_PATH 查找赝势；basis=lcao 时还会从 ABACUS_ORB_PATH 查找轨道。
-    默认把资源绝对路径写入 STRU；--copy-files 改为复制并写文件名。
-    输出已存在、CIF 部分占位、资源缺失或回读验证失败时拒绝转换。
+    赝势和轨道的绝对路径直接写入 STRU。输出已存在、CIF 部分占位、
+    资源缺失或回读验证失败时拒绝转换。
     """
     normalized_target = TARGET_ALIASES.get(target.strip().lower())
     if normalized_target is None:
@@ -311,7 +281,6 @@ def convert(
         typer.secho(f"错误: 输出已存在: {output}", err=True, fg=typer.colors.RED)
         raise typer.Exit(1)
     temporary: Optional[Path] = None
-    created_resources: List[Path] = []
     try:
         atoms, parser_warnings = read_single_cif(input)
         output.parent.mkdir(parents=True, exist_ok=True)
@@ -336,18 +305,15 @@ def convert(
             if normalized_basis == "lcao":
                 orbital_path = _library_path(orb_dir, "ABACUS_ORB_PATH", "轨道")
                 orbital_files = resolve_library_files(orbital_path, elements, ".orb", "轨道")
-            resources = list(pseudo_files.values()) + list(orbital_files.values())
-            if copy_files:
-                _preflight_copy_targets(output.parent, resources)
             system = dpdata.System(atoms, fmt="ase/structure")
             from ase.data import atomic_masses, atomic_numbers
 
             resource_references = {
-                element: path.name if copy_files else str(path.resolve())
+                element: str(path.resolve())
                 for element, path in pseudo_files.items()
             }
             orbital_references = {
-                element: path.name if copy_files else str(path.resolve())
+                element: str(path.resolve())
                 for element, path in orbital_files.items()
             }
             if any(
@@ -369,18 +335,11 @@ def convert(
             restored = _ase_from_dpdata(dpdata.System(str(temporary), fmt="abacus/stru"))
 
         validation = validate_roundtrip(atoms, restored)
-        if normalized_target == "stru" and copy_files:
-            created_resources = _copy_resource_files(
-                output.parent, list(pseudo_files.values()) + list(orbital_files.values())
-            )
         temporary.replace(output)
         temporary = None
     except Exception as exc:
         if temporary is not None and temporary.exists():
             temporary.unlink()
-        for resource in created_resources:
-            if resource.exists() or resource.is_symlink():
-                resource.unlink()
         typer.secho(f"错误: {type(exc).__name__}: {exc}", err=True, fg=typer.colors.RED)
         raise typer.Exit(2) from exc
 
@@ -395,7 +354,7 @@ def convert(
     }
     if normalized_target == "stru":
         report["basis"] = normalized_basis
-        report["resource_mode"] = "copy" if copy_files else "absolute_path"
+        report["resource_mode"] = "absolute_path"
         report["pseudopotentials"] = {
             element: {
                 "file": resource_references[element],
@@ -423,10 +382,9 @@ def convert(
         f"{validation['maximum_coordinate_deviation_A']:.3g} Å"
     )
     if normalized_target == "stru":
-        resource_label = "已复制" if copy_files else "绝对路径"
         typer.echo(
             f"STRU: {normalized_basis.upper()} | 赝势: {len(pseudo_files)} | "
-            f"轨道: {len(orbital_files)} | 资源: {resource_label}"
+            f"轨道: {len(orbital_files)} | 资源: 绝对路径"
         )
     if parser_warnings:
         typer.echo(f"解析提示: {len(parser_warnings)} 条（使用 --json 查看详情）")
