@@ -22,9 +22,11 @@ CP2K 输出的批量审计与单点数据收集。每个命令的详细参数见
   restart 续算使用 `--restart`。CP2K 中多个 KIND 属于同一元素时按真实元素符号合并。
 - 审计：要求 CP2K 正常结束、没有未收敛 SCF，且收敛 SCF 数不少于输出帧数；
   拒绝 NaN/Inf 和零帧数据。
-- 输出：`deepmd_npy/<composition>/`、`extxyz/<composition>.extxyz`、逐帧统计、
-  源文件哈希、JSON 汇总和输出文件哈希。位力存在时保留，不存在时不猜测。
-- 验证：生成后重新读取 DeepMD NPY，检查帧数、原子数、元素映射和有限数值。
+- 输出：`deepmd_npy/<composition>/`、可直接用于 GPUMD/NEP 的 `train.xyz`、
+  逐帧统计、源文件哈希、JSON 汇总和输出文件哈希。位力存在时同时写入
+  `virial.npy` 和 `train.xyz`；不存在时不猜测。
+- 验证：生成后分别重新读取 DeepMD NPY 和 GPUMD XYZ，检查帧数、原子数、
+  元素映射、数值和标签。
 - 终端默认只显示关键结果；`--json` 可打印完整机器可读汇总。
 - 输出目录已存在时拒绝覆盖。
 
@@ -41,4 +43,5 @@ python -m pip install -e '.[cp2k]'
 ```
 
 参考：[dpdata CP2K AIMD 格式](https://docs.deepmodeling.com/projects/dpdata/en/master/formats/CP2KAIMDOutputFormat.html)、
-[CP2KData 的 dpdata 插件](https://robinzyb.github.io/cp2kdata/docs/dpdata_plugin.html)。
+[CP2KData 的 dpdata 插件](https://robinzyb.github.io/cp2kdata/docs/dpdata_plugin.html)、
+[GPUMD train.xyz 格式](https://gpumd.org/nep/input_files/train_test_xyz.html)。

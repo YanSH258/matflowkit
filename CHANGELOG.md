@@ -5,7 +5,8 @@
 ### 新增
 
 - `mfk cp2k aimd-to-deepmd`：使用 dpdata + CP2KData 将原生 CP2K AIMD
-  位置、力、能量、晶胞和可用位力转换为经过回读验证的 DeepMD NPY/extxyz。
+  位置、力、能量、晶胞和可用位力转换为经过回读验证的 DeepMD NPY 和
+  GPUMD/NEP `train.xyz`。
 - `mfk doctor`：检查 MatFlowKit 版本、可选依赖和 ABACUS 赝势/轨道目录。
 - `mfk abacus report`：输出 ABACUS 批量任务的 HTML、JSON、CSV 和 PNG 报告。
 - Structure 转换支持 CIF、POSCAR、Extended XYZ 输入，并可输出 CIF、POSCAR、

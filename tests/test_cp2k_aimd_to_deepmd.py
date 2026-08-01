@@ -87,10 +87,10 @@ def test_cp2k_aimd_to_deepmd_writes_validated_dataset(tmp_path, monkeypatch):
     assert summary["atoms"] == 2
     assert summary["has_virial"] is True
     assert summary["deepmd_roundtrip_validation"] == "PASS"
-    assert summary["extxyz_roundtrip_validation"] == "PASS"
+    assert summary["gpumd_roundtrip_validation"] == "PASS"
     assert summary["roundtrip_validation"] == "PASS"
     assert (output / "deepmd_npy" / "H2" / "set.000" / "virial.npy").is_file()
-    assert (output / "extxyz" / "H2.extxyz").is_file()
+    assert (output / "train.xyz").is_file()
     assert (output / "frame_manifest.csv").is_file()
     assert (output / "source_files.csv").is_file()
     assert (output / "SHA256SUMS.csv").is_file()
