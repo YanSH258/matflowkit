@@ -518,64 +518,6 @@ class CommandTests(unittest.TestCase):
         self.assertFalse((self.root / "thermo.png").exists())
         self.assertIn(str(data_dir / "thermo.png"), result.output)
 
-    def test_gpumd_plot_nep_training_writes_plot_and_metrics(self):
-        data_dir = self.root / "nep"
-        data_dir.mkdir()
-        np.savetxt(
-            data_dir / "loss.out",
-            np.array(
-                [
-                    [100, 1.0, 0.1, 0.1, 0.5, 0.4, 0.2],
-                    [200, 0.5, 0.05, 0.05, 0.2, 0.2, 0.1],
-                ]
-            ),
-        )
-        np.savetxt(
-            data_dir / "energy_train.out",
-            np.array([[-1.00, -1.01], [-0.80, -0.79]]),
-        )
-        np.savetxt(
-            data_dir / "force_train.out",
-            np.array(
-                [
-                    [0.1, 0.2, 0.3, 0.11, 0.19, 0.31],
-                    [-0.1, -0.2, -0.3, -0.09, -0.21, -0.29],
-                ]
-            ),
-        )
-        np.savetxt(
-            data_dir / "stress_train.out",
-            np.array(
-                [
-                    [1, 2, 3, 4, 5, 6, 1.1, 1.9, 3.1, 3.9, 5.1, 5.9],
-                    [2, 3, 4, 5, 6, 7, 2.1, 2.9, 4.1, 4.9, 6.1, 6.9],
-                ]
-            ),
-        )
-        plot = self.root / "nep_training.png"
-        metrics = self.root / "nep_training_metrics.json"
-        result = self.runner.invoke(
-            app,
-            [
-                "gpumd",
-                "plot-nep-training",
-                str(data_dir),
-                "--output",
-                str(plot),
-                "--metrics",
-                str(metrics),
-                "--max-points",
-                "1000",
-            ],
-        )
-        self.assertEqual(result.exit_code, 0, result.output)
-        self.assertTrue(plot.is_file())
-        values = json.loads(metrics.read_text())
-        self.assertIn("energy", values)
-        self.assertIn("force_components", values)
-        self.assertIn("stress_components", values)
-        self.assertAlmostEqual(values["energy"]["rmse"], 0.01)
-
     def test_dpa4_fixed_indices_are_one_based(self):
         indices = self.root / "fixed.txt"
         indices.write_text("1 3 5\n")

@@ -27,7 +27,6 @@ from matflowkit.dpa4.neb import neb as dpa4_neb
 from matflowkit.dpa4.relax import relax as dpa4_relax
 from matflowkit.gpumd.npy_to_xyz import npy_to_xyz
 from matflowkit.gpumd.merge_loss import merge_loss
-from matflowkit.gpumd.plot_nep_training import plot_nep_training
 from matflowkit.gpumd.plot_nep_evaluation import plot_nep_evaluation
 from matflowkit.gpumd.thermo import thermo
 from matflowkit.structure.convert import convert as structure_convert
@@ -145,13 +144,8 @@ GROUPS = (
             ("restart", "续训 loss 文件", "restart/loss.out", False),
             ("--output", "输出文件", "loss_merged.out", False),
         )),
-        CommandSpec("plot-nep-training", plot_nep_training, "画 NEP 训练结果", (
-            ("directory", "训练或预测目录", ".", False),
-            ("--output", "输出图片", "nep_training.png", False),
-            ("--metrics", "误差指标 JSON", "nep_training_metrics.json", False),
-        )),
-        CommandSpec("plot-nep-evaluation", plot_nep_evaluation, "比较 NEP 训练集和测试集", (
-            ("directory", "NEP train/test 输出目录", ".", False),
+        CommandSpec("plot-nep-evaluation", plot_nep_evaluation, "绘制 NEP loss 和已有预测结果", (
+            ("directory", "NEP 输出目录", ".", False),
             ("--output", "输出图片", "nep_evaluation.png", False),
             ("--metrics", "误差指标 JSON", "nep_evaluation_metrics.json", False),
         )),

@@ -47,8 +47,7 @@ DPA4 命令需要独立的 deepmd-kit + dftd3 环境（暂不随主环境安装�
 | GPUMD 跑完后看 thermo.out 各列统计（温度、能量、压力走势） | `mfk gpumd thermo [FILE]` |
 | 绘制 GPUMD 温度、压力、能量、晶格和体积 | `mfk gpumd thermo [FILE] --plot` |
 | 合并 NEP 首次训练与续训的 loss.out | `mfk gpumd merge-loss [FIRST] [RESTART]` |
-| 绘制 NEP loss 与能量/力/应力预测误差 | `mfk gpumd plot-nep-training [DIR]` |
-| 比较 NEP 训练集和独立测试集预测误差 | `mfk gpumd plot-nep-evaluation [DIR]` |
+| 绘制 NEP loss 及已有 train/test 预测误差 | `mfk gpumd plot-nep-evaluation [DIR]` |
 | 使用 DPA4 优化结构 | `mfk dpa4 relax INPUT` |
 | 按 manifest 批量运行并恢复 DPA4 优化 | `mfk dpa4 batch-relax [CSV]` |
 | 使用 DPA4 为单帧或多帧结构计算能量和力 | `mfk dpa4 evaluate INPUT` |

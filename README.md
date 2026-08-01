@@ -83,7 +83,6 @@ mfk gpumd npy-to-xyz ./deepmd_data/deepmd_npy train.xyz
 mfk deepmd stat ./deepmd_data/deepmd_npy
 mfk dpdata overlap train.extxyz test.extxyz
 mfk structure convert structure.cif --to stru
-mfk gpumd plot-nep-training ./train
 mfk gpumd plot-nep-evaluation ./train
 ```
 
@@ -120,8 +119,7 @@ mfk deepmd split ./deepmd_data/deepmd_npy --test-size 0.1 --seed 42
 # 4. 检查训练集与测试集是否重复
 mfk dpdata overlap train.extxyz test.extxyz
 
-# 5. 训练结束后检查 loss，并以独立测试集误差作为主要证据
-mfk gpumd plot-nep-training ./train
+# 5. 训练结束后画 loss 和已有预测结果；独立测试集误差是主要验证证据
 mfk gpumd plot-nep-evaluation ./train
 ```
 

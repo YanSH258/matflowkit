@@ -37,18 +37,15 @@ mfk gpumd npy-to-xyz ./deepmd_npy train.xyz --virial
 - 处理：默认将续训步数加上首次训练最后一个步数；`--offset` 可显式指定偏移。
 - 输出：默认 `loss_merged.out`；输出已存在时拒绝覆盖。
 
-## `mfk gpumd plot-nep-training [DIR]`
-- 输入：`loss.out`、`energy_train.out`、`force_train.out`；可选 `stress_train.out`。
-- 统计：完整数据上的 RMSE、MAE 和 R2；大数据只在散点绘制阶段抽样。
-- 输出：默认 `nep_training.png` 和 `nep_training_metrics.json`，已存在时拒绝覆盖。
-
 ## `mfk gpumd plot-nep-evaluation [DIR]`
 
-- 输入：自动扫描 `energy/force/stress/virial` 对应的 `_train.out` 和 `_test.out`；
-  每个文件独立绘图，不要求 energy、force 或 train、test 成对出现。
+- 输入：自动扫描 `loss.out`，以及 `energy/force/stress/virial` 对应的 `_train.out`
+  和 `_test.out`；每个文件独立绘图，不要求 loss、energy、force 或 train、test
+  成对出现。
 - 目录中只有训练文件时也会生成图，但 JSON 和终端会明确标记为“只有训练集误差”；
   发现任何测试文件时，测试集才会标记为主要验证证据。
-- 统计：对完整数组分别计算 RMSE、MAE 和 R2；不同属性及 train/test 不混合统计。
+- 统计：记录各 loss 列的首末值和范围；对完整预测数组分别计算 RMSE、MAE 和 R2；
+  不同属性及 train/test 不混合统计。
 - 绘图：小数据画散点，大于 `--density-threshold` 的面板画二维密度；散点抽样只影响
   显示，不影响指标。
 - 输出：默认 `nep_evaluation.png` 和 `nep_evaluation_metrics.json`，已存在时拒绝覆盖。
@@ -61,8 +58,7 @@ mfk gpumd plot-nep-evaluation ./nep_results \
 
 ## 依赖
 
-`thermo` 统计和 `merge-loss` 仅依赖 numpy；画图、`plot-nep-training` 和
-`plot-nep-evaluation` 需要 matplotlib。
+`thermo` 统计和 `merge-loss` 仅依赖 numpy；`plot-nep-evaluation` 需要 matplotlib。
 
 ## 参考
 

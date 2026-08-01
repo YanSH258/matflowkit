@@ -131,6 +131,62 @@ def test_gpumd_evaluation_marks_training_only_evidence(tmp_path):
     assert "只有训练集误差" in result.output
 
 
+def test_gpumd_evaluation_accepts_loss_only(tmp_path):
+    np.savetxt(
+        tmp_path / "loss.out",
+        np.array(
+            [
+                [100, 1.0, 0.1, 0.1, 0.5, 0.4, 0.2],
+                [200, 0.5, 0.05, 0.05, 0.2, 0.2, 0.1],
+            ]
+        ),
+    )
+    plot = tmp_path / "evaluation.png"
+    metrics = tmp_path / "evaluation.json"
+    result = runner.invoke(
+        app,
+        [
+            "gpumd",
+            "plot-nep-evaluation",
+            str(tmp_path),
+            "--output",
+            str(plot),
+            "--metrics",
+            str(metrics),
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    assert plot.is_file()
+    values = json.loads(metrics.read_text())
+    assert values["splits"] == {}
+    assert values["loss"]["rows"] == 2
+    assert values["loss"]["step"] == {"first": 100.0, "last": 200.0}
+    assert values["loss"]["plot_mode"] == "line"
+    assert values["loss"]["series"]["Total"]["final"] == 0.5
+
+
+def test_gpumd_evaluation_combines_loss_and_prediction_panels(tmp_path):
+    np.savetxt(tmp_path / "loss.out", np.array([[100, 1.0], [200, 0.5]]))
+    np.savetxt(tmp_path / "energy_test.out", np.array([[-1.0, -1.1]]))
+    result = runner.invoke(
+        app,
+        [
+            "gpumd",
+            "plot-nep-evaluation",
+            str(tmp_path),
+            "--output",
+            str(tmp_path / "evaluation.png"),
+            "--metrics",
+            str(tmp_path / "evaluation.json"),
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    values = json.loads((tmp_path / "evaluation.json").read_text())
+    assert "loss" in values
+    assert "energy" in values["splits"]["test"]
+    assert values["primary_evidence"] == "held-out test set"
+
+
 def test_gpumd_evaluation_rejects_directory_without_supported_files(tmp_path):
     result = runner.invoke(
         app,
