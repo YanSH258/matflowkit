@@ -47,3 +47,7 @@ def test_xyz_to_deepmd_allows_virial_difference_between_compositions(tmp_path: P
     assert result.exit_code == 0, result.output
     assert list(output.rglob("virial.npy"))
     assert len(list(output.rglob("energy.npy"))) == 2
+    for name in ("box.raw", "coord.raw", "energy.raw", "force.raw", "virial.raw"):
+        assert not list(output.rglob(name))
+    assert list(output.rglob("type.raw"))
+    assert list(output.rglob("type_map.raw"))

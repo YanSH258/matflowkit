@@ -336,7 +336,7 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(result.exit_code, 2, result.output)
         self.assertTrue((output / "duplicate_frames.csv").is_file())
 
-    def test_xyz_to_deepmd_writes_raw_and_npy(self):
+    def test_xyz_to_deepmd_writes_raw_and_npy_when_requested(self):
         xyz = self.root / "train.xyz"
         xyz.write_text(
             "2\n"
@@ -349,12 +349,13 @@ class CommandTests(unittest.TestCase):
         output = self.root / "deepmd"
         result = self.runner.invoke(
             app,
-            ["dpdata", "xyz-to-deepmd", str(xyz), str(output), "--set-size", "1"],
+            ["dpdata", "xyz-to-deepmd", str(xyz), str(output), "--set-size", "1", "--raw"],
         )
         self.assertEqual(result.exit_code, 0, result.output)
         summary = json.loads(result.output)
         self.assertEqual(summary["systems"], 1)
         self.assertEqual(summary["frames"], 1)
+        self.assertEqual(summary["formats"], ["deepmd/npy", "deepmd/raw"])
         systems = [path for path in output.iterdir() if path.is_dir()]
         self.assertEqual(len(systems), 1)
         self.assertTrue((systems[0] / "coord.raw").is_file())

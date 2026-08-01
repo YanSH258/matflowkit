@@ -120,8 +120,13 @@ def xyz_to_deepmd(
         min=1,
         help="每个 set 的最大帧数",
     ),
+    raw: bool = typer.Option(
+        False,
+        "--raw",
+        help="额外生成 DeepMD raw；默认只生成 NPY",
+    ),
 ) -> None:
-    """XYZ 转 DeepMD raw 和 NPY。"""
+    """XYZ 转 DeepMD NPY，可选额外生成 raw。"""
     if not input.is_file():
         typer.secho(f"错误: 输入文件不存在: {input}", err=True, fg=typer.colors.RED)
         raise typer.Exit(1)
@@ -140,7 +145,10 @@ def xyz_to_deepmd(
         if frame_count < 1:
             raise ValueError("dpdata 返回零帧")
         systems.to_deepmd_npy(str(output), set_size=set_size)
-        systems.to_deepmd_raw(str(output))
+        formats = ["deepmd/npy"]
+        if raw:
+            systems.to_deepmd_raw(str(output))
+            formats.append("deepmd/raw")
     except InconsistentVirialError as exc:
         typer.secho(f"错误: {exc}", err=True, fg=typer.colors.RED)
         raise typer.Exit(2) from exc
@@ -156,7 +164,7 @@ def xyz_to_deepmd(
                 "systems": len(systems),
                 "frames": frame_count,
                 "virial": virial_summary,
-                "formats": ["deepmd/raw", "deepmd/npy"],
+                "formats": formats,
             },
             ensure_ascii=False,
             indent=2,
