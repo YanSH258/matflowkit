@@ -40,6 +40,7 @@ DPA4 命令需要独立的 deepmd-kit + dftd3 环境（暂不随主环境安装�
 | 在 ABACUS/CP2K/DeepMD/extxyz/GPUMD 格式间转换 | `mfk dpdata convert INPUT OUTPUT --from FMT --to FMT` |
 | 将带标注的 GPUMD/extxyz 转为 DeepMD raw + NPY | `mfk dpdata xyz-to-deepmd [INPUT] [OUTPUT]` |
 | 检查训练集、验证集或测试集之间的重复结构 | `mfk dpdata overlap REFERENCE CANDIDATE` |
+| 将多个 DeepMD NPY system 合并为一个 GPUMD Extended XYZ | `mfk gpumd from-deepmd DATASET [OUTPUT]` |
 | GPUMD 跑完后看 thermo.out 各列统计（温度、能量、压力走势） | `mfk gpumd thermo [FILE]` |
 | 绘制 GPUMD 温度、压力、能量、晶格和体积 | `mfk gpumd thermo [FILE] --plot` |
 | 合并 NEP 首次训练与续训的 loss.out | `mfk gpumd merge-loss [FIRST] [RESTART]` |

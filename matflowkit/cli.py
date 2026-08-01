@@ -23,6 +23,7 @@ from matflowkit.dpa4.evaluate import evaluate as dpa4_evaluate
 from matflowkit.dpa4.neb import neb as dpa4_neb
 from matflowkit.dpa4.relax import relax as dpa4_relax
 from matflowkit.gpumd.merge_loss import merge_loss
+from matflowkit.gpumd.from_deepmd import from_deepmd
 from matflowkit.gpumd.plot_nep_training import plot_nep_training
 from matflowkit.gpumd.thermo import thermo
 from matflowkit.vasp.to_deepmd import to_deepmd as vasp_to_deepmd
@@ -62,6 +63,7 @@ deepmd_app.command("stat")(stat)
 deepmd_app.command("merge")(merge)
 deepmd_app.command("report")(deepmd_report)
 gpumd_app.command("thermo")(thermo)
+gpumd_app.command("from-deepmd")(from_deepmd)
 gpumd_app.command("merge-loss")(merge_loss)
 gpumd_app.command("plot-nep-training")(plot_nep_training)
 dpdata_app.command("convert")(convert)

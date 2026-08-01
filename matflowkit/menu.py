@@ -41,6 +41,9 @@ MENU = {
           ("--output", "报告目录", "deepmd_report", False)]),
     ]),
     "3": ("GPUMD", [
+        ("from-deepmd", "多 system NPY 转单个 XYZ",
+         [("dataset", "DeepMD NPY 数据集根目录", ".", False),
+          ("output", "GPUMD Extended XYZ", "train.xyz", False)]),
         ("thermo", "统计并绘制 thermo.out",
          [("file", "thermo 文件", "thermo.out", False),
           ("plot", "是否生成热力学图 (y/n)", "n", True)]),

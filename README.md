@@ -73,6 +73,7 @@ mfk --help
 mfk abacus audit ./tasks --strict
 mfk abacus to-deepmd ./tasks ./deepmd_data
 mfk vasp to-deepmd ./vasp_tasks ./vasp_data
+mfk gpumd from-deepmd ./deepmd_data/deepmd_npy train.xyz
 mfk deepmd stat ./deepmd_data/deepmd_npy
 mfk dpdata overlap train.extxyz test.extxyz
 mfk gpumd plot-nep-training ./train
@@ -123,7 +124,7 @@ mfk gpumd plot-nep-training ./train
 | VASP   | OUTCAR 转 DeepMD NPY                    |
 | DeepMD | 数据集统计、按组成合并、数据集报告       |
 | dpdata | 格式转换、XYZ 转 DeepMD、数据集查重     |
-| GPUMD  | thermo 图、loss 合并、NEP 训练图        |
+| GPUMD  | NPY 转训练 XYZ、thermo 图、loss 合并、NEP 训练图 |
 | DPA4   | 结构优化、批量优化、单点计算、NEB       |
 
 ## 项目目录
