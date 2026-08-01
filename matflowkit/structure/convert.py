@@ -9,7 +9,7 @@ import shutil
 import uuid
 import warnings
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional
 
 import numpy as np
 import typer
@@ -89,14 +89,42 @@ def read_single_cif(path: Path):
     return atoms, parser_warnings
 
 
-def _fractional_signature(atoms, decimals: int = 7) -> List[Tuple[str, float, float, float]]:
-    scaled = np.mod(atoms.get_scaled_positions(wrap=True), 1.0)
-    scaled[np.isclose(scaled, 1.0, atol=10 ** (-decimals))] = 0.0
-    rows = []
-    for symbol, coord in zip(atoms.get_chemical_symbols(), scaled):
-        rounded = np.round(coord, decimals)
-        rows.append((symbol, float(rounded[0]), float(rounded[1]), float(rounded[2])))
-    return sorted(rows)
+def _maximum_coordinate_deviation(
+    source, restored, direct_order_tolerance: float = 1e-6
+) -> float:
+    """Return the largest species-aware periodic displacement in angstrom."""
+    source_symbols = np.asarray(source.get_chemical_symbols())
+    restored_symbols = np.asarray(restored.get_chemical_symbols())
+    source_scaled = np.mod(source.get_scaled_positions(wrap=True), 1.0)
+    restored_scaled = np.mod(restored.get_scaled_positions(wrap=True), 1.0)
+
+    if np.array_equal(source_symbols, restored_symbols):
+        delta = source_scaled - restored_scaled
+        delta -= np.rint(delta)
+        distances = np.linalg.norm(delta @ source.cell.array, axis=1)
+        direct_maximum = float(distances.max()) if distances.size else 0.0
+        if direct_maximum <= direct_order_tolerance:
+            return direct_maximum
+
+    maximum = 0.0
+    for element in sorted(set(source_symbols)):
+        left = source_scaled[source_symbols == element]
+        right = restored_scaled[restored_symbols == element]
+        if len(left) != len(right):
+            raise ValueError("输出元素组成发生变化")
+
+        # Formats may group or reorder atoms. Match equivalent atoms instead of
+        # relying on their output order.
+        from scipy.optimize import linear_sum_assignment
+
+        delta = left[:, None, :] - right[None, :, :]
+        delta -= np.rint(delta)
+        cost = np.linalg.norm(delta @ source.cell.array, axis=2)
+        rows, columns = linear_sum_assignment(cost)
+        distances = cost[rows, columns]
+        if distances.size:
+            maximum = max(maximum, float(distances.max()))
+    return maximum
 
 
 def _minimum_distance(atoms) -> Optional[float]:
@@ -121,7 +149,8 @@ def validate_roundtrip(source, restored) -> Dict[str, Any]:
         raise ValueError("输出晶格度量发生变化")
     if not np.isclose(source.get_volume(), restored.get_volume(), rtol=1e-7, atol=1e-7):
         raise ValueError("输出晶胞体积发生变化")
-    if _fractional_signature(source) != _fractional_signature(restored):
+    coordinate_deviation = _maximum_coordinate_deviation(source, restored)
+    if coordinate_deviation > 1e-6:
         raise ValueError("输出分数坐标或元素对应关系发生变化")
     return {
         "status": "passed",
@@ -129,6 +158,7 @@ def validate_roundtrip(source, restored) -> Dict[str, Any]:
         "formula": restored.get_chemical_formula(mode="hill"),
         "pbc": [bool(value) for value in restored.pbc],
         "cell_volume_A3": float(restored.get_volume()),
+        "maximum_coordinate_deviation_A": coordinate_deviation,
         "minimum_distance_A": _minimum_distance(restored),
     }
 

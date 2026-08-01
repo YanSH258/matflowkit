@@ -7,6 +7,8 @@ from ase.io import read, write
 from typer.testing import CliRunner
 
 from matflowkit.cli import app
+from matflowkit.menu import _run_command
+from matflowkit.structure.convert import validate_roundtrip
 
 
 runner = CliRunner()
@@ -56,6 +58,39 @@ def test_cif_to_poscar_roundtrip(tmp_path: Path):
     restored = read(output, format="vasp")
     assert restored.get_chemical_formula() == "Al2"
     assert restored.get_volume() == pytest.approx(64.0)
+
+
+def test_roundtrip_validation_tolerates_numeric_noise_at_rounding_boundary():
+    source = Atoms(
+        "O",
+        scaled_positions=[[0.04209475, 0.1692557, 0.2866428]],
+        cell=[[18.8, 0.0, 0.0], [-9.4, 16.28, 0.0], [0.0, 0.0, 13.73]],
+        pbc=True,
+    )
+    restored = source.copy()
+    restored.set_scaled_positions([[0.04209475 - 4e-14, 0.1692557, 0.2866428]])
+    validation = validate_roundtrip(source, restored)
+    assert validation["maximum_coordinate_deviation_A"] < 1e-10
+
+
+def test_roundtrip_validation_rejects_real_coordinate_change():
+    source = Atoms("Al", scaled_positions=[[0.1, 0.2, 0.3]], cell=[4, 4, 4], pbc=True)
+    restored = source.copy()
+    restored.set_scaled_positions([[0.11, 0.2, 0.3]])
+    with pytest.raises(ValueError, match="输出分数坐标"):
+        validate_roundtrip(source, restored)
+
+
+def test_roundtrip_validation_allows_reordered_atoms_of_same_element():
+    source = Atoms(
+        "O2",
+        scaled_positions=[[0.1, 0.2, 0.3], [0.6, 0.7, 0.8]],
+        cell=[4, 4, 4],
+        pbc=True,
+    )
+    restored = source[[1, 0]]
+    validation = validate_roundtrip(source, restored)
+    assert validation["maximum_coordinate_deviation_A"] == pytest.approx(0.0)
 
 
 def test_cif_to_stru_uses_mapping_and_links_pseudopotential(tmp_path: Path):
@@ -189,3 +224,19 @@ def test_stru_requires_unambiguous_resource_match_without_mapping(tmp_path: Path
     assert result.exit_code == 2
     assert "匹配到多个赝势文件" in result.output
     assert not (tmp_path / "Al.STRU").exists()
+
+
+def test_menu_does_not_print_command_error_twice(monkeypatch, capsys):
+    answers = iter(["missing.cif", "bad-format", "pw"])
+    monkeypatch.setattr("matflowkit.menu._prompt", lambda *args: next(answers))
+    _run_command(
+        app,
+        "structure",
+        "convert",
+        [
+            ("input", "输入 CIF", "structure.cif", False),
+            ("--to", "目标格式", "xyz", False),
+            ("--basis", "STRU 基组", "pw", False),
+        ],
+    )
+    assert capsys.readouterr().out.count("不支持的目标格式") == 1

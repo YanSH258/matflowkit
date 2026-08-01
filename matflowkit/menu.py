@@ -167,7 +167,7 @@ def _run_command(app, group: str, cmd: str, params: list) -> None:
     result = runner.invoke(app, args)
     if result.output:
         print(result.output, end="")
-    if result.stderr:
+    if result.stderr and result.stderr not in result.output:
         print(result.stderr, end="")
     print(f"{'-' * 50}\n(退出码: {result.exit_code})")
 
