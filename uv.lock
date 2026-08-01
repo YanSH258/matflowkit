@@ -2139,6 +2139,7 @@ wheels = [
 name = "matflowkit"
 source = { editable = "." }
 dependencies = [
+    { name = "cp2kdata" },
     { name = "numpy", version = "2.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*'" },
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.11.*'" },
@@ -2151,7 +2152,6 @@ dependencies = [
 all = [
     { name = "ase", version = "3.26.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "ase", version = "3.29.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "cp2kdata" },
     { name = "deepmd-kit", version = "3.1.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "deepmd-kit", version = "3.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "dftd3" },
@@ -2165,7 +2165,6 @@ all = [
     { name = "pymatgen", version = "2026.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
 cp2k = [
-    { name = "cp2kdata" },
     { name = "dpdata", version = "1.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "dpdata", version = "1.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
 ]
@@ -2202,8 +2201,7 @@ requires-dist = [
     { name = "ase", marker = "extra == 'all'", specifier = ">=3.23" },
     { name = "ase", marker = "extra == 'dpa4'", specifier = ">=3.23" },
     { name = "ase", marker = "extra == 'structure'", specifier = ">=3.23" },
-    { name = "cp2kdata", marker = "extra == 'all'", specifier = ">=0.7.3" },
-    { name = "cp2kdata", marker = "extra == 'cp2k'", specifier = ">=0.7.3" },
+    { name = "cp2kdata", specifier = ">=0.7.3" },
     { name = "deepmd-kit", marker = "extra == 'all'", specifier = ">=3.1" },
     { name = "deepmd-kit", marker = "extra == 'dpa4'", specifier = ">=3.1" },
     { name = "dftd3", marker = "extra == 'all'", specifier = ">=1.1" },

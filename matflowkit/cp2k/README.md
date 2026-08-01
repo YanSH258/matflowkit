@@ -1,18 +1,26 @@
 # CP2K
 
-`collect` 处理单点任务；`aimd-to-deepmd` 处理 CP2K 原生 AIMD 轨迹，两者不混用。
+`singlepoint-to-deepmd` 处理多个独立单点任务；`aimd-to-deepmd` 处理一个 CP2K
+原生 AIMD 轨迹，两者不混用。
 
-CP2K 输出的批量审计与单点数据收集。每个命令的详细参数见 `mfk cp2k <命令> -h`。
+CP2K 输出的批量审计、单点数据收集与 AIMD 数据提取。每个命令的详细参数见
+`mfk cp2k <命令> -h`。
 
 ## `mfk cp2k audit [ROOT]`
 - 输入：单个 CP2K 输出或根目录；默认递归查找 `**/output.log`。
 - 判断：正常结束、所有 SCF 收敛、最终能量、原子力块和晶胞是否齐全。
-- 输出：逐任务 CSV 和 JSON 汇总；`PROGRAM ENDED AT` 本身不是通过的充分条件。
+- 输出：默认在当前目录生成 `cp2k_audit.csv` 和 `cp2k_audit.json`，终端显示任务数、
+  通过数和未完成数；`PROGRAM ENDED AT` 本身不是通过的充分条件。
 
-## `mfk cp2k collect [ROOT] [OUTPUT]`
+## `mfk cp2k singlepoint-to-deepmd [ROOT] [OUTPUT]`
 - 输入：每个输出目录中的 CP2K 单点 `output.log` 与对应单帧 `structure.xyz`。
-- 输出：按精确组成拆分的 DeepMD NPY、extxyz、任务审计、frame manifest 和校验报告。
+- 输出：按精确组成拆分的 DeepMD NPY、任务审计、frame manifest 和校验报告；不再
+  额外生成 extxyz。
 - 边界：不从 GEO_OPT 日志重建末态，不推断缺失标签，也不自动验证 DFT 方法一致性。
+
+```bash
+mfk cp2k singlepoint-to-deepmd ./single_points ./cp2k_dataset
+```
 
 ## `mfk cp2k aimd-to-deepmd [ROOT] [OUTPUT]`
 
@@ -34,10 +42,10 @@ mfk cp2k aimd-to-deepmd ./aimd ./cp2k_aimd_dataset
 
 ## 依赖
 
-硬依赖仅 typer + numpy；AIMD 转换需要 `cp2k` extra 中的 dpdata + cp2kdata：
+cp2kdata 已随 MatFlowKit 默认安装；AIMD 转换无需再单独补装解析器：
 
 ```bash
-python -m pip install -e '.[cp2k]'
+uv sync
 ```
 
 参考：[dpdata CP2K AIMD 格式](https://docs.deepmodeling.com/projects/dpdata/en/master/formats/CP2KAIMDOutputFormat.html)、

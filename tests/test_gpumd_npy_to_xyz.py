@@ -29,7 +29,7 @@ def _write_system(path: Path, names: list[str], types: list[int], energy: float)
     dpdata.LabeledSystem(data=data).to("deepmd/npy", str(path))
 
 
-def test_from_deepmd_combines_different_systems_into_one_xyz(tmp_path: Path):
+def test_npy_to_xyz_combines_different_systems_into_one_xyz(tmp_path: Path):
     import dpdata
 
     dataset = tmp_path / "dataset"
@@ -38,7 +38,7 @@ def test_from_deepmd_combines_different_systems_into_one_xyz(tmp_path: Path):
     _write_system(dataset / "HCa", ["Ca", "H"], [1, 0], -2.0)
     output = tmp_path / "train.xyz"
 
-    result = runner.invoke(app, ["gpumd", "from-deepmd", str(dataset), str(output), "--virial"])
+    result = runner.invoke(app, ["gpumd", "npy-to-xyz", str(dataset), str(output), "--virial"])
     assert result.exit_code == 0, result.output
     summary = json.loads(result.output)
     assert summary["systems"] == 2
@@ -56,9 +56,9 @@ def test_from_deepmd_combines_different_systems_into_one_xyz(tmp_path: Path):
     assert sum(len(system) for system in checked) == 2
 
 
-def test_from_deepmd_preserves_existing_output(tmp_path: Path):
+def test_npy_to_xyz_preserves_existing_output(tmp_path: Path):
     output = tmp_path / "train.xyz"
     output.write_text("keep")
-    result = runner.invoke(app, ["gpumd", "from-deepmd", str(tmp_path), str(output)])
+    result = runner.invoke(app, ["gpumd", "npy-to-xyz", str(tmp_path), str(output)])
     assert result.exit_code == 1
     assert output.read_text() == "keep"

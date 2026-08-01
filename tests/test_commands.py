@@ -221,7 +221,7 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(parsed["force_blocks"], 1)
         self.assertEqual(parsed["final_force_atoms"], 2)
 
-    def test_cp2k_collect_exports_single_point(self):
+    def test_cp2k_singlepoint_to_deepmd_exports_npy_only(self):
         task = self.root / "task"
         task.mkdir()
         (task / "structure.xyz").write_text(
@@ -241,22 +241,23 @@ class CommandTests(unittest.TestCase):
         output = self.root / "dataset"
         result = self.runner.invoke(
             app,
-            ["cp2k", "collect", str(task), str(output), "--expected", "1"],
+            ["cp2k", "singlepoint-to-deepmd", str(task), str(output), "--expected", "1"],
         )
         self.assertEqual(result.exit_code, 0, result.output)
         summary = json.loads((output / "reports" / "summary.json").read_text())
         self.assertEqual(summary["frames"], 1)
         self.assertTrue(summary["all_systems_validated"])
         self.assertTrue((output / "deepmd_npy" / "H2" / "type.raw").is_file())
+        self.assertFalse((output / "extxyz").exists())
 
-    def test_cp2k_collect_preserves_existing_output(self):
+    def test_cp2k_singlepoint_to_deepmd_preserves_existing_output(self):
         output = self.root / "existing"
         output.mkdir()
         marker = output / "keep.txt"
         marker.write_text("keep")
         result = self.runner.invoke(
             app,
-            ["cp2k", "collect", str(self.root), str(output)],
+            ["cp2k", "singlepoint-to-deepmd", str(self.root), str(output)],
         )
         self.assertEqual(result.exit_code, 1, result.output)
         self.assertEqual(marker.read_text(), "keep")

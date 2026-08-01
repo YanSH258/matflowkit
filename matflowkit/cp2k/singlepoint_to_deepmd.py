@@ -1,4 +1,4 @@
-"""mfk cp2k collect: export completed CP2K single points as DeepMD data."""
+"""Collect completed CP2K single points as DeepMD NPY."""
 
 from __future__ import annotations
 
@@ -58,7 +58,7 @@ def one_frame_system(dpdata, atoms, parsed: dict, type_map: list[str]):
     return normalize(dpdata.LabeledSystem(data=data), type_map)
 
 
-def collect(
+def singlepoint_to_deepmd(
     root: Path = typer.Argument(Path("."), help="CP2K 单点任务根目录"),
     output: Path = typer.Argument(
         Path("cp2k_dataset"),
@@ -90,7 +90,7 @@ def collect(
         help="跳过未通过审计或无法读取的任务",
     ),
 ) -> None:
-    """CP2K 单点结果转 DeepMD NPY 和 extxyz。"""
+    """收集通过审计的 CP2K 单点结果并生成 DeepMD NPY。"""
     root = root.expanduser().resolve()
     output = output.expanduser().resolve()
     if not root.exists():
@@ -185,16 +185,13 @@ def collect(
         system_rows = []
         for system_id, data in sorted(systems.items()):
             npy_path = output / "deepmd_npy" / system_id
-            extxyz_path = output / "extxyz" / f"{system_id}.extxyz"
             npy_path.parent.mkdir(parents=True, exist_ok=True)
-            extxyz_path.parent.mkdir(parents=True, exist_ok=True)
             data.to(
                 "deepmd/npy",
                 str(npy_path),
                 set_size=set_size,
                 prec=np.float64,
             )
-            data.to("extxyz", str(extxyz_path))
             loaded = dpdata.LabeledSystem(str(npy_path), fmt="deepmd/npy")
             valid = finite_labeled(loaded, require_virial=False)
             passed = (
@@ -210,7 +207,6 @@ def collect(
                     "type_map": " ".join(global_map),
                     "validation": "PASS" if passed else "FAIL",
                     "deepmd_npy": str(npy_path),
-                    "extxyz": str(extxyz_path),
                 }
             )
 

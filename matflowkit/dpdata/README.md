@@ -3,11 +3,15 @@
 基于 dpdata / ASE 的通用结构与标注数据格式转换、数据集重叠检查。
 每个命令的详细参数见 `mfk dpdata <命令> -h`。
 
+这里处理的是带能量、力或位力的单帧/多帧数据。CIF、POSCAR、STRU 等不含训练标签的
+单个周期结构使用 `mfk structure convert`。需要判断 ABACUS、CP2K 或 VASP 计算是否
+完成、是否收敛时，使用对应软件模块的数据提取命令，而不是通用 `convert`。
+
 ## `mfk dpdata convert INPUT OUTPUT --from FMT --to FMT`
 - 对 dpdata 支持的标注数据格式执行单一格式转换（如
   `deepmd/npy`、`extxyz`、`cp2kdata/md`、`abacus/scf` 等）。
-- `dpdata` 是可选依赖。`cp2kdata/md` 还需要安装 `.[cp2k]`；常规格式只需
-  `.[dpdata]`。
+- 交互菜单列出常用输入和输出格式，可直接输入编号；命令行仍使用 dpdata 的准确格式名。
+- cp2kdata 随 MatFlowKit 默认安装；其他格式支持范围以当前 dpdata 版本为准。
 - 输出已存在时拒绝覆盖。
 
 ## `mfk dpdata xyz-to-deepmd [INPUT] [OUTPUT]`

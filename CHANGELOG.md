@@ -17,9 +17,16 @@
 
 - CLI 与交互菜单改为共用一个命令注册表。
 - ABACUS 审计会列出缺少的完成证据，不再只写笼统的“完成证据不完整”。
+- 主菜单按 Structure、ABACUS、CP2K、VASP、dpdata、DeepMD、GPUMD、DPA4、System
+  排列，并直接显示每个模块的用途。
+- `mfk cp2k collect` 改为 `mfk cp2k singlepoint-to-deepmd`，只输出 DeepMD NPY。
+- `mfk vasp to-deepmd` 改为 `mfk vasp outcar-to-deepmd`。
+- `mfk gpumd from-deepmd` 改为 `mfk gpumd npy-to-xyz`。
+- 交互式 `dpdata convert` 可通过编号选择常用格式。
+- CP2KData 改为默认依赖，普通 `uv sync` 即可使用 CP2K AIMD 转换。
 
 ### 验证
 
-- 快速测试：66 项通过。
-- 真实样例：ABACUS 报告、4 个 CP2K 单点审计、VASP OUTCAR 转 DeepMD、
-  DeepMD 数据集报告全部通过。
+- 快速测试：74 项通过。
+- 真实样例：ABACUS 报告、4 个 CP2K 单点审计、CP2K AIMD 转 DeepMD、VASP OUTCAR
+  转 DeepMD、DeepMD 数据集报告全部通过。

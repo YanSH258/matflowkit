@@ -26,15 +26,15 @@ def test_finite_labeled_accepts_vasp_shaped_labels():
     assert finite_labeled(Data(), require_virial=True).tolist() == [True]
 
 
-def test_vasp_to_deepmd_missing_input_fails(tmp_path: Path):
-    result = runner.invoke(app, ["vasp", "to-deepmd", str(tmp_path / "missing"), str(tmp_path / "out")])
+def test_vasp_outcar_to_deepmd_missing_input_fails(tmp_path: Path):
+    result = runner.invoke(app, ["vasp", "outcar-to-deepmd", str(tmp_path / "missing"), str(tmp_path / "out")])
     assert result.exit_code != 0
     assert "输入不存在" in result.output
 
 
-def test_vasp_to_deepmd_rejects_invalid_frame_mode(tmp_path: Path):
+def test_vasp_outcar_to_deepmd_rejects_invalid_frame_mode(tmp_path: Path):
     source = tmp_path / "OUTCAR"
     source.write_text("")
-    result = runner.invoke(app, ["vasp", "to-deepmd", str(source), str(tmp_path / "out"), "--frames", "middle"])
+    result = runner.invoke(app, ["vasp", "outcar-to-deepmd", str(source), str(tmp_path / "out"), "--frames", "middle"])
     assert result.exit_code != 0
     assert "all 或 final" in result.output

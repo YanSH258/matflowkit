@@ -1,4 +1,4 @@
-"""Convert all DeepMD NPY systems below a directory to one GPUMD extxyz file."""
+"""Convert all DeepMD NPY systems below a directory to one GPUMD train.xyz."""
 
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ def _atom_symbols(system) -> list[str]:
     return [names[int(index)] for index in system.data["atom_types"]]
 
 
-def from_deepmd(
+def npy_to_xyz(
     dataset: Path = typer.Argument(..., help="DeepMD NPY 单个 system 或数据集根目录"),
     output: Path = typer.Argument(Path("train.xyz"), help="GPUMD Extended XYZ 输出文件"),
     type_map: Optional[str] = typer.Option(None, help="统一元素顺序，逗号或空格分隔"),

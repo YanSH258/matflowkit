@@ -136,7 +136,7 @@ def audit(
     strict: bool = typer.Option(False, help="存在未完成任务时返回非零退出码"),
     json_out: bool = typer.Option(False, "--json", help="同时在 stdout 输出 JSON"),
 ):
-    """批量检查 ABACUS 任务。"""
+    """批量检查 ABACUS 完成与收敛状态，生成 CSV/JSON 审计结果。"""
     if not root.is_dir():
         typer.secho(f"错误: 目录不存在: {root}", fg=typer.colors.RED, err=True)
         raise typer.Exit(1)

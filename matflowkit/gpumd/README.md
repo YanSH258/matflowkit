@@ -1,8 +1,9 @@
 # GPUMD / NEP
 
-GPUMD 输出分析与 NEP 训练过程分析。每个命令的详细参数见 `mfk gpumd <命令> -h`。
+GPUMD `train.xyz` 准备、输出分析与 NEP 训练过程分析。每个命令的详细参数见
+`mfk gpumd <命令> -h`。
 
-## `mfk gpumd from-deepmd DATASET [OUTPUT]`
+## `mfk gpumd npy-to-xyz DATASET [OUTPUT]`
 
 - 输入：一个 DeepMD NPY system，或包含多个 system 的数据集根目录；递归查找
   `type.raw + set.*/`。
@@ -13,8 +14,8 @@ GPUMD 输出分析与 NEP 训练过程分析。每个命令的详细参数见 `m
 - 已有输出不会覆盖。
 
 ```bash
-mfk gpumd from-deepmd ./deepmd_npy train.xyz
-mfk gpumd from-deepmd ./deepmd_npy train.xyz --virial
+mfk gpumd npy-to-xyz ./deepmd_npy train.xyz
+mfk gpumd npy-to-xyz ./deepmd_npy train.xyz --virial
 ```
 
 ## `mfk gpumd thermo [FILE]`（默认 `thermo.out`）

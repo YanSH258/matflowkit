@@ -47,7 +47,7 @@ def audit(
         help="存在未通过任务或数量不符时返回退出码 2",
     ),
 ) -> None:
-    """检查 CP2K 输出。"""
+    """批量检查 CP2K 完成、SCF、能量、力和晶胞，生成 CSV/JSON。"""
     root = root.expanduser().resolve()
     output = output.expanduser().resolve()
     if not root.exists():

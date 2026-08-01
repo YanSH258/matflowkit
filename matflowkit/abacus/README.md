@@ -1,8 +1,5 @@
 # ABACUS
 
-`to-deepmd` 根据 `INPUT` 中的 `basis_type` 和 `calculation` 选择 dpdata 官方的
-`abacus/{lcao,pw}/{scf,relax,md}` 格式，不使用一个模糊的通用解析模式。
-
 ABACUS 任务的检查、批量审计、收敛分析与数据提取。每个命令的详细参数见
 `mfk abacus <命令> -h`。
 
@@ -33,8 +30,8 @@ ABACUS 任务的检查、批量审计、收敛分析与数据提取。每个命�
 
 ## `mfk abacus to-deepmd ROOT OUTPUT`
 - 输入：一批已完成的 ABACUS SCF、relax、cell-relax 或 MD 任务。
-- 解析：dpdata；自动读取 `INPUT` 中的 `calculation` 与 `basis_type`，生成
-  `abacus/{lcao,pw}/{scf,relax,md}` 格式。
+- 解析：自动读取 `INPUT` 中的 `calculation` 与 `basis_type`，选择 dpdata 官方的
+  `abacus/{lcao,pw}/{scf,relax,md}` 格式，不使用模糊的通用解析模式。
 - 输出：`deepmd_npy/<exact_formula>/`、逐任务审计、逐帧 manifest、汇总和 SHA256。
 - 默认要求 virial；不接受缺失标签，不覆盖非空输出目录。
 

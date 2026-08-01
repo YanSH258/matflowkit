@@ -18,7 +18,7 @@ from matflowkit.common.dpdata_utils import (
 from matflowkit.common.io import ensure_empty_output, write_csv, write_json, write_sha256_manifest
 
 
-def to_deepmd(
+def outcar_to_deepmd(
     root: Path = typer.Argument(Path("."), help="VASP 任务根目录或 OUTCAR"),
     output: Path = typer.Argument(Path("vasp_dataset"), help="输出目录"),
     pattern: str = typer.Option("**/OUTCAR", help="相对于根目录的 OUTCAR 搜索模式"),
@@ -28,7 +28,7 @@ def to_deepmd(
     expected: Optional[int] = typer.Option(None, help="预期 OUTCAR 数量"),
     require_virial: bool = typer.Option(True, "--virial/--no-virial"),
 ) -> None:
-    """使用 dpdata 的 vasp/outcar 解析器生成 DeepMD NPY。"""
+    """从单个或多个 VASP OUTCAR 提取 DeepMD NPY。"""
     root = root.expanduser().resolve()
     output = output.expanduser().resolve()
     if frames not in {"all", "final"}:

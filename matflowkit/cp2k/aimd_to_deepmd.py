@@ -39,8 +39,7 @@ def require_cp2kdata() -> str:
         import cp2kdata  # noqa: F401
     except ImportError as exc:
         raise RuntimeError(
-            "CP2K AIMD 转换需要 cp2kdata；请运行 "
-            "`pip install -e '.[cp2k]'`"
+            "CP2K AIMD 转换需要 cp2kdata；请重新执行 `uv sync` 或重新安装 MatFlowKit"
         ) from exc
     try:
         return metadata.version("cp2kdata")

@@ -26,7 +26,7 @@ def convert(
     set_size: int = typer.Option(2000, min=1),
     require_virial: bool = typer.Option(False, "--virial/--no-virial"),
 ):
-    """转换 dpdata 格式。"""
+    """按准确的 dpdata 格式名直接转换带标签数据。"""
     dpdata = require_dpdata()
     if not input.exists():
         typer.secho(f"错误: 输入不存在: {input}", err=True, fg=typer.colors.RED)

@@ -1,6 +1,6 @@
 # VASP
 
-## `mfk vasp to-deepmd [ROOT] [OUTPUT]`
+## `mfk vasp outcar-to-deepmd [ROOT] [OUTPUT]`
 
 - 输入：单个 `OUTCAR`，或 ROOT 下由 `--pattern` 找到的一批 `OUTCAR`。
 - 解析：使用 dpdata 官方 `vasp/outcar` 格式；默认只保留 dpdata 判定为已收敛的帧。
@@ -11,8 +11,8 @@
 - `--frames final`：每个 OUTCAR 只写最后一个有效帧。
 
 ```bash
-mfk vasp to-deepmd ./vasp_tasks ./vasp_dataset
-mfk vasp to-deepmd ./OUTCAR ./vasp_dataset --frames final
+mfk vasp outcar-to-deepmd ./vasp_tasks ./vasp_dataset
+mfk vasp outcar-to-deepmd ./OUTCAR ./vasp_dataset --frames final
 ```
 
 边界：本命令不检查不同任务的 INCAR、KPOINTS、POTCAR、泛函或截断能是否一致；

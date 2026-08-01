@@ -75,9 +75,10 @@ mfk doctor
 mfk abacus audit ./tasks --strict
 mfk abacus report ./tasks
 mfk abacus to-deepmd ./tasks ./deepmd_data
-mfk vasp to-deepmd ./vasp_tasks ./vasp_data
+mfk vasp outcar-to-deepmd ./vasp_tasks ./vasp_data
+mfk cp2k singlepoint-to-deepmd ./cp2k_tasks ./cp2k_data
 mfk cp2k aimd-to-deepmd ./cp2k_aimd ./cp2k_aimd_data
-mfk gpumd from-deepmd ./deepmd_data/deepmd_npy train.xyz
+mfk gpumd npy-to-xyz ./deepmd_data/deepmd_npy train.xyz
 mfk deepmd stat ./deepmd_data/deepmd_npy
 mfk dpdata overlap train.extxyz test.extxyz
 mfk structure convert structure.cif --to stru
@@ -125,16 +126,21 @@ mfk gpumd plot-nep-training ./train
 ## 支持的模块
 
 
-| 模块   | 目前包含的命令                          |
-| -------- | ----------------------------------------- |
-| ABACUS | relax 检查、批量审计、任务报告、收敛图、转 DeepMD |
-| CP2K   | 输出审计、单点数据收集、AIMD 转 DeepMD |
-| VASP   | OUTCAR 转 DeepMD NPY                    |
-| DeepMD | 数据集统计、按组成合并、数据集报告       |
-| dpdata | 格式转换、XYZ 转 DeepMD、数据集查重     |
-| GPUMD  | NPY 转训练 XYZ、NEP 训练结果分析 |
-| DPA4   | 结构优化、批量优化、单点计算、NEB       |
-| Structure | CIF、Extended XYZ、POSCAR 转换与 ABACUS STRU 生成 |
+| 模块 | 用途 |
+| --- | --- |
+| Structure | 单个结构文件转换 |
+| ABACUS | 计算检查、报告与数据提取 |
+| CP2K | 计算检查与数据提取 |
+| VASP | OUTCAR 数据提取 |
+| dpdata | 带标签数据格式转换与重复检查 |
+| DeepMD | NPY 数据集统计、合并与报告 |
+| GPUMD | train.xyz 准备与 NEP 结果分析 |
+| DPA4 | 结构优化、单点计算和 NEB |
+| System | 环境检查 |
+
+分类按输入对象确定：Structure 处理不含能量和力的单个周期结构；dpdata 处理带能量、
+力或位力的标注数据。ABACUS、CP2K 和 VASP 的原生计算结果需要检查日志、收敛和文件
+完整性，因此数据提取命令保留在对应软件模块中；dpdata `convert` 只负责直接格式转换。
 
 ## 项目目录
 

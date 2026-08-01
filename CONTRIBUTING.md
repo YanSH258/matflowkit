@@ -31,8 +31,8 @@ uv run mfk <软件> <命令> -h  # 验证帮助
 - 路径输入默认当前目录（或当前目录下的约定文件名）；
 - 产出文件（图、csv 等）写到当前目录，命名固定、见名知意；
 - 报错走 stderr 且退出码非零；不许编造解析不到的数据（找不到就明说）；
-- 硬依赖只有 typer + numpy；其余依赖在命令内延迟导入，未安装时清晰提示；
-  加新依赖前先确认无法用现有依赖解决，并声明进 `pyproject.toml` 的 extras；
+- 硬依赖只有 typer + numpy + cp2kdata；其余依赖在命令内延迟导入，未安装时清晰提示；
+  加新依赖前先确认无法用现有依赖解决，并声明进 `pyproject.toml`；
 - 画图类功能对 matplotlib 必须延迟导入。
 - 画图使用 `matflowkit/common/plot_style.py`，默认保存 PNG。
 

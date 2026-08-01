@@ -42,7 +42,7 @@ DPA4 命令需要独立的 deepmd-kit + dftd3 环境（暂不随主环境安装�
 | 在 ABACUS/CP2K/DeepMD/extxyz/GPUMD 格式间转换 | `mfk dpdata convert INPUT OUTPUT --from FMT --to FMT` |
 | 将带标注的 GPUMD/extxyz 转为 DeepMD NPY（可选 raw） | `mfk dpdata xyz-to-deepmd [INPUT] [OUTPUT]` |
 | 检查训练集、验证集或测试集之间的重复结构 | `mfk dpdata overlap REFERENCE CANDIDATE` |
-| 将多个 DeepMD NPY system 合并为一个 GPUMD Extended XYZ | `mfk gpumd from-deepmd DATASET [OUTPUT]` |
+| 将多个 DeepMD NPY system 合并为一个 GPUMD Extended XYZ | `mfk gpumd npy-to-xyz DATASET [OUTPUT]` |
 | GPUMD 跑完后看 thermo.out 各列统计（温度、能量、压力走势） | `mfk gpumd thermo [FILE]` |
 | 绘制 GPUMD 温度、压力、能量、晶格和体积 | `mfk gpumd thermo [FILE] --plot` |
 | 合并 NEP 首次训练与续训的 loss.out | `mfk gpumd merge-loss [FIRST] [RESTART]` |
@@ -52,9 +52,9 @@ DPA4 命令需要独立的 deepmd-kit + dftd3 环境（暂不随主环境安装�
 | 使用 DPA4 为单帧或多帧结构计算能量和力 | `mfk dpa4 evaluate INPUT` |
 | 使用 DPA4 计算 NEB/CI-NEB 路径 | `mfk dpa4 neb INITIAL FINAL` |
 | 批量审计 CP2K 单点输出的完成与标注证据 | `mfk cp2k audit [ROOT]` |
-| 收集 CP2K 单点能量和力为 DeepMD NPY/extxyz | `mfk cp2k collect [ROOT] [OUTPUT]` |
-| 将 CP2K AIMD 原生轨迹转为 DeepMD NPY/extxyz | `mfk cp2k aimd-to-deepmd [ROOT] [OUTPUT]` |
-| 将 VASP OUTCAR 转换为按组成拆分的 DeepMD NPY | `mfk vasp to-deepmd [ROOT] [OUTPUT]` |
+| 收集 CP2K 单点能量和力为 DeepMD NPY | `mfk cp2k singlepoint-to-deepmd [ROOT] [OUTPUT]` |
+| 将 CP2K AIMD 原生轨迹转为 DeepMD NPY | `mfk cp2k aimd-to-deepmd [ROOT] [OUTPUT]` |
+| 将 VASP OUTCAR 转换为按组成拆分的 DeepMD NPY | `mfk vasp outcar-to-deepmd [ROOT] [OUTPUT]` |
 | 在 CIF、Extended XYZ、POSCAR 间转换或生成带赝势引用的 STRU | `mfk structure convert INPUT --to cif\|xyz\|poscar\|stru` |
 
 ## 命令的输入/输出约定
@@ -73,9 +73,9 @@ DPA4 命令需要独立的 deepmd-kit + dftd3 环境（暂不随主环境安装�
    结构数据一律以 extxyz 为中间格式（转换用 dpdata/ASE，不自己造格式）。
 4. **一个命令干一件事**：`deepmd merge` 只做合并，不顺手筛选。串联是 workflow 层的事，
    可组合性优先于"一条命令全自动"。
-5. **依赖克制**：硬依赖只有 typer + numpy；ASE/dpdata/matplotlib 等在对应命令内延迟导入，
-   未安装时清晰提示而非 ImportError。加新依赖前先确认无法用现有依赖解决，并声明进
-   `pyproject.toml`。
+5. **依赖克制**：硬依赖只有 typer + numpy + cp2kdata；ASE/pymatgen/matplotlib 等在
+   对应命令内延迟导入，未安装时清晰提示而非 ImportError。加新依赖前先确认无法用现有
+   依赖解决，并声明进 `pyproject.toml`。
 6. **文档与命令同生同死**：每加一个命令，同一次提交必须包含：写清"输入约定/参数/输出/
    示例"的 docstring、`registry.py` 注册、对应子包 README（`matflowkit/<software>/README.md`）、
    本文件路由表更新。

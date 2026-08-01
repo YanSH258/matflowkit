@@ -98,7 +98,7 @@ def test_real_cp2k_aimd_to_deepmd(sample_root: Path, tmp_path: Path):
     assert not (output / "train.xyz").exists()
 
 
-def test_real_vasp_to_deepmd(sample_root: Path, tmp_path: Path):
+def test_real_vasp_outcar_to_deepmd(sample_root: Path, tmp_path: Path):
     source = _require(
         sample_root
         / "conversion_test_inputs"
@@ -111,7 +111,7 @@ def test_real_vasp_to_deepmd(sample_root: Path, tmp_path: Path):
         app,
         [
             "vasp",
-            "to-deepmd",
+            "outcar-to-deepmd",
             str(source),
             str(output),
             "--frames",

@@ -12,7 +12,7 @@ from matflowkit.abacus.report import report as abacus_report
 from matflowkit.abacus.to_deepmd import to_deepmd
 from matflowkit.cp2k.audit import audit as cp2k_audit
 from matflowkit.cp2k.aimd_to_deepmd import aimd_to_deepmd
-from matflowkit.cp2k.collect import collect as cp2k_collect
+from matflowkit.cp2k.singlepoint_to_deepmd import singlepoint_to_deepmd
 from matflowkit.deepmd.merge import merge
 from matflowkit.deepmd.report import report as deepmd_report
 from matflowkit.deepmd.stat import stat
@@ -24,12 +24,12 @@ from matflowkit.dpa4.batch_relax import batch_relax
 from matflowkit.dpa4.evaluate import evaluate as dpa4_evaluate
 from matflowkit.dpa4.neb import neb as dpa4_neb
 from matflowkit.dpa4.relax import relax as dpa4_relax
-from matflowkit.gpumd.from_deepmd import from_deepmd
+from matflowkit.gpumd.npy_to_xyz import npy_to_xyz
 from matflowkit.gpumd.merge_loss import merge_loss
 from matflowkit.gpumd.plot_nep_training import plot_nep_training
 from matflowkit.gpumd.thermo import thermo
 from matflowkit.structure.convert import convert as structure_convert
-from matflowkit.vasp.to_deepmd import to_deepmd as vasp_to_deepmd
+from matflowkit.vasp.outcar_to_deepmd import outcar_to_deepmd
 
 
 MenuParameter = Tuple[str, str, str, bool]
@@ -53,36 +53,80 @@ class GroupSpec:
 
 
 GROUPS = (
-    GroupSpec("1", "ABACUS", "abacus", "ABACUS", (
-        CommandSpec("check-relax", check_relax, "检查 relax", (("dir", "计算目录", ".", False),)),
-        CommandSpec("audit", audit, "批量检查任务", (("root", "任务根目录", ".", False),)),
-        CommandSpec("plot-convergence", plot_convergence, "画收敛曲线", (("dir", "计算目录", ".", False),)),
-        CommandSpec("to-deepmd", to_deepmd, "ABACUS 转 DeepMD", (
-            ("root", "任务根目录", ".", False),
-            ("output", "输出目录", "deepmd_from_abacus", False),
+    GroupSpec("1", "Structure", "structure", "单个结构文件转换", (
+        CommandSpec("convert", structure_convert, "CIF/POSCAR/STRU/XYZ 相互转换", (
+            ("input", "输入 CIF / POSCAR / Extended XYZ", "structure.cif", False),
+            ("--to", "目标格式 (cif/xyz/poscar/stru)", "xyz", False),
+            ("--basis", "STRU 基组 (pw/lcao)", "pw", False),
         )),
-        CommandSpec("report", abacus_report, "生成批量任务报告", (
+    )),
+    GroupSpec("2", "ABACUS", "abacus", "计算检查、报告与数据提取", (
+        CommandSpec("check-relax", check_relax, "检查一个结构优化任务", (("dir", "计算目录", ".", False),)),
+        CommandSpec("audit", audit, "批量检查任务，输出 CSV/JSON", (("root", "任务根目录", ".", False),)),
+        CommandSpec("report", abacus_report, "生成批量任务 HTML 报告", (
             ("root", "任务根目录", ".", False),
             ("--output", "报告目录", "abacus_report", False),
         )),
+        CommandSpec("plot-convergence", plot_convergence, "绘制结构优化收敛曲线", (("dir", "计算目录", ".", False),)),
+        CommandSpec("to-deepmd", to_deepmd, "从计算结果提取 DeepMD NPY", (
+            ("root", "任务根目录", ".", False),
+            ("output", "输出目录", "deepmd_from_abacus", False),
+        )),
     )),
-    GroupSpec("2", "DeePMD", "deepmd", "DeePMD", (
-        CommandSpec("stat", stat, "数据集统计", (("dir", "数据目录", ".", False),)),
-        CommandSpec("merge", merge, "合并 NPY 数据集", (
+    GroupSpec("3", "CP2K", "cp2k", "计算检查与数据提取", (
+        CommandSpec("audit", cp2k_audit, "批量检查输出，生成 CSV/JSON", (
+            ("root", "任务根目录或 output.log", ".", False),
+            ("--output", "审计 CSV", "cp2k_audit.csv", False),
+        )),
+        CommandSpec("singlepoint-to-deepmd", singlepoint_to_deepmd, "收集多个单点任务为 DeepMD NPY", (
+            ("root", "CP2K 单点任务根目录", ".", False),
+            ("output", "新的数据集目录", "cp2k_dataset", False),
+        )),
+        CommandSpec("aimd-to-deepmd", aimd_to_deepmd, "转换一个 AIMD 轨迹为 DeepMD NPY", (
+            ("root", "CP2K AIMD 计算目录", ".", False),
+            ("output", "新的数据集目录", "cp2k_aimd_dataset", False),
+        )),
+    )),
+    GroupSpec("4", "VASP", "vasp", "OUTCAR 数据提取", (
+        CommandSpec("outcar-to-deepmd", outcar_to_deepmd, "从 OUTCAR 提取 DeepMD NPY", (
+            ("root", "任务根目录或 OUTCAR", ".", False),
+            ("output", "输出目录", "vasp_dataset", False),
+        )),
+    )),
+    GroupSpec("5", "dpdata", "dpdata", "带标签数据格式转换与重复检查", (
+        CommandSpec("convert", convert, "高级格式转换（菜单可选常用格式）", (
+            ("input", "输入文件或目录", ".", False),
+            ("output", "输出文件或目录", "converted_data", False),
+            ("--from", "输入格式", "deepmd/npy", False),
+            ("--to", "输出格式", "extxyz", False),
+        )),
+        CommandSpec("xyz-to-deepmd", xyz_to_deepmd, "GPUMD/extxyz 转 DeepMD NPY", (
+            ("input", "输入 GPUMD/extxyz 文件", "train.xyz", False),
+            ("output", "输出目录", "deepmd", False),
+        )),
+        CommandSpec("overlap", overlap, "检查两个数据集中的重复帧", (
+            ("reference", "参考结构数据集", "train.extxyz", False),
+            ("candidate", "待检查结构数据集", "test.extxyz", False),
+            ("--output", "JSON 汇总", "frame_overlap.json", False),
+        )),
+    )),
+    GroupSpec("6", "DeepMD", "deepmd", "NPY 数据集统计、合并与报告", (
+        CommandSpec("stat", stat, "统计 NPY 数据集", (("dir", "数据目录", ".", False),)),
+        CommandSpec("merge", merge, "按组成合并 NPY 数据集", (
             ("@args", "输入目录（空格分隔）", "data_a data_b", False),
             ("--output", "输出目录", "deepmd_merged", False),
         )),
-        CommandSpec("report", deepmd_report, "生成数据集审计报告", (
+        CommandSpec("report", deepmd_report, "生成 NPY 数据集审计报告", (
             ("dataset-path", "数据集目录", ".", False),
             ("--output", "报告目录", "deepmd_report", False),
         )),
     )),
-    GroupSpec("3", "GPUMD", "gpumd", "GPUMD", (
-        CommandSpec("from-deepmd", from_deepmd, "多 system NPY 转单个 XYZ", (
+    GroupSpec("7", "GPUMD", "gpumd", "train.xyz 准备与 NEP 结果分析", (
+        CommandSpec("npy-to-xyz", npy_to_xyz, "DeepMD NPY 转 GPUMD train.xyz", (
             ("dataset", "DeepMD NPY 数据集根目录", ".", False),
             ("output", "GPUMD Extended XYZ", "train.xyz", False),
         )),
-        CommandSpec("thermo", thermo, "统计并绘制 thermo.out", (
+        CommandSpec("thermo", thermo, "统计或绘制 GPUMD thermo.out", (
             ("file", "thermo 文件", "thermo.out", False),
             ("plot", "是否生成热力学图 (y/n)", "n", True),
         )),
@@ -97,24 +141,7 @@ GROUPS = (
             ("--metrics", "误差指标 JSON", "nep_training_metrics.json", False),
         )),
     )),
-    GroupSpec("4", "dpdata", "dpdata", "数据转换与检查", (
-        CommandSpec("convert", convert, "转换数据格式", (
-            ("input", "输入文件或目录", ".", False),
-            ("output", "输出文件或目录", "converted_data", False),
-            ("--from", "输入格式", "deepmd/npy", False),
-            ("--to", "输出格式", "extxyz", False),
-        )),
-        CommandSpec("xyz-to-deepmd", xyz_to_deepmd, "XYZ 转 DeepMD", (
-            ("input", "输入 xyz 文件", "train.xyz", False),
-            ("output", "输出目录", "deepmd", False),
-        )),
-        CommandSpec("overlap", overlap, "查重复帧", (
-            ("reference", "参考结构数据集", "train.extxyz", False),
-            ("candidate", "待检查结构数据集", "test.extxyz", False),
-            ("--output", "JSON 汇总", "frame_overlap.json", False),
-        )),
-    )),
-    GroupSpec("5", "DPA4", "dpa4", "DPA4", (
+    GroupSpec("8", "DPA4", "dpa4", "结构优化、单点计算和 NEB", (
         CommandSpec("relax", dpa4_relax, "使用 DPA4 优化结构", (
             ("input", "输入结构", "structure.xyz", False),
             ("--output", "输出结构", "structure_dpa4_relaxed.extxyz", False),
@@ -135,33 +162,6 @@ GROUPS = (
             ("final", "已优化末态", "final.extxyz", False),
             ("--output-dir", "输出目录", "dpa4_neb", False),
             ("--model", "DPA4 model.pt", "~/dpa4/Neo-MPtrj/model.pt", False),
-        )),
-    )),
-    GroupSpec("6", "CP2K", "cp2k", "CP2K", (
-        CommandSpec("audit", cp2k_audit, "检查 CP2K 输出", (
-            ("root", "任务根目录或输出文件", ".", False),
-            ("--output", "审计 CSV", "cp2k_audit.csv", False),
-        )),
-        CommandSpec("collect", cp2k_collect, "CP2K 转 DeepMD", (
-            ("root", "CP2K 单点任务根目录", ".", False),
-            ("output", "新的数据集目录", "cp2k_dataset", False),
-        )),
-        CommandSpec("aimd-to-deepmd", aimd_to_deepmd, "AIMD 转 DeepMD", (
-            ("root", "CP2K AIMD 计算目录", ".", False),
-            ("output", "新的数据集目录", "cp2k_aimd_dataset", False),
-        )),
-    )),
-    GroupSpec("7", "VASP", "vasp", "VASP", (
-        CommandSpec("to-deepmd", vasp_to_deepmd, "OUTCAR 转 DeepMD", (
-            ("root", "任务根目录或 OUTCAR", ".", False),
-            ("output", "输出目录", "vasp_dataset", False),
-        )),
-    )),
-    GroupSpec("8", "Structure", "structure", "周期结构格式转换", (
-        CommandSpec("convert", structure_convert, "周期结构格式转换", (
-            ("input", "输入 CIF / POSCAR / Extended XYZ", "structure.cif", False),
-            ("--to", "目标格式 (cif/xyz/poscar/stru)", "xyz", False),
-            ("--basis", "STRU 基组 (pw/lcao)", "pw", False),
         )),
     )),
     GroupSpec("9", "System", None, "环境检查", (

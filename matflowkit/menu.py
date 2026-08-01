@@ -39,6 +39,24 @@ MENU = {
     for group in GROUPS
 }
 _GROUP_NAME = {group.menu_key: group.cli_name or "" for group in GROUPS}
+_GROUP_HELP = {group.menu_key: group.cli_help for group in GROUPS}
+
+DPDATA_INPUT_FORMATS = (
+    "deepmd/npy",
+    "deepmd/raw",
+    "extxyz",
+    "gpumd/xyz",
+    "vasp/outcar",
+    "abacus/lcao/scf",
+    "abacus/pw/scf",
+    "cp2kdata/md",
+)
+DPDATA_OUTPUT_FORMATS = (
+    "deepmd/npy",
+    "deepmd/raw",
+    "extxyz",
+    "gpumd/xyz",
+)
 
 
 def _prompt(text: str, default: str) -> str:
@@ -52,12 +70,38 @@ def _prompt(text: str, default: str) -> str:
     return value if value else default
 
 
+def _prompt_dpdata_format(text: str, default: str, formats: tuple[str, ...]):
+    """Select a common dpdata format by number, or accept an exact format name."""
+    print(f"  {text}（输入编号或 dpdata 格式名）:")
+    for index, name in enumerate(formats, 1):
+        print(f"    {index}) {name}")
+    try:
+        value = input(f"  选择 [{default}]: ").strip()
+    except EOFError:
+        return None
+    if value.lower() in ("q", "0"):
+        return None
+    if not value:
+        return default
+    if value.isdigit():
+        index = int(value)
+        if 1 <= index <= len(formats):
+            return formats[index - 1]
+        print("  无效编号，请重新输入。")
+        return _prompt_dpdata_format(text, default, formats)
+    return value
+
+
 def _run_command(app, group: str, cmd: str, params: list) -> None:
     """逐个收集参数，打印等价命令行，再复用 typer app 执行。"""
     args = [group, cmd] if group else [cmd]
     display = ["mfk", group, cmd] if group else ["mfk", cmd]
     for name, text, default, is_flag in params:
-        value = _prompt(text, default)
+        if group == "dpdata" and cmd == "convert" and name in {"--from", "--to"}:
+            formats = DPDATA_INPUT_FORMATS if name == "--from" else DPDATA_OUTPUT_FORMATS
+            value = _prompt_dpdata_format(text, default, formats)
+        else:
+            value = _prompt(text, default)
         if is_flag:
             # y/n 类开关：输入 q/0 视为 "否" 并继续执行，而非取消命令
             if value is not None and value.lower() in ("y", "yes"):
@@ -101,7 +145,7 @@ def run_menu(app) -> None:
     while True:
         print("请选择软件:")
         for key, (name, _) in MENU.items():
-            print(f"  {key}) {name}")
+            print(f"  {key}) {name}    {_GROUP_HELP[key]}")
         print("  0) Exit")
         try:
             choice = input("> ").strip().lower()
@@ -118,7 +162,7 @@ def run_menu(app) -> None:
         name, commands = MENU[choice]
         print(f"\n[{name}] 可用命令:")
         for i, (cmd, desc, _) in enumerate(commands, 1):
-            print(f"  {i}) {cmd:14s} {desc}")
+            print(f"  {i}) {cmd:24s} {desc}")
         print("  0) 返回")
         try:
             cidx = input("> ").strip().lower()
