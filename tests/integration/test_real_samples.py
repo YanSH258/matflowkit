@@ -95,7 +95,7 @@ def test_real_cp2k_aimd_to_deepmd(sample_root: Path, tmp_path: Path):
     assert summary["type_map"] == ["H", "O", "P", "Ca"]
     assert summary["has_virial"] is True
     assert summary["roundtrip_validation"] == "PASS"
-    assert (output / "train.xyz").is_file()
+    assert not (output / "train.xyz").exists()
 
 
 def test_real_vasp_to_deepmd(sample_root: Path, tmp_path: Path):

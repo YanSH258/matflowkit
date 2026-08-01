@@ -132,7 +132,7 @@ mfk gpumd plot-nep-training ./train
 | VASP   | OUTCAR 转 DeepMD NPY                    |
 | DeepMD | 数据集统计、按组成合并、数据集报告       |
 | dpdata | 格式转换、XYZ 转 DeepMD、数据集查重     |
-| GPUMD  | NPY 转训练 XYZ、loss 合并、NEP 训练结果分析 |
+| GPUMD  | NPY 转训练 XYZ、NEP 训练结果分析 |
 | DPA4   | 结构优化、批量优化、单点计算、NEB       |
 | Structure | CIF、Extended XYZ、POSCAR 转换与 ABACUS STRU 生成 |
 

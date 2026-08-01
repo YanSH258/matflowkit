@@ -95,7 +95,7 @@ def aimd_to_deepmd(
         help="元素顺序，逗号或空格分隔",
     ),
     set_size: int = typer.Option(
-        2000,
+        5000,
         min=1,
         help="每个 DeepMD set.* 的最大帧数",
     ),
@@ -171,7 +171,6 @@ def aimd_to_deepmd(
 
         ensure_empty_output(output)
         npy_path = output / "deepmd_npy" / system_id
-        gpumd_path = output / "train.xyz"
         npy_path.parent.mkdir(parents=True, exist_ok=True)
         data.to(
             "deepmd/npy",
@@ -179,8 +178,6 @@ def aimd_to_deepmd(
             set_size=set_size,
             prec=np.float64,
         )
-        data.to("gpumd/xyz", str(gpumd_path))
-
         loaded = dpdata.LabeledSystem(str(npy_path), fmt="deepmd/npy")
         loaded_finite = finite_labeled(loaded, require_virial=has_virial)
         deepmd_validation = bool(
@@ -192,23 +189,6 @@ def aimd_to_deepmd(
         )
         if not deepmd_validation:
             raise RuntimeError("DeepMD NPY 回读验证失败")
-
-        xyz_systems = dpdata.MultiSystems.from_file(
-            str(gpumd_path), fmt="gpumd/xyz"
-        )
-        xyz_frames = sum(len(system) for system in xyz_systems)
-        if len(xyz_systems) != 1 or xyz_frames != len(data):
-            raise RuntimeError("GPUMD XYZ 回读得到的 system 或帧数不一致")
-        xyz_data = next(iter(xyz_systems))
-        xyz_data = normalize(xyz_data, global_map)
-        xyz_finite = finite_labeled(xyz_data, require_virial=has_virial)
-        gpumd_validation = bool(
-            xyz_data.get_natoms() == data.get_natoms()
-            and int(xyz_finite.sum()) == len(data)
-            and labeled_arrays_match(data, xyz_data, has_virial)
-        )
-        if not gpumd_validation:
-            raise RuntimeError("GPUMD XYZ 回读验证失败")
 
         energies = np.asarray(data.data["energies"], dtype=float)
         forces = np.asarray(data.data["forces"], dtype=float)
@@ -257,9 +237,7 @@ def aimd_to_deepmd(
                 "force_blocks": parsed["force_blocks"],
             },
             "deepmd_npy": str(npy_path),
-            "gpumd_xyz": str(gpumd_path),
             "deepmd_roundtrip_validation": "PASS",
-            "gpumd_roundtrip_validation": "PASS",
             "roundtrip_validation": "PASS",
             "dpdata_version": getattr(dpdata, "__version__", "unknown"),
             "cp2kdata_version": cp2kdata_version,
@@ -287,6 +265,5 @@ def aimd_to_deepmd(
     typer.echo(f"元素顺序: {' '.join(summary['type_map'])}")
     typer.echo(f"位力: {'有' if summary['has_virial'] else '无'}")
     typer.echo(f"DeepMD NPY: {summary['deepmd_npy']}")
-    typer.echo(f"GPUMD/NEP XYZ: {summary['gpumd_xyz']}")
     typer.echo(f"验证: {summary['roundtrip_validation']}")
     typer.echo(f"详细报告: {output / 'reports' / 'summary.json'}")
