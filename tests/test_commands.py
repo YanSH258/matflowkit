@@ -40,6 +40,14 @@ def write_deepmd(path: Path, x: float, energy: float) -> None:
     dpdata.LabeledSystem(data=data).to("deepmd/npy", str(path))
 
 
+def command_stderr(result) -> str:
+    """Support Click versions that merge stderr into the captured output."""
+    try:
+        return result.stderr
+    except ValueError:
+        return result.output
+
+
 class CommandTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -371,7 +379,7 @@ class CommandTests(unittest.TestCase):
             app, ["dpdata", "xyz-to-deepmd", str(xyz), str(output)]
         )
         self.assertEqual(result.exit_code, 1, result.output)
-        self.assertIn("输出路径已存在且非空", result.stderr)
+        self.assertIn("输出路径已存在且非空", command_stderr(result))
 
     def test_gpumd_merge_loss_offsets_restart_steps(self):
         first = self.root / "loss.out"
@@ -529,7 +537,7 @@ class CommandTests(unittest.TestCase):
             ["dpa4", "relax", str(self.root / "missing.xyz")],
         )
         self.assertEqual(result.exit_code, 1, result.output)
-        self.assertIn("输入结构不存在", result.stderr)
+        self.assertIn("输入结构不存在", command_stderr(result))
 
     def test_dpa4_neb_rejects_missing_endpoint(self):
         result = self.runner.invoke(
@@ -542,7 +550,7 @@ class CommandTests(unittest.TestCase):
             ],
         )
         self.assertEqual(result.exit_code, 1, result.output)
-        self.assertIn("初态结构不存在", result.stderr)
+        self.assertIn("初态结构不存在", command_stderr(result))
 
 
 if __name__ == "__main__":

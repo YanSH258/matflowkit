@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Optional, Union
 
 MM_PER_INCH = 25.4
 SINGLE_COLUMN_MM = 89.0
@@ -82,7 +82,7 @@ def apply_plot_style() -> None:
     })
 
 
-def add_panel_labels(axes: Iterable, labels: Iterable[str] | None = None) -> None:
+def add_panel_labels(axes: Iterable, labels: Optional[Iterable[str]] = None) -> None:
     """Add lowercase panel labels at the upper left."""
     axes = list(axes)
     labels = list(labels) if labels is not None else [chr(97 + i) for i in range(len(axes))]
@@ -91,7 +91,7 @@ def add_panel_labels(axes: Iterable, labels: Iterable[str] | None = None) -> Non
                 fontweight="bold", ha="left", va="bottom")
 
 
-def save_figure(fig, output: Path | str, dpi: int = 300) -> Path:
+def save_figure(fig, output: Union[Path, str], dpi: int = 300) -> Path:
     """Save and close a figure; use PNG when no suffix is given."""
     import matplotlib.pyplot as plt
 

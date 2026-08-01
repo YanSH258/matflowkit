@@ -50,7 +50,7 @@ def from_deepmd(
         raise typer.Exit(1)
 
     dpdata = require_dpdata()
-    temporary: Path | None = None
+    temporary: Optional[Path] = None
     try:
         paths = find_deepmd_systems(dataset)
         if not paths:

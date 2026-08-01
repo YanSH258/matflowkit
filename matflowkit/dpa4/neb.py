@@ -6,6 +6,7 @@ import csv
 import json
 import time
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import typer
@@ -72,7 +73,7 @@ def neb(
         "-o",
         help="NEB 输出目录，必须为空或不存在",
     ),
-    model: Path | None = typer.Option(
+    model: Optional[Path] = typer.Option(
         None,
         "--model",
         envvar="DPA4_MODEL",
@@ -84,7 +85,7 @@ def neb(
         min=1,
         help="初态和末态之间的中间图像数",
     ),
-    fixed_indices_file: Path | None = typer.Option(
+    fixed_indices_file: Optional[Path] = typer.Option(
         None,
         "--fix-indices-file",
         help="每个图像中固定的原子编号，使用从 1 开始的编号",

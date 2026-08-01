@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 
@@ -11,7 +12,7 @@ import numpy as np
 DEFAULT_MODEL = Path.home() / "dpa4" / "Neo-MPtrj" / "model.pt"
 
 
-def resolve_model(model: Path | None) -> Path:
+def resolve_model(model: Optional[Path]) -> Path:
     """Resolve --model, DPA4_MODEL, then the user's conventional model path."""
     if model is not None:
         resolved = model.expanduser().resolve()
@@ -68,7 +69,7 @@ def build_calculator(model: Path, use_d3: bool = True):
     return calculator
 
 
-def read_fixed_indices(path: Path | None, atom_count: int) -> list[int]:
+def read_fixed_indices(path: Optional[Path], atom_count: int) -> list[int]:
     """Read one-based atom indices and return validated zero-based indices."""
     if path is None:
         return []

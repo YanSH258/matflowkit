@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Optional
 
 import typer
 
@@ -31,7 +32,7 @@ def merge_loss_files(
     first: Path,
     restart: Path,
     output: Path,
-    offset: float | None = None,
+    offset: Optional[float] = None,
 ) -> tuple[int, int, float]:
     """Merge two loss tables and return their row counts and applied offset."""
     first_rows = _numeric_rows(first)
@@ -75,7 +76,7 @@ def merge_loss(
         "-o",
         help="输出文件",
     ),
-    offset: float | None = typer.Option(
+    offset: Optional[float] = typer.Option(
         None,
         help="续训步数偏移",
     ),

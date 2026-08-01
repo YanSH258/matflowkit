@@ -8,6 +8,7 @@ import re
 import time
 from collections import Counter
 from pathlib import Path
+from typing import Optional
 
 import typer
 
@@ -46,7 +47,7 @@ def batch_relax(
         "-o",
         help="批量结果目录",
     ),
-    model: Path | None = typer.Option(
+    model: Optional[Path] = typer.Option(
         None,
         "--model",
         envvar="DPA4_MODEL",

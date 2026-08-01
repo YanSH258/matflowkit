@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 from collections import Counter, defaultdict
 from pathlib import Path
+from typing import Optional, Union
 
 import numpy as np
 import typer
@@ -18,7 +19,7 @@ from matflowkit.report.html import render_deepmd_report
 from matflowkit.report.schema import deepmd_dataset_schema
 
 
-def _stats(values: list[float] | np.ndarray) -> dict:
+def _stats(values: Union[list[float], np.ndarray]) -> dict:
     array = np.asarray(values, dtype=float)
     array = array[np.isfinite(array)]
     if array.size == 0:
@@ -42,7 +43,7 @@ def _symbols(system: DeepMDSystem) -> list[str]:
     ]
 
 
-def _warn(warnings: list[dict], code: str, message: str, system: str | None = None) -> None:
+def _warn(warnings: list[dict], code: str, message: str, system: Optional[str] = None) -> None:
     item = {"code": code, "message": message}
     if system is not None:
         item["system"] = system
@@ -97,7 +98,7 @@ def _write_figures(output: Path, analysis: dict) -> None:
     save_figure(fig, figures / "composition.png")
 
 
-def analyze_dataset(root: Path, force_threshold: float | None, decimals: int = 6) -> tuple[dict, list[dict], list[dict], dict]:
+def analyze_dataset(root: Path, force_threshold: Optional[float], decimals: int = 6) -> tuple[dict, list[dict], list[dict], dict]:
     """Return schema report, systems rows, duplicate rows, and plotting arrays."""
     systems_paths = find_systems(root)
     if not systems_paths:
@@ -112,7 +113,7 @@ def analyze_dataset(root: Path, force_threshold: float | None, decimals: int = 6
     force_components: list[np.ndarray] = []
     force_magnitudes: list[np.ndarray] = []
     frame_max_forces: list[np.ndarray] = []
-    system_force_max: dict[str, float | None] = {}
+    system_force_max: dict[str, Optional[float]] = {}
     virials: list[np.ndarray] = []
     composition_systems: Counter = Counter()
     composition_frames: Counter = Counter()
@@ -266,7 +267,7 @@ def analyze_dataset(root: Path, force_threshold: float | None, decimals: int = 6
 def report(
     dataset_path: Path = typer.Argument(..., help="DeepMD NPY 数据集目录"),
     output: Path = typer.Option(Path("deepmd_report"), "--output", "-o", help="报告输出目录"),
-    force_threshold: float | None = typer.Option(None, "--force-threshold", min=0.0, help="统计超过该原子力模长的原子数 (eV/Å)"),
+    force_threshold: Optional[float] = typer.Option(None, "--force-threshold", min=0.0, help="统计超过该原子力模长的原子数 (eV/Å)"),
 ) -> None:
     """生成 DeepMD NPY 数据集的静态统计与质量审计报告。"""
     dataset_path = dataset_path.expanduser().resolve()

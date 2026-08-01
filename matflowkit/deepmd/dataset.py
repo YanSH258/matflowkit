@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 
@@ -15,7 +16,7 @@ class DeepMDSystem:
 
     path: Path
     types: np.ndarray
-    type_map: list[str] | None
+    type_map: Optional[list[str]]
     atom_counts: dict[str, int]
     elements: list[str]
     composition: str

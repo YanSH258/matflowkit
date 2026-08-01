@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import time
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import typer
@@ -21,7 +22,7 @@ from matflowkit.dpa4.common import (
 OPTIMIZER_NAMES = ("bfgs", "lbfgs", "fire")
 
 
-def relaxation_paths(input: Path, output: Path | None) -> tuple[Path, Path, Path, Path]:
+def relaxation_paths(input: Path, output: Optional[Path]) -> tuple[Path, Path, Path, Path]:
     """Return the structure, optimizer log, trajectory, and status paths."""
     resolved_output = (
         output.expanduser().resolve()
@@ -38,13 +39,13 @@ def relaxation_paths(input: Path, output: Path | None) -> tuple[Path, Path, Path
 
 def run_relaxation(
     input: Path,
-    output: Path | None = None,
-    model: Path | None = None,
+    output: Optional[Path] = None,
+    model: Optional[Path] = None,
     fmax: float = 0.05,
     steps: int = 300,
     optimizer: str = "bfgs",
     fixed_cell: bool = True,
-    fixed_indices_file: Path | None = None,
+    fixed_indices_file: Optional[Path] = None,
     use_d3: bool = True,
 ) -> tuple[dict, bool]:
     """Run one DPA4 optimization and return its status and pass flag."""
@@ -152,13 +153,13 @@ def run_relaxation(
 
 def relax(
     input: Path = typer.Argument(..., help="输入结构"),
-    output: Path | None = typer.Option(
+    output: Optional[Path] = typer.Option(
         None,
         "--output",
         "-o",
         help="输出结构",
     ),
-    model: Path | None = typer.Option(
+    model: Optional[Path] = typer.Option(
         None,
         "--model",
         envvar="DPA4_MODEL",
@@ -179,7 +180,7 @@ def relax(
         "--fixed-cell/--relax-cell",
         help="默认只优化原子；--relax-cell 同时优化晶胞",
     ),
-    fixed_indices_file: Path | None = typer.Option(
+    fixed_indices_file: Optional[Path] = typer.Option(
         None,
         "--fix-indices-file",
         help="固定原子的文本文件，使用从 1 开始的原子编号",

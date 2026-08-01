@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from collections import Counter
 from pathlib import Path
+from typing import Optional
 
 import typer
 
@@ -39,7 +40,7 @@ def audit(
         "-o",
         help="逐任务审计 CSV",
     ),
-    expected: int | None = typer.Option(None, help="预期输出文件数量"),
+    expected: Optional[int] = typer.Option(None, help="预期输出文件数量"),
     strict: bool = typer.Option(
         False,
         "--strict",

@@ -6,6 +6,7 @@ import csv
 import json
 import time
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import typer
@@ -32,13 +33,13 @@ def frame_metrics(energy: float, forces: np.ndarray, atom_count: int) -> dict:
 
 def evaluate(
     input: Path = typer.Argument(..., help="输入结构"),
-    output: Path | None = typer.Option(
+    output: Optional[Path] = typer.Option(
         None,
         "--output",
         "-o",
         help="输出 extxyz",
     ),
-    model: Path | None = typer.Option(
+    model: Optional[Path] = typer.Option(
         None,
         "--model",
         envvar="DPA4_MODEL",

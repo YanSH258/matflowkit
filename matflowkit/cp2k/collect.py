@@ -83,7 +83,7 @@ def collect(
         min=1,
         help="每个 DeepMD set.* 的最大帧数",
     ),
-    expected: int | None = typer.Option(None, help="预期任务数"),
+    expected: Optional[int] = typer.Option(None, help="预期任务数"),
     skip_incomplete: bool = typer.Option(
         False,
         "--skip-incomplete",
