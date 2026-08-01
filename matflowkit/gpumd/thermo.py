@@ -167,9 +167,15 @@ def thermo(
     file: Path = typer.Argument(Path("thermo.out"), help="thermo.out 路径"),
     plot: bool = typer.Option(False, "--plot", help="生成 thermo.png"),
     run_in: Optional[Path] = typer.Option(None, help="run.in 路径"),
-    output: Path = typer.Option(Path("thermo.png"), "-o", "--output", help="PNG 输出"),
-    averages: Path = typer.Option(
-        Path("thermo_averages.txt"), help="后半段平均值"
+    output: Optional[Path] = typer.Option(
+        None,
+        "-o",
+        "--output",
+        help="PNG 输出；默认写到 thermo.out 所在目录",
+    ),
+    averages: Optional[Path] = typer.Option(
+        None,
+        help="后半段平均值；默认写到 thermo.out 所在目录",
     ),
     start_fraction: float = typer.Option(
         0.5, min=0.0, max=0.999999, help="平均值起始比例"
@@ -199,6 +205,8 @@ def thermo(
 
     if not plot:
         return
+    output = output or file.parent / "thermo.png"
+    averages = averages or file.parent / "thermo_averages.txt"
     if output.exists() or averages.exists():
         typer.secho("错误: thermo 图或平均值文件已存在", fg=typer.colors.RED, err=True)
         raise typer.Exit(1)

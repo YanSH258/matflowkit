@@ -22,9 +22,11 @@ mfk gpumd from-deepmd ./deepmd_npy train.xyz --virial
 - 输出（stdout）：每列的 mean、min、max 和末值。
 - `--plot`：支持旧版 12 列正交晶胞和当前 18 列 triclinic 格式，默认读取同目录
   `run.in` 中的 `time_step` 与 `dump_thermo`。
-- 图片：`thermo.png`，包括温度、压力、动能/势能、晶格长度、体积和晶格角；
+- 图片：默认在 `thermo.out` 所在目录生成 `thermo.png`，包括温度、压力、
+  动能/势能、晶格长度、体积和晶格角；
   12 列格式没有晶格角时改画总能量。
-- 平均值：`thermo_averages.txt`，默认统计后 50%；用 `--start-fraction` 修改。
+- 平均值：默认在同一目录生成 `thermo_averages.txt`，统计后 50%；用
+  `--start-fraction` 修改。`--output` 和 `--averages` 可分别指定其他位置。
 - 实现参考 GPUMDkit 的 `gpumdkit.sh -plt thermo` 使用方式，但代码在本项目中重新编写。
 - 文件不存在：stderr 报错，退出码 1。
 

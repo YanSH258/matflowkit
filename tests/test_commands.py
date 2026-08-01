@@ -468,6 +468,32 @@ class CommandTests(unittest.TestCase):
         self.assertTrue(plot.is_file())
         self.assertIn("Temperature: 310", averages.read_text())
 
+    def test_gpumd_thermo_default_outputs_follow_input_directory(self):
+        data_dir = self.root / "gpumd_run"
+        data_dir.mkdir()
+        thermo_file = data_dir / "thermo.out"
+        np.savetxt(
+            thermo_file,
+            np.array(
+                (
+                    [300, 1, -5, 0.1, 0.2, 0.3, 0, 0, 0, 10, 11, 12],
+                    [310, 2, -6, 0.2, 0.3, 0.4, 0, 0, 0, 10.1, 11.1, 12.1],
+                ),
+                dtype=float,
+            ),
+        )
+
+        result = self.runner.invoke(
+            app,
+            ["gpumd", "thermo", str(thermo_file), "--plot"],
+        )
+
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertTrue((data_dir / "thermo.png").is_file())
+        self.assertTrue((data_dir / "thermo_averages.txt").is_file())
+        self.assertFalse((self.root / "thermo.png").exists())
+        self.assertIn(str(data_dir / "thermo.png"), result.output)
+
     def test_gpumd_plot_nep_training_writes_plot_and_metrics(self):
         data_dir = self.root / "nep"
         data_dir.mkdir()
