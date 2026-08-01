@@ -42,9 +42,26 @@ mfk gpumd npy-to-xyz ./deepmd_npy train.xyz --virial
 - 统计：完整数据上的 RMSE、MAE 和 R2；大数据只在散点绘制阶段抽样。
 - 输出：默认 `nep_training.png` 和 `nep_training_metrics.json`，已存在时拒绝覆盖。
 
+## `mfk gpumd plot-nep-evaluation [DIR]`
+
+- 必需输入：`energy_test.out` 和 `force_test.out`。测试集是误差结论的主要证据。
+- 可选输入：成对出现的 `energy_train.out`、`force_train.out`，以及各 split 对应的
+  `stress_*.out` 或 `virial_*.out`；tensor 缺失时如实跳过。
+- 统计：对完整数组分别计算 RMSE、MAE 和 R2。测试集与训练集不会混在一起统计。
+- 绘图：小数据画散点，大于 `--density-threshold` 的面板画二维密度；散点抽样只影响
+  显示，不影响指标。
+- 输出：默认 `nep_evaluation.png` 和 `nep_evaluation_metrics.json`，已存在时拒绝覆盖。
+
+```bash
+mfk gpumd plot-nep-evaluation ./nep_results
+mfk gpumd plot-nep-evaluation ./nep_results \
+  --output test_parity.png --metrics test_metrics.json
+```
+
 ## 依赖
 
-`thermo` 统计和 `merge-loss` 仅依赖 numpy；画图和 `plot-nep-training` 需要 matplotlib。
+`thermo` 统计和 `merge-loss` 仅依赖 numpy；画图、`plot-nep-training` 和
+`plot-nep-evaluation` 需要 matplotlib。
 
 ## 参考
 

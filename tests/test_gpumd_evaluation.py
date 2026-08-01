@@ -1,0 +1,103 @@
+import json
+from pathlib import Path
+from typing import Optional
+
+import numpy as np
+from typer.testing import CliRunner
+
+from matflowkit.cli import app
+
+
+runner = CliRunner()
+
+
+def _write_prediction_files(directory: Path, split: str, tensor: Optional[str] = None) -> None:
+    np.savetxt(
+        directory / f"energy_{split}.out",
+        np.array([[-1.00, -1.01], [-0.80, -0.79]]),
+    )
+    np.savetxt(
+        directory / f"force_{split}.out",
+        np.array(
+            [
+                [0.1, 0.2, 0.3, 0.11, 0.19, 0.31],
+                [-0.1, -0.2, -0.3, -0.09, -0.21, -0.29],
+            ]
+        ),
+    )
+    if tensor:
+        np.savetxt(
+            directory / f"{tensor}_{split}.out",
+            np.array(
+                [
+                    [1, 2, 3, 4, 5, 6, 1.1, 1.9, 3.1, 3.9, 5.1, 5.9],
+                    [2, 3, 4, 5, 6, 7, 2.1, 2.9, 4.1, 4.9, 6.1, 6.9],
+                ]
+            ),
+        )
+
+
+def test_gpumd_evaluation_uses_test_as_primary_evidence(tmp_path):
+    data = tmp_path / "nep"
+    data.mkdir()
+    _write_prediction_files(data, "train", tensor="stress")
+    _write_prediction_files(data, "test", tensor="stress")
+    plot = tmp_path / "evaluation.png"
+    metrics = tmp_path / "evaluation.json"
+    result = runner.invoke(
+        app,
+        [
+            "gpumd",
+            "plot-nep-evaluation",
+            str(data),
+            "--output",
+            str(plot),
+            "--metrics",
+            str(metrics),
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    assert plot.is_file()
+    values = json.loads(metrics.read_text())
+    assert values["primary_evidence"] == "held-out test set"
+    assert set(values["splits"]) == {"train", "test"}
+    assert "stress_components" in values["splits"]["test"]
+    assert values["splits"]["test"]["energy"]["plot_mode"] == "scatter"
+    assert np.isclose(values["splits"]["test"]["energy"]["rmse"], 0.01)
+
+
+def test_gpumd_evaluation_accepts_test_only_and_optional_tensor(tmp_path):
+    data = tmp_path / "nep"
+    data.mkdir()
+    _write_prediction_files(data, "test", tensor=None)
+    result = runner.invoke(
+        app,
+        [
+            "gpumd",
+            "plot-nep-evaluation",
+            str(data),
+            "--output",
+            str(tmp_path / "evaluation.png"),
+            "--metrics",
+            str(tmp_path / "evaluation.json"),
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    values = json.loads((tmp_path / "evaluation.json").read_text())
+    assert set(values["splits"]) == {"test"}
+
+
+def test_gpumd_evaluation_rejects_incomplete_test_files(tmp_path):
+    np.savetxt(tmp_path / "energy_test.out", np.array([[-1.0, -1.1]]))
+    result = runner.invoke(
+        app,
+        [
+            "gpumd",
+            "plot-nep-evaluation",
+            str(tmp_path),
+            "--output",
+            str(tmp_path / "evaluation.png"),
+        ],
+    )
+    assert result.exit_code != 0
+    assert "force_test.out" in result.output
