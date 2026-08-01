@@ -20,7 +20,12 @@ def parse_series(log: Path) -> dict:
     text = log.read_text(errors="replace")
     number = r"([-+]?\d*\.?\d+(?:[Ee][-+]?\d+)?)"
     return {
-        "energy": [float(x) for x in re.findall(r"final etot is\s+" + number, text, re.I)],
+        "energy": [
+            float(x)
+            for x in re.findall(
+                r"(?:final etot is|!FINAL_ETOT_IS)\s+" + number, text, re.I
+            )
+        ],
         "force": [
             float(x)
             for x in re.findall(r"Largest gradient in force is\s+" + number, text, re.I)

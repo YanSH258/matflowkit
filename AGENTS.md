@@ -32,6 +32,7 @@ DPA4 命令需要独立的 deepmd-kit + dftd3 环境（暂不随主环境安装�
 | 检查 MatFlowKit 安装、可选依赖和 ABACUS 资源目录 | `mfk doctor` |
 | 看 ABACUS relax 算完没有、收敛没有、最后能量和最大力 | `mfk abacus check-relax [DIR]` |
 | 批量检查 ABACUS SCF/relax/cell-relax 任务 | `mfk abacus audit [ROOT]` |
+| 生成 ABACUS 批量任务 HTML/JSON/CSV/PNG 报告 | `mfk abacus report [ROOT]` |
 | 绘制 ABACUS 结构优化收敛曲线 | `mfk abacus plot-convergence [DIR]` |
 | 将完成的 ABACUS 任务转换为 DeepMD NPY | `mfk abacus to-deepmd ROOT OUTPUT` |
 | 拿到一批 DeePMD 训练数据，先看规模、元素组成、能量/力范围 | `mfk deepmd stat [DIR]` |

@@ -8,6 +8,7 @@ from typing import Any, Callable, Optional, Tuple
 from matflowkit.abacus.audit import audit
 from matflowkit.abacus.check_relax import check_relax
 from matflowkit.abacus.plot_convergence import plot_convergence
+from matflowkit.abacus.report import report as abacus_report
 from matflowkit.abacus.to_deepmd import to_deepmd
 from matflowkit.cp2k.audit import audit as cp2k_audit
 from matflowkit.cp2k.collect import collect as cp2k_collect
@@ -58,6 +59,10 @@ GROUPS = (
         CommandSpec("to-deepmd", to_deepmd, "ABACUS 转 DeepMD", (
             ("root", "任务根目录", ".", False),
             ("output", "输出目录", "deepmd_from_abacus", False),
+        )),
+        CommandSpec("report", abacus_report, "生成批量任务报告", (
+            ("root", "任务根目录", ".", False),
+            ("--output", "报告目录", "abacus_report", False),
         )),
     )),
     GroupSpec("2", "DeePMD", "deepmd", "DeePMD", (

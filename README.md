@@ -73,6 +73,7 @@ DPA4 需要单独的 deepmd-kit + dftd3 环境，见
 mfk --help
 mfk doctor
 mfk abacus audit ./tasks --strict
+mfk abacus report ./tasks
 mfk abacus to-deepmd ./tasks ./deepmd_data
 mfk vasp to-deepmd ./vasp_tasks ./vasp_data
 mfk gpumd from-deepmd ./deepmd_data/deepmd_npy train.xyz
@@ -125,7 +126,7 @@ mfk gpumd plot-nep-training ./train
 
 | 模块   | 目前包含的命令                          |
 | -------- | ----------------------------------------- |
-| ABACUS | relax 检查、批量审计、收敛图、转 DeepMD |
+| ABACUS | relax 检查、批量审计、任务报告、收敛图、转 DeepMD |
 | CP2K   | 输出审计、单点数据收集                  |
 | VASP   | OUTCAR 转 DeepMD NPY                    |
 | DeepMD | 数据集统计、按组成合并、数据集报告       |

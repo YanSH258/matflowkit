@@ -97,7 +97,19 @@ def inspect_task(task: Path) -> dict:
             and not row["exit_nonzero"]
         )
     row["status"] = "PASS" if passed else "INCOMPLETE"
-    row["detail"] = "" if passed else "完成证据不完整"
+    missing = []
+    if not passed:
+        if row["exit_nonzero"]:
+            missing.append("存在 ABACUS_EXIT_NONZERO")
+        if calculation not in {"md"} and not row["scf_converged"]:
+            missing.append("未发现 SCF 收敛标记")
+        if calculation in {"relax", "cell-relax"} and not row["relax_converged"]:
+            missing.append("未发现结构优化收敛标记")
+        if calculation != "md" and not row["final_energy"]:
+            missing.append("未发现最终能量")
+        if not row["finish_time"]:
+            missing.append("未发现 Finish Time")
+    row["detail"] = "；".join(missing)
     return row
 
 

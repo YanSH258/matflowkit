@@ -22,6 +22,15 @@ ABACUS 任务的检查、批量审计、收敛分析与数据提取。每个命�
 - 绘制 ABACUS relax / cell-relax 的结构优化收敛曲线（能量、力随离子步）。
 - 依赖 matplotlib（延迟导入，未安装时清晰提示）。
 
+## `mfk abacus report [ROOT]`
+- 复用 `audit` 的任务发现、完成证据和状态判断，以及 `plot-convergence` 的能量、
+  最大力和最大应力解析，不另写 ABACUS 日志解析器。
+- 输出目录默认为 `abacus_report/`，包含 `report.html`、`report.json`、`jobs.csv`、
+  `failed_jobs.csv` 和 `figures/` 下的任务状态与 relax 指标 PNG。
+- `--expected`：记录并检查预期任务数；`--strict`：报告生成后，存在未完成任务或
+  任务数不符时返回退出码 2。
+- 提示只陈述缺少日志、完成证据不完整、任务数不符等事实，不判断计算质量。
+
 ## `mfk abacus to-deepmd ROOT OUTPUT`
 - 输入：一批已完成的 ABACUS SCF、relax、cell-relax 或 MD 任务。
 - 解析：dpdata；自动读取 `INPUT` 中的 `calculation` 与 `basis_type`，生成
@@ -33,4 +42,5 @@ ABACUS 任务的检查、批量审计、收敛分析与数据提取。每个命�
 
 - 硬依赖：仅 typer + numpy。
 - `plot-convergence`：matplotlib（延迟导入）。
+- `report`：matplotlib（延迟导入）。
 - `to-deepmd`：dpdata（延迟导入）。

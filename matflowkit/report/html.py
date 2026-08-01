@@ -73,3 +73,52 @@ th{{background:#f2f2f2}}img{{max-width:100%;height:auto;border:1px solid #ddd}}c
 <h2>Exact normalized duplicates</h2><p>{report['duplicates']['groups']} groups; {report['duplicates']['duplicate_frames']} redundant frames. Rounding: {report['duplicates']['normalization']['decimals']} decimals.</p>
 <h2>Warnings</h2>{warning_html}
 </body></html>"""
+
+
+def render_abacus_report(report: dict) -> str:
+    summary = report["summary"]
+    job_rows = "".join(
+        "<tr>"
+        + "".join(
+            f"<td>{_value(row.get(key))}</td>"
+            for key in (
+                "task",
+                "calculation",
+                "basis_type",
+                "status",
+                "ionic_steps",
+                "final_energy_eV",
+                "maximum_force_eV_A",
+                "detail",
+            )
+        )
+        + "</tr>"
+        for row in report["jobs"]
+    )
+    warning_html = (
+        "<ul>"
+        + "".join(f"<li>{escape(item['message'])}</li>" for item in report["warnings"])
+        + "</ul>"
+        if report["warnings"]
+        else "<p>无。</p>"
+    )
+    calculation_text = "，".join(
+        f"{escape(name)} {count}" for name, count in summary["calculations"].items()
+    )
+    return f"""<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>ABACUS 任务报告</title><style>
+body{{font-family:Arial,sans-serif;max-width:1200px;margin:2rem auto;padding:0 1rem;color:#222;line-height:1.45}}
+table{{border-collapse:collapse;width:100%;margin:1rem 0}}th,td{{border:1px solid #ccc;padding:.45rem;text-align:left}}
+th{{background:#f2f2f2}}img{{max-width:100%;height:auto;border:1px solid #ddd}}code{{background:#f4f4f4;padding:.1rem .25rem}}
+</style></head><body>
+<h1>ABACUS 任务报告</h1>
+<p>任务目录：<code>{escape(report['root'])}</code></p>
+<p>共 {summary['tasks']} 个任务；PASS {summary['pass']}；未完成 {summary['incomplete']}。{calculation_text}</p>
+<p><a href="report.json">report.json</a> · <a href="jobs.csv">jobs.csv</a> · <a href="failed_jobs.csv">failed_jobs.csv</a></p>
+<h2>任务状态</h2><a href="figures/task_status.png"><img src="figures/task_status.png" alt="任务状态统计"></a>
+<h2>Relax 指标</h2><a href="figures/relax_metrics.png"><img src="figures/relax_metrics.png" alt="Relax 离子步和最终最大力"></a>
+<h2>逐任务结果</h2>
+<table><thead><tr><th>任务</th><th>类型</th><th>基组</th><th>状态</th><th>离子步</th><th>最终能量 (eV)</th><th>最终最大力 (eV/Å)</th><th>说明</th></tr></thead><tbody>{job_rows}</tbody></table>
+<h2>事实提示</h2>{warning_html}
+</body></html>"""

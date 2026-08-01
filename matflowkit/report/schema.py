@@ -16,3 +16,22 @@ def deepmd_dataset_schema() -> dict:
         "duplicates": {},
         "warnings": [],
     }
+
+
+def abacus_tasks_schema() -> dict:
+    return {
+        "schema_version": "1.0",
+        "report_type": "abacus_tasks",
+        "root": None,
+        "summary": {
+            "tasks": None,
+            "pass": None,
+            "incomplete": None,
+            "expected": None,
+            "expected_match": None,
+            "calculations": {},
+        },
+        "jobs": [],
+        "figures": {},
+        "warnings": [],
+    }
