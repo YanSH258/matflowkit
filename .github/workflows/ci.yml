@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install MatFlowKit and test dependencies
+        run: uv sync --locked --extra dev --extra plot --extra dpdata --extra structure
+
+      - name: Run tests
+        run: uv run pytest -q
+
+      - name: Check CLI entry points
+        run: |
+          uv run mfk --help
+          for group in abacus deepmd gpumd dpdata dpa4 cp2k vasp structure; do
+            uv run mfk "$group" --help >/dev/null
+          done
+
+  build:
+    name: Build package
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          enable-cache: true
+          python-version: "3.12"
+
+      - name: Build wheel and source distribution
+        run: uv build
+
+      - name: Verify the wheel in a clean environment
+        run: |
+          uv venv .build-venv --python 3.12
+          uv pip install --python .build-venv/bin/python dist/*.whl
+          .build-venv/bin/mfk --help >/dev/null
