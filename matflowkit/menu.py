@@ -8,6 +8,7 @@ import typer
 from typer.testing import CliRunner
 
 from matflowkit import __version__
+from matflowkit.registry import GROUPS
 
 try:
     import readline  # noqa: F401  # Enable editing/history for input().
@@ -22,112 +23,22 @@ BANNER = r"""
  |_|  |_|\__,_|_| |_|   |_|\___/ \_/\_/  |_|\_\_|\__|
 """
 
-# 菜单结构：编号 -> (软件名, [(子命令, 一句话说明, [(参数名, 提示, 默认值, 是否为flag)])])
+# 菜单与 CLI 使用同一份注册表，避免新增命令时只更新其中一处。
 MENU = {
-    "1": ("ABACUS", [
-        ("check-relax", "检查 relax",
-         [("dir", "计算目录", ".", False)]),
-        ("audit", "批量检查任务",
-         [("root", "任务根目录", ".", False)]),
-        ("plot-convergence", "画收敛曲线",
-         [("dir", "计算目录", ".", False)]),
-        ("to-deepmd", "ABACUS 转 DeepMD",
-         [("root", "任务根目录", ".", False),
-          ("output", "输出目录", "deepmd_from_abacus", False)]),
-    ]),
-    "2": ("DeePMD", [
-        ("stat", "数据集统计",
-         [("dir", "数据目录", ".", False)]),
-        ("merge", "合并 NPY 数据集",
-         [("@args", "输入目录（空格分隔）", "data_a data_b", False),
-          ("--output", "输出目录", "deepmd_merged", False)]),
-        ("report", "生成数据集审计报告",
-         [("dataset-path", "数据集目录", ".", False),
-          ("--output", "报告目录", "deepmd_report", False)]),
-    ]),
-    "3": ("GPUMD", [
-        ("from-deepmd", "多 system NPY 转单个 XYZ",
-         [("dataset", "DeepMD NPY 数据集根目录", ".", False),
-          ("output", "GPUMD Extended XYZ", "train.xyz", False)]),
-        ("thermo", "统计并绘制 thermo.out",
-         [("file", "thermo 文件", "thermo.out", False),
-          ("plot", "是否生成热力学图 (y/n)", "n", True)]),
-        ("merge-loss", "合并首次训练与续训的 loss.out",
-         [("first", "首次训练 loss 文件", "loss.out", False),
-          ("restart", "续训 loss 文件", "restart/loss.out", False),
-          ("--output", "输出文件", "loss_merged.out", False)]),
-        ("plot-nep-training", "画 NEP 训练结果",
-         [("directory", "训练或预测目录", ".", False),
-          ("--output", "输出图片", "nep_training.png", False),
-          ("--metrics", "误差指标 JSON", "nep_training_metrics.json", False)]),
-    ]),
-    "4": ("dpdata", [
-        ("convert", "转换数据格式",
-         [("input", "输入文件或目录", ".", False),
-          ("output", "输出文件或目录", "converted_data", False),
-          ("--from", "输入格式", "deepmd/npy", False),
-          ("--to", "输出格式", "extxyz", False)]),
-        ("xyz-to-deepmd", "XYZ 转 DeepMD",
-         [("input", "输入 xyz 文件", "train.xyz", False),
-          ("output", "输出目录", "deepmd", False)]),
-        ("overlap", "查重复帧",
-         [("reference", "参考结构数据集", "train.extxyz", False),
-          ("candidate", "待检查结构数据集", "test.extxyz", False),
-          ("--output", "JSON 汇总", "frame_overlap.json", False)]),
-    ]),
-    "5": ("DPA4", [
-        ("relax", "使用 DPA4 优化结构",
-         [("input", "输入结构", "structure.xyz", False),
-          ("--output", "输出结构", "structure_dpa4_relaxed.extxyz", False),
-          ("--model", "DPA4 model.pt", "~/dpa4/Neo-MPtrj/model.pt", False)]),
-        ("batch-relax", "批量优化结构",
-         [("manifest", "任务 manifest", "structures.csv", False),
-          ("--output-dir", "输出目录", "dpa4_batch_relax", False),
-          ("--model", "DPA4 model.pt", "~/dpa4/Neo-MPtrj/model.pt", False)]),
-        ("evaluate", "计算能量和力",
-         [("input", "单帧或多帧结构", "structures.extxyz", False),
-          ("--output", "带标注的 extxyz", "structures_dpa4_evaluated.extxyz", False),
-          ("--model", "DPA4 model.pt", "~/dpa4/Neo-MPtrj/model.pt", False)]),
-        ("neb", "计算 NEB/CI-NEB",
-         [("initial", "已优化初态", "initial.extxyz", False),
-          ("final", "已优化末态", "final.extxyz", False),
-          ("--output-dir", "输出目录", "dpa4_neb", False),
-          ("--model", "DPA4 model.pt", "~/dpa4/Neo-MPtrj/model.pt", False)]),
-    ]),
-    "6": ("CP2K", [
-        ("audit", "检查 CP2K 输出",
-         [("root", "任务根目录或输出文件", ".", False),
-          ("--output", "审计 CSV", "cp2k_audit.csv", False)]),
-        ("collect", "CP2K 转 DeepMD",
-         [("root", "CP2K 单点任务根目录", ".", False),
-          ("output", "新的数据集目录", "cp2k_dataset", False)]),
-    ]),
-    "7": ("VASP", [
-        ("to-deepmd", "OUTCAR 转 DeepMD",
-         [("root", "任务根目录或 OUTCAR", ".", False),
-          ("output", "输出目录", "vasp_dataset", False)]),
-    ]),
-    "8": ("Structure", [
-        ("convert", "周期结构格式转换",
-         [("input", "输入 CIF / POSCAR / Extended XYZ", "structure.cif", False),
-          ("--to", "目标格式 (cif/xyz/poscar/stru)", "xyz", False),
-          ("--basis", "STRU 基组 (pw/lcao)", "pw", False)]),
-        ]),
-    "9": ("System", [
-        ("doctor", "检查安装和计算资源", []),
-    ]),
+    group.menu_key: (
+        group.display_name,
+        [
+            (
+                command.name,
+                command.menu_description,
+                list(command.menu_parameters),
+            )
+            for command in group.commands
+        ],
+    )
+    for group in GROUPS
 }
-_GROUP_NAME = {
-    "1": "abacus",
-    "2": "deepmd",
-    "3": "gpumd",
-    "4": "dpdata",
-    "5": "dpa4",
-    "6": "cp2k",
-    "7": "vasp",
-    "8": "structure",
-    "9": "",
-}
+_GROUP_NAME = {group.menu_key: group.cli_name or "" for group in GROUPS}
 
 
 def _prompt(text: str, default: str) -> str:

@@ -15,10 +15,9 @@ uv run mfk <软件> <命令> -h  # 验证帮助
 1. 实现放在对应软件子包：`matflowkit/<software>/<command_name>.py`，
    新软件则新建 `matflowkit/<software>/` 子包（含 `__init__.py` 和 `README.md`）。
    跨命令共享代码放 `matflowkit/common/`。
-2. 在 `matflowkit/cli.py` 中 import 并用 `<software>_app.command("<cmd-name>")(func)` 注册；
-   新软件需新建 typer 子组并 `app.add_typer(...)`。
-3. 在 `matflowkit/menu.py` 的 `MENU` 中追加对应条目（编号、一句话说明、参数提示列表），
-   菜单通过 CliRunner 复用命令，禁止在菜单里另写实现。
+2. 在 `matflowkit/registry.py` 的对应软件组注册 callback、命令名、菜单说明和常用参数；
+   `cli.py` 与 `menu.py` 会从同一份注册表生成入口，不要再单独维护两份命令列表。
+3. 菜单通过 CliRunner 复用命令，禁止在菜单里另写实现。
 4. 更新对应子包的 `matflowkit/<software>/README.md`（输入约定 / 参数 / 输出 / 边界）。
 5. 更新根 `AGENTS.md` 的场景 → 命令路由表。
 6. 配最小测试数据（放 /tmp，不进仓库）实际跑一遍验收；在 `tests/` 里补测试。

@@ -75,7 +75,7 @@ DPA4 命令需要独立的 deepmd-kit + dftd3 环境（暂不随主环境安装�
    未安装时清晰提示而非 ImportError。加新依赖前先确认无法用现有依赖解决，并声明进
    `pyproject.toml`。
 6. **文档与命令同生同死**：每加一个命令，同一次提交必须包含：写清"输入约定/参数/输出/
-   示例"的 docstring、菜单注册、对应子包 README（`matflowkit/<software>/README.md`）、
+   示例"的 docstring、`registry.py` 注册、对应子包 README（`matflowkit/<software>/README.md`）、
    本文件路由表更新。
 7. **可验证**：新命令配最小测试数据（放 /tmp，不进仓库）实际跑一遍验收；
    有真实案例后按 `examples/` 格式（命令 + 输入 + 输出 + 解释）收录。

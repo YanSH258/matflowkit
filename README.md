@@ -141,6 +141,7 @@ matflowkit/
 ├── matflowkit/        # Python 包
 │   ├── cli.py         # CLI 入口
 │   ├── menu.py        # 交互菜单
+│   ├── registry.py    # CLI 与菜单共用的命令注册表
 │   ├── abacus/ cp2k/ vasp/ deepmd/ dpdata/ dpa4/ gpumd/ structure/
 │   └── common/        # 共用代码和画图样式
 ├── tests/             # 测试
