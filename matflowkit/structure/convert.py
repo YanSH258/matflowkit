@@ -5,7 +5,6 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import re
 import shutil
 import uuid
 import warnings
@@ -233,89 +232,6 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _recommended_ecutwfc(
-    directory: Path,
-    elements: Iterable[str],
-    orbital_files: Dict[str, Path],
-    requested: Optional[float],
-) -> float:
-    """Resolve a documented energy cutoff without inventing a default."""
-    if requested is not None:
-        if not np.isfinite(requested) or requested <= 0:
-            raise ValueError("--ecutwfc 必须是正数")
-        return float(requested)
-
-    values: Dict[str, List[float]] = {element: [] for element in elements}
-    recommendation = directory / "ecutwfc.json"
-    if recommendation.is_file():
-        raw = json.loads(recommendation.read_text(encoding="utf-8"))
-        for element in elements:
-            value = raw.get(element) if isinstance(raw, dict) else None
-            if isinstance(value, (int, float)) and np.isfinite(value) and value > 0:
-                values[element].append(float(value))
-
-    cutoff_pattern = re.compile(r"Energy\s+Cutoff\s*\(Ry\)\s+([0-9.eE+-]+)", re.I)
-    for element, path in orbital_files.items():
-        header = path.read_text(encoding="utf-8", errors="replace")[:4096]
-        match = cutoff_pattern.search(header)
-        if match:
-            values[element].append(float(match.group(1)))
-
-    missing = [element for element, candidates in values.items() if not candidates]
-    if missing:
-        raise ValueError(
-            f"无法确定元素 {', '.join(missing)} 的 ecutwfc；请在赝势目录提供 "
-            "ecutwfc.json，或使用 --ecutwfc 指定"
-        )
-    return max(value for candidates in values.values() for value in candidates)
-
-
-def _write_single_point_input(
-    path: Path,
-    stru_name: str,
-    basis: str,
-    pseudo_dir: Path,
-    orbital_dir: Optional[Path],
-    ecutwfc: float,
-    local_resources: bool,
-) -> None:
-    pseudo_value = "." if local_resources else str(pseudo_dir)
-    orbital_value = "." if local_resources else str(orbital_dir)
-    resource_paths = [pseudo_value]
-    if basis == "lcao":
-        resource_paths.append(orbital_value)
-    if any(any(char.isspace() for char in value) for value in resource_paths):
-        raise ValueError("ABACUS 资源库路径不能包含空白字符")
-    lines = [
-        "INPUT_PARAMETERS",
-        "# Review k-points, spin, and convergence before production calculations.",
-        "calculation  scf",
-        f"basis_type  {basis}",
-        f"stru_file   {stru_name}",
-        f"pseudo_dir  {pseudo_value}",
-    ]
-    if basis == "lcao":
-        lines.extend(
-            [
-                f"orbital_dir {orbital_value}",
-                f"ecutwfc     {ecutwfc:g}",
-                "scf_thr      1e-7",
-                "gamma_only   1",
-            ]
-        )
-    else:
-        lines.extend(
-            [
-                f"ecutwfc     {ecutwfc:g}",
-                "scf_thr      1e-9",
-                "kspacing     0.2  # Review k-point convergence.",
-            ]
-        )
-    if any(len(line) > 150 for line in lines):
-        raise ValueError("资源库路径过长，生成的 INPUT 行超过 ABACUS 的 150 字符限制")
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-
-
 def _ase_from_dpdata(system):
     from ase import Atoms
 
@@ -365,15 +281,14 @@ def convert(
     pp_dir: Optional[Path] = typer.Option(None, help="赝势目录；默认读取 ABACUS_PP_PATH"),
     orb_dir: Optional[Path] = typer.Option(None, help="轨道目录；默认读取 ABACUS_ORB_PATH"),
     copy_files: bool = typer.Option(False, "--copy-files", help="将赝势和轨道复制到输出目录"),
-    ecutwfc: Optional[float] = typer.Option(None, help="INPUT 截断能/Ry；默认读取资源库推荐值"),
     report_json: bool = typer.Option(False, "--json", help="输出完整 JSON 校验记录"),
 ) -> None:
     """将单结构 CIF 转为 Extended XYZ、POSCAR 或可用的 ABACUS STRU。
 
     XYZ 始终写为保留晶胞和 PBC 的 Extended XYZ。STRU 默认从
     ABACUS_PP_PATH 查找赝势；basis=lcao 时还会从 ABACUS_ORB_PATH 查找轨道。
-    转为 STRU 时同时生成单点 SCF 的 INPUT。输出已存在、CIF 部分占位、
-    资源缺失或回读验证失败时拒绝转换。
+    默认把资源绝对路径写入 STRU；--copy-files 改为复制并写文件名。
+    输出已存在、CIF 部分占位、资源缺失或回读验证失败时拒绝转换。
     """
     normalized_target = TARGET_ALIASES.get(target.strip().lower())
     if normalized_target is None:
@@ -395,14 +310,7 @@ def convert(
     if output.exists() or output.is_symlink():
         typer.secho(f"错误: 输出已存在: {output}", err=True, fg=typer.colors.RED)
         raise typer.Exit(1)
-    input_file = output.parent / "INPUT" if normalized_target == "stru" else None
-    if input_file is not None and (input_file.exists() or input_file.is_symlink()):
-        typer.secho(f"错误: INPUT 已存在: {input_file}", err=True, fg=typer.colors.RED)
-        raise typer.Exit(1)
-
     temporary: Optional[Path] = None
-    temporary_input: Optional[Path] = None
-    created_input = False
     created_resources: List[Path] = []
     try:
         atoms, parser_warnings = read_single_cif(input)
@@ -434,54 +342,42 @@ def convert(
             system = dpdata.System(atoms, fmt="ase/structure")
             from ase.data import atomic_masses, atomic_numbers
 
+            resource_references = {
+                element: path.name if copy_files else str(path.resolve())
+                for element, path in pseudo_files.items()
+            }
+            orbital_references = {
+                element: path.name if copy_files else str(path.resolve())
+                for element, path in orbital_files.items()
+            }
+            if any(
+                any(character.isspace() for character in reference)
+                for reference in list(resource_references.values())
+                + list(orbital_references.values())
+            ):
+                raise ValueError("写入 STRU 的赝势或轨道路径不能包含空白字符")
             kwargs: Dict[str, Any] = {
-                "pp_file": {element: path.name for element, path in pseudo_files.items()},
+                "pp_file": resource_references,
                 "mass": [
                     float(atomic_masses[atomic_numbers[element]])
                     for element in system.data["atom_names"]
                 ],
             }
             if orbital_files:
-                kwargs["numerical_orbital"] = {
-                    element: path.name for element, path in orbital_files.items()
-                }
+                kwargs["numerical_orbital"] = orbital_references
             system.to("abacus/stru", str(temporary), frame_idx=0, **kwargs)
             restored = _ase_from_dpdata(dpdata.System(str(temporary), fmt="abacus/stru"))
-
-            resolved_ecutwfc = _recommended_ecutwfc(
-                pseudo_path, elements, orbital_files, ecutwfc
-            )
-            temporary_input = input_file.with_name(
-                f".{input_file.name}.mfk-{uuid.uuid4().hex}.tmp"
-            )
-            _write_single_point_input(
-                temporary_input,
-                output.name,
-                normalized_basis,
-                pseudo_path,
-                orbital_path if normalized_basis == "lcao" else None,
-                resolved_ecutwfc,
-                copy_files,
-            )
 
         validation = validate_roundtrip(atoms, restored)
         if normalized_target == "stru" and copy_files:
             created_resources = _copy_resource_files(
                 output.parent, list(pseudo_files.values()) + list(orbital_files.values())
             )
-        if temporary_input is not None:
-            temporary_input.replace(input_file)
-            temporary_input = None
-            created_input = True
         temporary.replace(output)
         temporary = None
     except Exception as exc:
         if temporary is not None and temporary.exists():
             temporary.unlink()
-        if temporary_input is not None and temporary_input.exists():
-            temporary_input.unlink()
-        if created_input and input_file is not None and input_file.exists():
-            input_file.unlink()
         for resource in created_resources:
             if resource.exists() or resource.is_symlink():
                 resource.unlink()
@@ -499,15 +395,21 @@ def convert(
     }
     if normalized_target == "stru":
         report["basis"] = normalized_basis
-        report["input_file"] = str(input_file.resolve())
-        report["ecutwfc_Ry"] = resolved_ecutwfc
-        report["resource_mode"] = "copy" if copy_files else "library"
+        report["resource_mode"] = "copy" if copy_files else "absolute_path"
         report["pseudopotentials"] = {
-            element: {"file": path.name, "sha256": _sha256(path)}
+            element: {
+                "file": resource_references[element],
+                "source": str(path.resolve()),
+                "sha256": _sha256(path),
+            }
             for element, path in pseudo_files.items()
         }
         report["orbitals"] = {
-            element: {"file": path.name, "sha256": _sha256(path)}
+            element: {
+                "file": orbital_references[element],
+                "source": str(path.resolve()),
+                "sha256": _sha256(path),
+            }
             for element, path in orbital_files.items()
         }
     if report_json:
@@ -521,10 +423,10 @@ def convert(
         f"{validation['maximum_coordinate_deviation_A']:.3g} Å"
     )
     if normalized_target == "stru":
+        resource_label = "已复制" if copy_files else "绝对路径"
         typer.echo(
             f"STRU: {normalized_basis.upper()} | 赝势: {len(pseudo_files)} | "
-            f"轨道: {len(orbital_files)} | ecutwfc: {resolved_ecutwfc:g} Ry"
+            f"轨道: {len(orbital_files)} | 资源: {resource_label}"
         )
-        typer.echo(f"INPUT: {input_file.resolve()} | 资源: {report['resource_mode']}")
     if parser_warnings:
         typer.echo(f"解析提示: {len(parser_warnings)} 条（使用 --json 查看详情）")

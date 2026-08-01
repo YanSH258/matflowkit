@@ -29,8 +29,6 @@ def _library(path: Path, filename: str) -> Path:
     resource = path / filename
     resource.write_text("test resource\n")
     (path / "element.json").write_text(json.dumps({"Al": filename}))
-    if filename.lower().endswith(".upf"):
-        (path / "ecutwfc.json").write_text(json.dumps({"Al": 80.0}))
     return resource
 
 
@@ -116,21 +114,16 @@ def test_cif_to_stru_uses_library_paths_without_links(tmp_path: Path):
         ],
     )
     assert result.exit_code == 0, result.output
-    assert "Al_test.upf" in output.read_text()
-    assert "Al 26.982 Al_test.upf" in output.read_text()
+    assert str(pp_file.resolve()) in output.read_text()
+    assert f"Al 26.982 {pp_file.resolve()}" in output.read_text()
     assert "NUMERICAL_ORBITAL" not in output.read_text()
     assert not (output.parent / pp_file.name).exists()
-    input_text = (output.parent / "INPUT").read_text()
-    assert f"pseudo_dir  {pp_file.parent.resolve()}" in input_text
-    assert "calculation  scf" in input_text
-    assert "basis_type  pw" in input_text
-    assert "ecutwfc     80" in input_text
-    assert "kspacing     0.2" in input_text
+    assert not (output.parent / "INPUT").exists()
     report = json.loads(result.output)
     assert report["validation"]["status"] == "passed"
     assert len(report["pseudopotentials"]["Al"]["sha256"]) == 64
-    assert report["resource_mode"] == "library"
-    assert report["ecutwfc_Ry"] == 80.0
+    assert report["resource_mode"] == "absolute_path"
+    assert report["pseudopotentials"]["Al"]["file"] == str(pp_file.resolve())
 
 
 def test_structure_convert_uses_compact_output_by_default(tmp_path: Path):
@@ -169,15 +162,15 @@ def test_cif_to_lcao_stru_adds_matching_orbital(tmp_path: Path):
         ],
     )
     assert result.exit_code == 0, result.output
+    assert "资源: 已复制" in result.output
     assert "NUMERICAL_ORBITAL" in output.read_text()
     assert orb_file.name in output.read_text()
+    assert str(pp_file.resolve()) not in output.read_text()
+    assert str(orb_file.resolve()) not in output.read_text()
     assert (output.parent / pp_file.name).is_file()
     assert not (output.parent / pp_file.name).is_symlink()
     assert (output.parent / orb_file.name).is_file()
-    input_text = (output.parent / "INPUT").read_text()
-    assert "pseudo_dir  ." in input_text
-    assert "orbital_dir ." in input_text
-    assert "gamma_only   1" in input_text
+    assert not (output.parent / "INPUT").exists()
 
 
 def test_cif_to_stru_fails_before_output_when_element_is_missing(tmp_path: Path):
@@ -249,7 +242,7 @@ def test_stru_requires_unambiguous_resource_match_without_mapping(tmp_path: Path
     assert not (tmp_path / "Al.STRU").exists()
 
 
-def test_stru_refuses_existing_input_without_writing_output(tmp_path: Path):
+def test_stru_does_not_create_or_modify_input(tmp_path: Path):
     source = tmp_path / "Al.cif"
     _write_cif(source)
     pp_file = _library(tmp_path / "pp", "Al_test.upf")
@@ -258,27 +251,9 @@ def test_stru_refuses_existing_input_without_writing_output(tmp_path: Path):
         app,
         ["structure", "convert", str(source), "--to", "stru", "--pp-dir", str(pp_file.parent)],
     )
-    assert result.exit_code == 1
-    assert "INPUT 已存在" in result.output
+    assert result.exit_code == 0, result.output
     assert (tmp_path / "INPUT").read_text() == "keep\n"
-    assert not (tmp_path / "Al.STRU").exists()
-
-
-def test_stru_requires_cutoff_metadata_or_explicit_value(tmp_path: Path):
-    source = tmp_path / "Al.cif"
-    _write_cif(source)
-    pp_dir = tmp_path / "pp"
-    pp_dir.mkdir()
-    (pp_dir / "Al_test.upf").write_text("test resource\n")
-    (pp_dir / "element.json").write_text(json.dumps({"Al": "Al_test.upf"}))
-    result = runner.invoke(
-        app,
-        ["structure", "convert", str(source), "--to", "stru", "--pp-dir", str(pp_dir)],
-    )
-    assert result.exit_code == 2
-    assert "无法确定元素 Al 的 ecutwfc" in result.output
-    assert not (tmp_path / "INPUT").exists()
-    assert not (tmp_path / "Al.STRU").exists()
+    assert (tmp_path / "Al.STRU").is_file()
 
 
 def test_menu_does_not_print_command_error_twice(monkeypatch, capsys):
