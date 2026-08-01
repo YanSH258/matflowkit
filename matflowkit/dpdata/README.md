@@ -13,6 +13,8 @@
 - 输入：带 `Lattice`、`energy`、`force`（可选 `virial`）标注的 GPUMD/extxyz；
   默认 `train.xyz`。
 - 解析：使用 `dpdata.MultiSystems`，允许输入中存在多种化学组成。
+- virial：同一组成的帧全部有则写 `virial.npy`，全部没有则不写；部分帧缺失时在
+  调用 dpdata 前报错，并列出该组成的总帧数、有/无 virial 数量和缺失帧编号。
 - 输出：默认写入 `deepmd/`，按精确组成分 system，同时生成 DeepMD raw 与 NPY；
   `--set-size` 控制 NPY 分片大小。
 - 输出目录已存在且非空时拒绝覆盖；dpdata 缺失或解析失败时写 stderr 并非零退出。
