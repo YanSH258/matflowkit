@@ -4,6 +4,8 @@
 
 ### 新增
 
+- `mfk abacus prepare-from-xyz`：将多帧 Extended XYZ 或目录中的多个 XYZ 文件
+  按帧生成独立的 ABACUS `INPUT/KPT/STRU` 任务，并输出 manifest 和校验值。
 - `mfk gpumd plot-nep-evaluation`：分别统计和绘制 NEP 训练集、独立测试集的
   energy/force/stress 或 virial 预测误差，并对大数据自动使用密度图。
 - `mfk deepmd split`：使用固定 seed 的 random 或 uniform 方法划分 DeepMD NPY，

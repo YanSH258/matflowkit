@@ -306,6 +306,78 @@ def _ase_from_dpdata(system):
     )
 
 
+def write_abacus_stru(
+    atoms,
+    output: Path,
+    basis: str,
+    pp_dir: Optional[Path] = None,
+    orb_dir: Optional[Path] = None,
+) -> Dict[str, Any]:
+    """Write one validated ABACUS STRU with absolute resource references."""
+    normalized_basis = basis.strip().lower()
+    if normalized_basis not in {"pw", "lcao"}:
+        raise ValueError("basis 只能是 pw 或 lcao")
+    _validate_input_atoms(atoms, "extxyz")
+    dpdata = _require_dpdata()
+    elements = list(dict.fromkeys(atoms.get_chemical_symbols()))
+    pseudo_path = _library_path(pp_dir, "ABACUS_PP_PATH", "赝势")
+    pseudo_files = resolve_library_files(pseudo_path, elements, ".upf", "赝势")
+    orbital_files: Dict[str, Path] = {}
+    if normalized_basis == "lcao":
+        orbital_path = _library_path(orb_dir, "ABACUS_ORB_PATH", "轨道")
+        orbital_files = resolve_library_files(
+            orbital_path, elements, ".orb", "轨道"
+        )
+
+    system = dpdata.System(atoms, fmt="ase/structure")
+    resource_references = {
+        element: str(path.resolve()) for element, path in pseudo_files.items()
+    }
+    orbital_references = {
+        element: str(path.resolve()) for element, path in orbital_files.items()
+    }
+    if any(
+        any(character.isspace() for character in reference)
+        for reference in list(resource_references.values())
+        + list(orbital_references.values())
+    ):
+        raise ValueError("写入 STRU 的赝势或轨道路径不能包含空白字符")
+
+    from ase.data import atomic_masses, atomic_numbers
+
+    kwargs: Dict[str, Any] = {
+        "pp_file": resource_references,
+        "mass": [
+            float(atomic_masses[atomic_numbers[element]])
+            for element in system.data["atom_names"]
+        ],
+    }
+    if orbital_files:
+        kwargs["numerical_orbital"] = orbital_references
+    system.to("abacus/stru", str(output), frame_idx=0, **kwargs)
+    restored = _ase_from_dpdata(dpdata.System(str(output), fmt="abacus/stru"))
+    return {
+        "basis": normalized_basis,
+        "validation": validate_roundtrip(atoms, restored),
+        "pseudopotentials": {
+            element: {
+                "file": resource_references[element],
+                "source": str(path.resolve()),
+                "sha256": _sha256(path),
+            }
+            for element, path in pseudo_files.items()
+        },
+        "orbitals": {
+            element: {
+                "file": orbital_references[element],
+                "source": str(path.resolve()),
+                "sha256": _sha256(path),
+            }
+            for element, path in orbital_files.items()
+        },
+    }
+
+
 def convert(
     input: Path = typer.Argument(..., help="单结构 CIF、POSCAR 或 Extended XYZ 文件"),
     target: str = typer.Option("xyz", "--to", help="目标格式: cif, xyz, poscar, stru"),
@@ -372,43 +444,29 @@ def convert(
             read, _ = _require_ase()
             restored = read(str(temporary), format="vasp")
         else:
-            dpdata = _require_dpdata()
-            elements = list(dict.fromkeys(atoms.get_chemical_symbols()))
-            pseudo_path = _library_path(pp_dir, "ABACUS_PP_PATH", "赝势")
-            pseudo_files = resolve_library_files(pseudo_path, elements, ".upf", "赝势")
-            if normalized_basis == "lcao":
-                orbital_path = _library_path(orb_dir, "ABACUS_ORB_PATH", "轨道")
-                orbital_files = resolve_library_files(orbital_path, elements, ".orb", "轨道")
-            system = dpdata.System(atoms, fmt="ase/structure")
-            from ase.data import atomic_masses, atomic_numbers
-
+            stru_result = write_abacus_stru(
+                atoms, temporary, normalized_basis, pp_dir, orb_dir
+            )
+            validation = stru_result["validation"]
+            pseudo_files = {
+                element: Path(record["source"])
+                for element, record in stru_result["pseudopotentials"].items()
+            }
+            orbital_files = {
+                element: Path(record["source"])
+                for element, record in stru_result["orbitals"].items()
+            }
             resource_references = {
-                element: str(path.resolve())
-                for element, path in pseudo_files.items()
+                element: record["file"]
+                for element, record in stru_result["pseudopotentials"].items()
             }
             orbital_references = {
-                element: str(path.resolve())
-                for element, path in orbital_files.items()
+                element: record["file"]
+                for element, record in stru_result["orbitals"].items()
             }
-            if any(
-                any(character.isspace() for character in reference)
-                for reference in list(resource_references.values())
-                + list(orbital_references.values())
-            ):
-                raise ValueError("写入 STRU 的赝势或轨道路径不能包含空白字符")
-            kwargs: Dict[str, Any] = {
-                "pp_file": resource_references,
-                "mass": [
-                    float(atomic_masses[atomic_numbers[element]])
-                    for element in system.data["atom_names"]
-                ],
-            }
-            if orbital_files:
-                kwargs["numerical_orbital"] = orbital_references
-            system.to("abacus/stru", str(temporary), frame_idx=0, **kwargs)
-            restored = _ase_from_dpdata(dpdata.System(str(temporary), fmt="abacus/stru"))
 
-        validation = validate_roundtrip(atoms, restored)
+        if normalized_target != "stru":
+            validation = validate_roundtrip(atoms, restored)
         temporary.replace(output)
         temporary = None
     except Exception as exc:

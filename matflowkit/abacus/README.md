@@ -19,6 +19,24 @@ ABACUS 任务的检查、批量审计、收敛分析与数据提取。每个命�
 - 绘制 ABACUS relax / cell-relax 的结构优化收敛曲线（能量、力随离子步）。
 - 依赖 matplotlib（延迟导入，未安装时清晰提示）。
 
+## `mfk abacus prepare-from-xyz SOURCE TEMPLATE [OUTPUT]`
+
+- 输入：一个多帧 Extended XYZ，或包含多个 `.xyz`/`.extxyz` 文件的目录；每一帧
+  必须包含有限坐标、有效晶胞和三维 PBC，普通 XYZ 会被拒绝。
+- 模板：`TEMPLATE/INPUT` 和 `TEMPLATE/KPT`。计算参数不修改，只将每个任务的
+  `suffix` 设为唯一值；INPUT 必须明确包含 `calculation` 和 `basis_type`。
+- STRU：复用 `structure convert` 的写出与回读校验，赝势使用 `ABACUS_PP_PATH`；
+  LCAO 轨道使用 `ABACUS_ORB_PATH`，并在 STRU 中写入绝对路径。
+- 输出：默认 `abacus_tasks/`，包含 `tasks/task_000001/INPUT|KPT|STRU`、
+  `task_manifest.csv`、`task_list.txt`、`summary.json` 和 `SHA256SUMS.csv`。
+- 边界：不生成提交脚本、不提交任务、不覆盖已有输出目录；XYZ 中的能量、力和
+  virial 标签不会写入 ABACUS 输入。
+
+```bash
+mfk abacus prepare-from-xyz structures.xyz template abacus_tasks
+mfk abacus prepare-from-xyz xyz_files/ template abacus_tasks
+```
+
 ## `mfk abacus report [ROOT]`
 - 复用 `audit` 的任务发现、完成证据和状态判断，以及 `plot-convergence` 的能量、
   最大力和最大应力解析，不另写 ABACUS 日志解析器。

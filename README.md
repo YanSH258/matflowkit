@@ -74,6 +74,7 @@ mfk --help
 mfk doctor
 mfk abacus audit ./tasks --strict
 mfk abacus report ./tasks
+mfk abacus prepare-from-xyz structures.xyz ./abacus_template ./abacus_tasks
 mfk abacus to-deepmd ./tasks ./deepmd_data
 mfk vasp outcar-to-deepmd ./vasp_tasks ./vasp_data
 mfk cp2k singlepoint-to-deepmd ./cp2k_tasks ./cp2k_data

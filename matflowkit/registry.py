@@ -8,6 +8,7 @@ from typing import Any, Callable, Optional, Tuple
 from matflowkit.abacus.audit import audit
 from matflowkit.abacus.check_relax import check_relax
 from matflowkit.abacus.plot_convergence import plot_convergence
+from matflowkit.abacus.prepare_from_xyz import prepare_from_xyz
 from matflowkit.abacus.report import report as abacus_report
 from matflowkit.abacus.to_deepmd import to_deepmd
 from matflowkit.cp2k.audit import audit as cp2k_audit
@@ -69,6 +70,11 @@ GROUPS = (
             ("--output", "报告目录", "abacus_report", False),
         )),
         CommandSpec("plot-convergence", plot_convergence, "绘制结构优化收敛曲线", (("dir", "计算目录", ".", False),)),
+        CommandSpec("prepare-from-xyz", prepare_from_xyz, "将多个 XYZ 帧准备为 ABACUS 任务", (
+            ("source", "多帧 Extended XYZ 或 XYZ 目录", "structures.xyz", False),
+            ("template", "包含 INPUT 和 KPT 的模板目录", "template", False),
+            ("output", "创建新的工作目录", "abacus_tasks", False),
+        )),
         CommandSpec("to-deepmd", to_deepmd, "从计算结果提取 DeepMD NPY", (
             ("root", "任务根目录", ".", False),
             ("output", "输出目录", "deepmd_from_abacus", False),

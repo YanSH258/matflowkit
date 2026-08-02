@@ -34,6 +34,7 @@ DPA4 命令需要独立的 deepmd-kit + dftd3 环境（暂不随主环境安装�
 | 批量检查 ABACUS SCF/relax/cell-relax 任务 | `mfk abacus audit [ROOT]` |
 | 生成 ABACUS 批量任务 HTML/JSON/CSV/PNG 报告 | `mfk abacus report [ROOT]` |
 | 绘制 ABACUS 结构优化收敛曲线 | `mfk abacus plot-convergence [DIR]` |
+| 将多帧 Extended XYZ 或多个 XYZ 文件准备为独立 ABACUS 任务 | `mfk abacus prepare-from-xyz SOURCE TEMPLATE [OUTPUT]` |
 | 将完成的 ABACUS 任务转换为 DeepMD NPY | `mfk abacus to-deepmd ROOT OUTPUT` |
 | 拿到一批 DeePMD 训练数据，先看规模、元素组成、能量/力范围 | `mfk deepmd stat [DIR]` |
 | 生成可复查的 DeepMD NPY 数据集统计与质量审计报告 | `mfk deepmd report DATASET_PATH` |
