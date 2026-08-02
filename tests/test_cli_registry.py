@@ -12,7 +12,7 @@ runner = CliRunner()
 def test_main_menu_order_and_descriptions():
     assert [(group.menu_key, group.display_name, group.cli_help) for group in GROUPS] == [
         ("1", "Structure", "单个结构文件转换"),
-        ("2", "ABACUS", "计算检查、报告与数据提取"),
+        ("2", "ABACUS", "输入准备、计算检查与数据提取"),
         ("3", "CP2K", "计算检查与数据提取"),
         ("4", "VASP", "OUTCAR 数据提取"),
         ("5", "dpdata", "带标签数据格式转换与重复检查"),
@@ -51,6 +51,29 @@ def test_registry_matches_cli_and_menu():
         assert menu_commands == expected_commands
         if group.cli_name is not None:
             assert set(root.commands[group.cli_name].commands) == expected_commands
+
+
+def test_workflow_command_order():
+    commands = {
+        group.cli_name: [command.name for command in group.commands]
+        for group in GROUPS
+        if group.cli_name is not None
+    }
+    assert commands["abacus"] == [
+        "prepare-from-xyz",
+        "audit",
+        "report",
+        "to-deepmd",
+        "check-relax",
+        "plot-convergence",
+    ]
+    assert commands["deepmd"] == ["stat", "report", "merge", "split"]
+    assert commands["gpumd"] == [
+        "npy-to-xyz",
+        "plot-nep-evaluation",
+        "thermo",
+        "merge-loss",
+    ]
 
 
 def test_every_registered_command_has_working_help():

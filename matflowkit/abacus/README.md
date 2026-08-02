@@ -1,6 +1,6 @@
 # ABACUS
 
-ABACUS 任务的检查、批量审计、收敛分析与数据提取。每个命令的详细参数见
+ABACUS 任务的输入准备、批量审计、收敛分析与数据提取。每个命令的详细参数见
 `mfk abacus <命令> -h`。
 
 ## `mfk abacus check-relax [DIR]`（默认当前目录）

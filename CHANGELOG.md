@@ -23,6 +23,8 @@
 
 ### 调整
 
+- 交互菜单按“准备输入 → 检查/报告 → 提取数据 → 数据审计”的常用流程重排
+  ABACUS、DeepMD 和 GPUMD 子命令编号。
 - `mfk gpumd plot-nep-evaluation` 改为自动扫描 `loss.out` 及已有的 train/test
   energy、force、stress 和 virial 文件，替代重复的 `plot-nep-training` 命令。
 - CLI 与交互菜单改为共用一个命令注册表。

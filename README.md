@@ -107,20 +107,24 @@ mfk
 ### 一个常用流程
 
 ```bash
-# 1. 检查 DFT 任务
-mfk abacus audit ./tasks --strict
+# 1. 大模型 MD 产生带晶胞和 PBC 的 Extended XYZ 后，准备 ABACUS 任务
+mfk abacus prepare-from-xyz trajectory.xyz ./abacus_template ./tasks
 
-# 2. 收集 DeepMD NPY
+# 2. ABACUS 计算结束后检查任务
+mfk abacus audit ./tasks --strict
+mfk abacus report ./tasks
+
+# 3. 提取带能量、力和 virial 的 DeepMD NPY
 mfk abacus to-deepmd ./tasks ./deepmd_data
 
-# 3. 生成全量数据审计报告并划分训练集/测试集
+# 4. 审计数据并划分训练集/测试集
 mfk deepmd report ./deepmd_data/deepmd_npy
 mfk deepmd split ./deepmd_data/deepmd_npy --test-size 0.1 --seed 42
 
-# 4. 检查训练集与测试集是否重复
+# 5. 检查训练集与测试集是否重复
 mfk dpdata overlap train.extxyz test.extxyz
 
-# 5. 训练结束后画 loss 和已有预测结果；独立测试集误差是主要验证证据
+# 6. 训练结束后画 loss 和已有预测结果；独立测试集误差是主要验证证据
 mfk gpumd plot-nep-evaluation ./train
 ```
 
@@ -132,7 +136,7 @@ mfk gpumd plot-nep-evaluation ./train
 | 模块 | 用途 |
 | --- | --- |
 | Structure | 单个结构文件转换 |
-| ABACUS | 计算检查、报告与数据提取 |
+| ABACUS | XYZ 任务准备、计算检查、报告与数据提取 |
 | CP2K | 计算检查与数据提取 |
 | VASP | OUTCAR 数据提取 |
 | dpdata | 带标签数据格式转换与重复检查 |

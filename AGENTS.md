@@ -30,16 +30,16 @@ DPA4 命令需要独立的 deepmd-kit + dftd3 环境（暂不随主环境安装�
 | 场景 | 命令 |
 | --- | --- |
 | 检查 MatFlowKit 安装、可选依赖和 ABACUS 资源目录 | `mfk doctor` |
-| 看 ABACUS relax 算完没有、收敛没有、最后能量和最大力 | `mfk abacus check-relax [DIR]` |
+| 将多帧 Extended XYZ 或多个 XYZ 文件准备为独立 ABACUS 任务 | `mfk abacus prepare-from-xyz SOURCE TEMPLATE [OUTPUT]` |
 | 批量检查 ABACUS SCF/relax/cell-relax 任务 | `mfk abacus audit [ROOT]` |
 | 生成 ABACUS 批量任务 HTML/JSON/CSV/PNG 报告 | `mfk abacus report [ROOT]` |
-| 绘制 ABACUS 结构优化收敛曲线 | `mfk abacus plot-convergence [DIR]` |
-| 将多帧 Extended XYZ 或多个 XYZ 文件准备为独立 ABACUS 任务 | `mfk abacus prepare-from-xyz SOURCE TEMPLATE [OUTPUT]` |
 | 将完成的 ABACUS 任务转换为 DeepMD NPY | `mfk abacus to-deepmd ROOT OUTPUT` |
+| 看 ABACUS relax 算完没有、收敛没有、最后能量和最大力 | `mfk abacus check-relax [DIR]` |
+| 绘制 ABACUS 结构优化收敛曲线 | `mfk abacus plot-convergence [DIR]` |
 | 拿到一批 DeePMD 训练数据，先看规模、元素组成、能量/力范围 | `mfk deepmd stat [DIR]` |
 | 生成可复查的 DeepMD NPY 数据集统计与质量审计报告 | `mfk deepmd report DATASET_PATH` |
-| 可复现地划分 DeepMD NPY 训练集和测试集 | `mfk deepmd split DATASET --test-size 0.1` |
 | 按精确组成合并多个 DeepMD NPY 数据集 | `mfk deepmd merge INPUT... --output DIR` |
+| 可复现地划分 DeepMD NPY 训练集和测试集 | `mfk deepmd split DATASET --test-size 0.1` |
 | 需要程序化读取 DeePMD 数据集统计（接脚本/管道） | `mfk deepmd stat [DIR] --json` |
 | 在 ABACUS/CP2K/DeepMD/extxyz/GPUMD 格式间转换 | `mfk dpdata convert INPUT OUTPUT --from FMT --to FMT` |
 | 将带标注的 GPUMD/extxyz 转为 DeepMD NPY（可选 raw） | `mfk dpdata xyz-to-deepmd [INPUT] [OUTPUT]` |

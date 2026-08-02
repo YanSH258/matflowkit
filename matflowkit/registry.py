@@ -62,23 +62,23 @@ GROUPS = (
             ("--basis", "STRU 基组 (pw/lcao)", "pw", False),
         )),
     )),
-    GroupSpec("2", "ABACUS", "abacus", "计算检查、报告与数据提取", (
-        CommandSpec("check-relax", check_relax, "检查一个结构优化任务", (("dir", "计算目录", ".", False),)),
-        CommandSpec("audit", audit, "批量检查任务，输出 CSV/JSON", (("root", "任务根目录", ".", False),)),
-        CommandSpec("report", abacus_report, "生成批量任务 HTML 报告", (
-            ("root", "任务根目录", ".", False),
-            ("--output", "报告目录", "abacus_report", False),
-        )),
-        CommandSpec("plot-convergence", plot_convergence, "绘制结构优化收敛曲线", (("dir", "计算目录", ".", False),)),
+    GroupSpec("2", "ABACUS", "abacus", "输入准备、计算检查与数据提取", (
         CommandSpec("prepare-from-xyz", prepare_from_xyz, "将多个 XYZ 帧准备为 ABACUS 任务", (
             ("source", "多帧 Extended XYZ 或 XYZ 目录", "structures.xyz", False),
             ("template", "包含 INPUT 和 KPT 的模板目录", "template", False),
             ("output", "创建新的工作目录", "abacus_tasks", False),
         )),
+        CommandSpec("audit", audit, "批量检查任务，输出 CSV/JSON", (("root", "任务根目录", ".", False),)),
+        CommandSpec("report", abacus_report, "生成批量任务 HTML 报告", (
+            ("root", "任务根目录", ".", False),
+            ("--output", "报告目录", "abacus_report", False),
+        )),
         CommandSpec("to-deepmd", to_deepmd, "从计算结果提取 DeepMD NPY", (
             ("root", "任务根目录", ".", False),
             ("output", "输出目录", "deepmd_from_abacus", False),
         )),
+        CommandSpec("check-relax", check_relax, "检查一个结构优化任务", (("dir", "计算目录", ".", False),)),
+        CommandSpec("plot-convergence", plot_convergence, "绘制结构优化收敛曲线", (("dir", "计算目录", ".", False),)),
     )),
     GroupSpec("3", "CP2K", "cp2k", "计算检查与数据提取", (
         CommandSpec("audit", cp2k_audit, "批量检查输出，生成 CSV/JSON", (
@@ -119,6 +119,11 @@ GROUPS = (
     )),
     GroupSpec("6", "DeepMD", "deepmd", "NPY 数据集统计、合并与报告", (
         CommandSpec("stat", stat, "统计 NPY 数据集", (("dir", "数据目录", ".", False),)),
+        CommandSpec("report", deepmd_report, "生成 NPY 数据集审计报告", (
+            ("dataset-path", "数据集目录", ".", False),
+            ("--output", "报告目录", "deepmd_report", False),
+            ("minimum-distance", "是否检查全部帧的 PBC 最小距离 (y/n)", "n", True),
+        )),
         CommandSpec("merge", merge, "按组成合并 NPY 数据集", (
             ("@args", "输入目录（空格分隔）", "data_a data_b", False),
             ("--output", "输出目录", "deepmd_merged", False),
@@ -130,16 +135,16 @@ GROUPS = (
             ("--method", "选择方法 (random/uniform)", "random", False),
             ("--seed", "随机种子", "42", False),
         )),
-        CommandSpec("report", deepmd_report, "生成 NPY 数据集审计报告", (
-            ("dataset-path", "数据集目录", ".", False),
-            ("--output", "报告目录", "deepmd_report", False),
-            ("minimum-distance", "是否检查全部帧的 PBC 最小距离 (y/n)", "n", True),
-        )),
     )),
     GroupSpec("7", "GPUMD", "gpumd", "train.xyz 准备与 NEP 结果分析", (
         CommandSpec("npy-to-xyz", npy_to_xyz, "DeepMD NPY 转 GPUMD train.xyz", (
             ("dataset", "DeepMD NPY 数据集根目录", ".", False),
             ("output", "GPUMD Extended XYZ", "train.xyz", False),
+        )),
+        CommandSpec("plot-nep-evaluation", plot_nep_evaluation, "绘制 NEP loss 和已有预测结果", (
+            ("directory", "NEP 输出目录", ".", False),
+            ("--output", "输出图片", "nep_evaluation.png", False),
+            ("--metrics", "误差指标 JSON", "nep_evaluation_metrics.json", False),
         )),
         CommandSpec("thermo", thermo, "统计或绘制 GPUMD thermo.out", (
             ("file", "thermo 文件", "thermo.out", False),
@@ -149,11 +154,6 @@ GROUPS = (
             ("first", "首次训练 loss 文件", "loss.out", False),
             ("restart", "续训 loss 文件", "restart/loss.out", False),
             ("--output", "输出文件", "loss_merged.out", False),
-        )),
-        CommandSpec("plot-nep-evaluation", plot_nep_evaluation, "绘制 NEP loss 和已有预测结果", (
-            ("directory", "NEP 输出目录", ".", False),
-            ("--output", "输出图片", "nep_evaluation.png", False),
-            ("--metrics", "误差指标 JSON", "nep_evaluation_metrics.json", False),
         )),
     )),
     GroupSpec("8", "DPA4", "dpa4", "结构优化、单点计算和 NEB", (
