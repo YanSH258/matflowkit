@@ -4,9 +4,11 @@ ABACUS 任务的输入准备、批量审计、收敛分析与数据提取。每�
 `mfk abacus <命令> -h`。
 
 ## `mfk abacus check-relax [DIR]`（默认当前目录）
-- 输入：DIR 下的 `OUT.*/running_relax.log` 或 `running_relax.log`（ABACUS relax 日志）。
+- 输入：DIR 下的 `running_relax.log` 或 `running_cell-relax.log`，也支持位于 `OUT.*/`。
 - 输出（stdout）：日志路径；是否发现收敛标记（列出匹配行）；最后一步离子步序号；
   总能（匹配 `final etot` / `!FINAL` 行，找不到会明说"未找到总能行"）；最大力。
+- `--plot`：同时绘制能量、最大力和已有最大应力随离子步的收敛曲线，默认写到
+  `DIR/abacus_relax_convergence.png`；`--output` 可指定其他图片路径。
 - 日志不存在：stderr 报错，退出码 1。
 
 ## `mfk abacus audit [ROOT]`
@@ -14,10 +16,6 @@ ABACUS 任务的输入准备、批量审计、收敛分析与数据提取。每�
 - 判断：正常结束、SCF/结构收敛、最终能量、力和应力证据。
 - 输出：`abacus_audit.csv` 和 `abacus_audit.json`。
 - `--strict`：存在未完成任务时返回退出码 2。
-
-## `mfk abacus plot-convergence [DIR]`
-- 绘制 ABACUS relax / cell-relax 的结构优化收敛曲线（能量、力随离子步）。
-- 依赖 matplotlib（延迟导入，未安装时清晰提示）。
 
 ## `mfk abacus prepare-from-xyz SOURCE TEMPLATE [OUTPUT]`
 
@@ -38,7 +36,7 @@ mfk abacus prepare-from-xyz xyz_files/ template abacus_tasks
 ```
 
 ## `mfk abacus report [ROOT]`
-- 复用 `audit` 的任务发现、完成证据和状态判断，以及 `plot-convergence` 的能量、
+- 复用 `audit` 的任务发现、完成证据和状态判断，以及 `check-relax` 的能量、
   最大力和最大应力解析，不另写 ABACUS 日志解析器。
 - 输出目录默认为 `abacus_report/`，包含 `report.html`、`report.json`、`jobs.csv`、
   `failed_jobs.csv` 和 `figures/` 下的任务状态与 relax 指标 PNG。
@@ -56,6 +54,6 @@ mfk abacus prepare-from-xyz xyz_files/ template abacus_tasks
 ## 依赖
 
 - 硬依赖：仅 typer + numpy。
-- `plot-convergence`：matplotlib（延迟导入）。
+- `check-relax --plot`：matplotlib（延迟导入）。
 - `report`：matplotlib（延迟导入）。
 - `to-deepmd`：dpdata（延迟导入）。

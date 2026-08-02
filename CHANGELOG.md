@@ -23,6 +23,8 @@
 
 ### 调整
 
+- `mfk abacus check-relax --plot` 合并结构优化检查和收敛作图，移除重复的
+  `plot-convergence` 菜单项。
 - 交互菜单按“准备输入 → 检查/报告 → 提取数据 → 数据审计”的常用流程重排
   ABACUS、DeepMD 和 GPUMD 子命令编号。
 - `mfk gpumd plot-nep-evaluation` 改为自动扫描 `loss.out` 及已有的 train/test

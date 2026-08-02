@@ -7,7 +7,7 @@ import numpy as np
 from typer.testing import CliRunner
 
 from matflowkit.abacus.audit import discover_tasks, inspect_task, parse_basis_type
-from matflowkit.abacus.plot_convergence import parse_series
+from matflowkit.abacus.check_relax import parse_series
 from matflowkit.cli import app
 from matflowkit.dpa4.common import read_fixed_indices
 from matflowkit.dpa4.batch_relax import read_manifest, safe_case_id
@@ -293,6 +293,27 @@ class CommandTests(unittest.TestCase):
         self.assertNotIn("Relaxation is not converged yet!", result.output)
         self.assertIn("离子步数: 最后一步为第 2 步", result.output)
         self.assertIn("提取数值: 0.02", result.output)
+
+    def test_check_relax_can_plot_convergence(self):
+        task = self.root / "relax_plot"
+        task.mkdir()
+        (task / "running_cell-relax.log").write_text(
+            "STEP OF RELAXATION : 1\n"
+            "final etot is -2.0 eV\n"
+            "Largest gradient in force is 0.2\n"
+            "Largest gradient in stress is 1.2\n"
+            "STEP OF RELAXATION : 2\n"
+            "final etot is -2.1 eV\n"
+            "Largest gradient in force is 0.02\n"
+            "Largest gradient in stress is 0.3\n"
+            "Relaxation is converged\n"
+        )
+        result = self.runner.invoke(
+            app, ["abacus", "check-relax", str(task), "--plot"]
+        )
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertTrue((task / "abacus_relax_convergence.png").is_file())
+        self.assertIn("收敛曲线:", result.output)
 
     def test_parse_convergence_series(self):
         log = self.root / "running_relax.log"

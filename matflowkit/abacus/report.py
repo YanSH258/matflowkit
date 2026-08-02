@@ -13,7 +13,7 @@ from matflowkit.abacus.audit import (
     inspect_task,
     parse_basis_type,
 )
-from matflowkit.abacus.plot_convergence import parse_series
+from matflowkit.abacus.check_relax import parse_series
 from matflowkit.common.io import ensure_empty_output, write_csv, write_json
 from matflowkit.report.html import render_abacus_report
 from matflowkit.report.schema import abacus_tasks_schema

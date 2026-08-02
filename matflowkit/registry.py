@@ -7,7 +7,6 @@ from typing import Any, Callable, Optional, Tuple
 
 from matflowkit.abacus.audit import audit
 from matflowkit.abacus.check_relax import check_relax
-from matflowkit.abacus.plot_convergence import plot_convergence
 from matflowkit.abacus.prepare_from_xyz import prepare_from_xyz
 from matflowkit.abacus.report import report as abacus_report
 from matflowkit.abacus.to_deepmd import to_deepmd
@@ -77,8 +76,10 @@ GROUPS = (
             ("root", "任务根目录", ".", False),
             ("output", "输出目录", "deepmd_from_abacus", False),
         )),
-        CommandSpec("check-relax", check_relax, "检查一个结构优化任务", (("dir", "计算目录", ".", False),)),
-        CommandSpec("plot-convergence", plot_convergence, "绘制结构优化收敛曲线", (("dir", "计算目录", ".", False),)),
+        CommandSpec("check-relax", check_relax, "检查结构优化并可绘制收敛曲线", (
+            ("dir", "计算目录", ".", False),
+            ("plot", "是否生成收敛曲线 (y/n)", "n", True),
+        )),
     )),
     GroupSpec("3", "CP2K", "cp2k", "计算检查与数据提取", (
         CommandSpec("audit", cp2k_audit, "批量检查输出，生成 CSV/JSON", (

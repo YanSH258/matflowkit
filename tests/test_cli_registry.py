@@ -65,7 +65,6 @@ def test_workflow_command_order():
         "report",
         "to-deepmd",
         "check-relax",
-        "plot-convergence",
     ]
     assert commands["deepmd"] == ["stat", "report", "merge", "split"]
     assert commands["gpumd"] == [
@@ -96,3 +95,4 @@ def test_removed_command_names_are_not_registered():
     assert "npy-to-xyz" in root.commands["gpumd"].commands
     assert "singlepoint-to-deepmd" in root.commands["cp2k"].commands
     assert "outcar-to-deepmd" in root.commands["vasp"].commands
+    assert "plot-convergence" not in root.commands["abacus"].commands
