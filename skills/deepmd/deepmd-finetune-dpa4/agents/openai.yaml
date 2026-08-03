@@ -1,0 +1,4 @@
+interface:
+  display_name: "DPA4 Fine-tuning"
+  short_description: "Fine-tune, apply LoRA, and validate DPA4 models"
+  default_prompt: "Use $deepmd-finetune-dpa4 to prepare, run, and validate this DPA4 fine-tuning workflow."
