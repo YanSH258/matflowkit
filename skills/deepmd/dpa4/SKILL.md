@@ -1,38 +1,38 @@
 ---
 name: dpa4
-description: Operate and audit the DPA4/SeZM pretrained-model inference workflow used by MatFlowKit. Use for `mfk dpa4 relax`, `batch-relax`, `evaluate`, or `neb`; checking the Neo-MPtrj model and runtime; preparing fixed-atom or manifest inputs; interpreting JSON/CSV/extxyz outputs; and deciding when DPA4 predictions require independent DFT validation. Also use for DPA4 + PBE-D3(BJ) structure optimization, single-point labeling, or NEB in this project. Do not use for DPA4 training, fine-tuning, LoRA, checkpoint testing, freezing, or export; route those tasks to `deepmd-finetune-dpa4`.
+description: Operate and audit the DPA4/SeZM pretrained-model inference workflow used by TCCKit. Use for `tck dpa4 relax`, `batch-relax`, `evaluate`, or `neb`; checking the Neo-MPtrj model and runtime; preparing fixed-atom or manifest inputs; interpreting JSON/CSV/extxyz outputs; and deciding when DPA4 predictions require independent DFT validation. Also use for DPA4 + PBE-D3(BJ) structure optimization, single-point labeling, or NEB in this project. Do not use for DPA4 training, fine-tuning, LoRA, checkpoint testing, freezing, or export; route those tasks to `deepmd-finetune-dpa4`.
 ---
 
-# DPA4 for MatFlowKit
+# DPA4 for TCCKit
 
-Use the current MatFlowKit implementation as the operational source of truth. Treat DPA4 results as machine-learning-potential predictions, not DFT evidence.
+Use the current TCCKit implementation as the operational source of truth. Treat DPA4 results as machine-learning-potential predictions, not DFT evidence.
 
 ## Route the request
 
 - For environment, model, backend, or installation questions, read [environment and model](references/environment-and-model.md).
-- For command selection, inputs, options, outputs, restart behavior, or exit codes, read [MatFlowKit commands](references/matflowkit-commands.md).
+- For command selection, inputs, options, outputs, restart behavior, or exit codes, read [TCCKit commands](references/tcckit-commands.md).
 - For convergence claims, NEB barriers, data labeling, or comparison with DFT, read [validation boundaries](references/validation-boundaries.md).
-- For DPA4 fine-tuning, scratch training, LoRA, checkpoint testing, freezing, or export, use the sibling `deepmd-finetune-dpa4` skill. Validate its commands and input schema against the installed DeePMD-kit version before execution. This skill covers MatFlowKit inference and ASE workflows only; MatFlowKit does not implement DPA4 training.
+- For DPA4 fine-tuning, scratch training, LoRA, checkpoint testing, freezing, or export, use the sibling `deepmd-finetune-dpa4` skill. Validate its commands and input schema against the installed DeePMD-kit version before execution. This skill covers TCCKit inference and ASE workflows only; TCCKit does not implement DPA4 training.
 
 ## Inspect before running
 
-1. Read `matflowkit/dpa4/README.md` and the relevant command help or source in the active checkout. Do not rely on a remembered command contract.
+1. Read `tcckit/dpa4/README.md` and the relevant command help or source in the active checkout. Do not rely on a remembered command contract.
 2. Resolve the model in this order: explicit `--model`, `DPA4_MODEL`, then `~/dpa4/Neo-MPtrj/model.pt`.
 3. Record the Python executable, `deepmd` import path and version, PyTorch version, model path and type map, and whether D3 is enabled. Detect user-site leakage before calling an environment reproducible.
 4. Read the input with ASE. Check frame count, atom count, elements, finite coordinates, cell rank, PBC, and element support in the model type map.
-5. Resolve every output path before starting. MatFlowKit refuses existing result files; do not delete or overwrite them unless the user explicitly requests a retry supported by the command.
+5. Resolve every output path before starting. TCCKit refuses existing result files; do not delete or overwrite them unless the user explicitly requests a retry supported by the command.
 6. Run a short representative smoke test before a large batch, variable-cell optimization, or NEB calculation.
 
 ## Choose the operation
 
 | Goal | Command |
 | --- | --- |
-| Optimize one structure | `mfk dpa4 relax INPUT` |
-| Resume a CSV-driven optimization campaign | `mfk dpa4 batch-relax MANIFEST` |
-| Predict labels for one or more frames without relaxation | `mfk dpa4 evaluate INPUT` |
-| Calculate an ASE NEB/CI-NEB path | `mfk dpa4 neb INITIAL FINAL` |
+| Optimize one structure | `tck dpa4 relax INPUT` |
+| Resume a CSV-driven optimization campaign | `tck dpa4 batch-relax MANIFEST` |
+| Predict labels for one or more frames without relaxation | `tck dpa4 evaluate INPUT` |
+| Calculate an ASE NEB/CI-NEB path | `tck dpa4 neb INITIAL FINAL` |
 
-When working interactively with the user, prefer the human-facing path `mfk` → `DPA4` → operation. Show the equivalent CLI only as a copyable record; do not expect the user to remember a long option string.
+When working interactively with the user, prefer the human-facing path `tck` → `DPA4` → operation. Show the equivalent CLI only as a copyable record; do not expect the user to remember a long option string.
 
 ## Execute and verify
 
@@ -58,4 +58,4 @@ Never collapse them into a single statement such as “DPA4 verified the result.
 
 ## Sources and authorship
 
-Copyright 2026 YanSH258. This is an original MatFlowKit project skill based on the current MatFlowKit DPA4 implementation and the [official DeePMD-kit DPA4 documentation](https://docs.deepmodeling.com/projects/deepmd/en/latest/model/dpa4.html). No text was copied from the older DeePMD-kit skills bundled elsewhere in this repository.
+Copyright 2026 YanSH258. This is an original TCCKit project skill based on the current TCCKit DPA4 implementation and the [official DeePMD-kit DPA4 documentation](https://docs.deepmodeling.com/projects/deepmd/en/latest/model/dpa4.html). No text was copied from the older DeePMD-kit skills bundled elsewhere in this repository.

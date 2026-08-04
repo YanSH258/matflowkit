@@ -19,7 +19,7 @@ Use this skill for:
 - testing checkpoints on held-out structures, trajectories, strains, or compositions;
 - deciding whether a model is suitable for relaxation, MD, stress, or elastic calculations.
 
-Use MatFlowKit's `dpa4` skill for inference-only `relax`, `batch-relax`, `evaluate`, and
+Use TCCKit's `dpa4` skill for inference-only `relax`, `batch-relax`, `evaluate`, and
 `neb` work. Keep DPA4 scratch training and LoRA in this skill. When comparing DPA4 with
 DPA3 or `se_e2_a`, consult the current official documentation for every candidate until a
 version-current model-selection skill is available; do not route DPA4 work to the legacy
@@ -172,7 +172,7 @@ Stop and diagnose before continuing when any of these occurs:
 
 ## Sources and authorship
 
-Copyright 2026 YanSH258. Original MatFlowKit skill based on practical DPA4 fine-tuning workflows
+Copyright 2026 YanSH258. Original TCCKit skill based on practical DPA4 fine-tuning workflows
 and current DeePMD-kit DPA4/SeZM documentation. No text was copied from the older DeePMD-kit DPA3
 skills. Use the newest official DeePMD-kit `master` version available when building the environment
 and validate the commands against that installed version.

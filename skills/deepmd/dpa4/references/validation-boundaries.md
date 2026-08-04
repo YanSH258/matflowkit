@@ -38,14 +38,14 @@ Do not skip directly from level 1–4 to a claim of DFT accuracy.
 - Inspect for atom mapping errors, periodic jumps, and implausible intermediate bonds.
 - Require an internal maximum before calling an image a transition-state candidate.
 - Require CI-NEB convergence before presenting the default result as a converged climbing-image barrier.
-- State that MatFlowKit reports a DPA4 minimum-energy path. Validate key endpoints and the highest-energy region with DFT before making a DFT barrier claim.
+- State that TCCKit reports a DPA4 minimum-energy path. Validate key endpoints and the highest-energy region with DFT before making a DFT barrier claim.
 - Remember that NEB identifies a path under the supplied endpoint mapping and constraints; it does not prove that no lower path exists.
 
 ## Reporting language
 
 Use precise statements such as:
 
-- “The MatFlowKit DPA4 + PBE-D3(BJ) relaxation reached `fmax < 0.05 eV/Å`.”
+- “The TCCKit DPA4 + PBE-D3(BJ) relaxation reached `fmax < 0.05 eV/Å`.”
 - “The DPA4 CI-NEB stage converged and produced a model-predicted forward barrier of X eV.”
 - “DFT validation has not yet been performed.”
 

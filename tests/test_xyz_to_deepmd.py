@@ -2,8 +2,8 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from matflowkit.cli import app
-from matflowkit.dpdata.xyz_to_deepmd import inspect_xyz_virials
+from tcckit.cli import app
+from tcckit.dpdata.xyz_to_deepmd import inspect_xyz_virials
 
 
 runner = CliRunner()

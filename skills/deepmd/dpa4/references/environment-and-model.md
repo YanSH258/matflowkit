@@ -4,7 +4,7 @@ Read this reference when diagnosing DPA4 availability, selecting a model, checki
 
 ## Required live checks
 
-Run checks with the exact interpreter that will launch `mfk`:
+Run checks with the exact interpreter that will launch `tck`:
 
 ```bash
 python - <<'PY'
@@ -25,7 +25,7 @@ python -m deepmd --version
 python -m deepmd --pt show MODEL type-map descriptor fitting-net
 ```
 
-Prefer `python -m deepmd` when the `dp` executable is missing or ambiguous. Confirm that `python`, `mfk`, `deepmd`, PyTorch, ASE, and `dftd3` come from the intended environment.
+Prefer `python -m deepmd` when the `dp` executable is missing or ambiguous. Confirm that `python`, `tck`, `deepmd`, PyTorch, ASE, and `dftd3` come from the intended environment.
 
 Check user-site leakage explicitly:
 
@@ -35,9 +35,9 @@ PYTHONNOUSERSITE=1 python -c 'import deepmd; print(deepmd.__file__)'
 
 If this fails while a normal import succeeds, the environment is borrowing `deepmd` from the user site and is not self-contained.
 
-## MatFlowKit model resolution
+## TCCKit model resolution
 
-MatFlowKit resolves the model in this order:
+TCCKit resolves the model in this order:
 
 1. `--model PATH`;
 2. `DPA4_MODEL`;
@@ -47,7 +47,7 @@ Report the resolved absolute path together with the model family, release versio
 
 Inspect the selected model at runtime and record its type map, model family, source, and license when available. Do not embed a host-specific environment conclusion in this reusable skill.
 
-The default MatFlowKit calculator loads the model through `deepmd.calculator.DP`. Unless `--no-d3` is supplied, it adds `dftd3.ase.DFTD3(method="pbe", damping="d3bj")`. Therefore default energies, forces, and stresses belong to the combined DPA4 + PBE-D3(BJ) calculator.
+The default TCCKit calculator loads the model through `deepmd.calculator.DP`. Unless `--no-d3` is supplied, it adds `dftd3.ase.DFTD3(method="pbe", damping="d3bj")`. Therefore default energies, forces, and stresses belong to the combined DPA4 + PBE-D3(BJ) calculator.
 
 ## Current official DPA4 facts
 

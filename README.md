@@ -1,9 +1,9 @@
-# MatFlowKit
+# TCCKit
 
 **面向计算材料研究的轻量级 workflow + analysis toolkit，用统一 CLI 管理常见科研计算流程。**
 
-MatFlowKit 把平时散落在不同目录里的检查、转换、统计和画图脚本收进一个命令行入口
-`mfk`。它不负责安装或替代 ABACUS、CP2K、VASP、DeepMD-kit、GPUMD、DPA4，而是处理这些
+TCCKit 把平时散落在不同目录里的检查、转换、统计和画图脚本收进一个命令行入口
+`tck`。它不负责安装或替代 ABACUS、CP2K、VASP、DeepMD-kit、GPUMD、DPA4，而是处理这些
 软件前后的重复工作。
 
 ## 为什么做这个工具
@@ -23,7 +23,7 @@ MD 模拟（GPUMD）
 ```
 
 这些步骤本身不复杂，但很容易反复写临时脚本，也容易出现输入约定不同、输出文件名混乱、
-漏查未收敛任务等问题。MatFlowKit 只收录实际会重复使用的操作，并为它们提供固定命令、
+漏查未收敛任务等问题。TCCKit 只收录实际会重复使用的操作，并为它们提供固定命令、
 输入约定和输出格式。
 
 ## 主要功能
@@ -42,13 +42,13 @@ MD 模拟（GPUMD）
 推荐使用 [uv](https://docs.astral.sh/uv/)：
 
 ```bash
-git clone git@github.com:YanSH258/matflowkit.git
-cd matflowkit
+git clone git@github.com:YanSH258/tcckit.git
+cd tcckit
 uv sync --extra plot --extra dpdata --extra cp2k --extra structure
-uv run mfk --help
+uv run tck --help
 ```
 
-需要在任意目录直接运行 `mfk` 时：
+需要在任意目录直接运行 `tck` 时：
 
 ```bash
 uv tool install --editable '.[plot,dpdata,cp2k,structure]'
@@ -58,74 +58,74 @@ uv tool install --editable '.[plot,dpdata,cp2k,structure]'
 
 ```bash
 python -m pip install -e '.[plot,dpdata,cp2k,structure]'
-mfk --help
+tck --help
 ```
 
-MatFlowKit 只安装 Python 依赖。ABACUS、CP2K、DeepMD-kit 和 GPUMD 需要另外安装。
+TCCKit 只安装 Python 依赖。ABACUS、CP2K、DeepMD-kit 和 GPUMD 需要另外安装。
 DPA4 需要单独的 deepmd-kit + dftd3 环境，见
-[DPA4 说明](matflowkit/dpa4/README.md)。
+[DPA4 说明](tcckit/dpa4/README.md)。
 
 ## 使用
 
 ### 命令行
 
 ```bash
-mfk --help
-mfk doctor
-mfk abacus audit ./tasks --strict
-mfk abacus report ./tasks
-mfk abacus prepare-from-xyz structures.xyz ./abacus_template ./abacus_tasks
-mfk abacus to-deepmd ./tasks ./deepmd_data
-mfk vasp outcar-to-deepmd ./vasp_tasks ./vasp_data
-mfk cp2k singlepoint-to-deepmd ./cp2k_tasks ./cp2k_data
-mfk cp2k aimd-to-deepmd ./cp2k_aimd ./cp2k_aimd_data
-mfk deepmd split ./deepmd_data/deepmd_npy --test-size 0.1 --seed 42
-mfk gpumd npy-to-xyz ./deepmd_data/deepmd_npy train.xyz
-mfk deepmd stat ./deepmd_data/deepmd_npy
-mfk dpdata overlap train.extxyz test.extxyz
-mfk structure convert structure.cif --to stru
-mfk gpumd plot-nep-evaluation ./train
+tck --help
+tck doctor
+tck abacus audit ./tasks --strict
+tck abacus report ./tasks
+tck abacus prepare-from-xyz structures.xyz ./abacus_template ./abacus_tasks
+tck abacus to-deepmd ./tasks ./deepmd_data
+tck vasp outcar-to-deepmd ./vasp_tasks ./vasp_data
+tck cp2k singlepoint-to-deepmd ./cp2k_tasks ./cp2k_data
+tck cp2k aimd-to-deepmd ./cp2k_aimd ./cp2k_aimd_data
+tck deepmd split ./deepmd_data/deepmd_npy --test-size 0.1 --seed 42
+tck gpumd npy-to-xyz ./deepmd_data/deepmd_npy train.xyz
+tck deepmd stat ./deepmd_data/deepmd_npy
+tck dpdata overlap train.extxyz test.extxyz
+tck structure convert structure.cif --to stru
+tck gpumd plot-nep-evaluation ./train
 ```
 
 所有命令都支持 `-h`：
 
 ```bash
-mfk abacus audit -h
+tck abacus audit -h
 ```
 
-安装后可运行 `mfk doctor`，检查可选依赖以及 `ABACUS_PP_PATH`、
-`ABACUS_ORB_PATH` 的配置状态；使用 `mfk doctor --json` 可获得机器可读结果。
+安装后可运行 `tck doctor`，检查可选依赖以及 `ABACUS_PP_PATH`、
+`ABACUS_ORB_PATH` 的配置状态；使用 `tck doctor --json` 可获得机器可读结果。
 
 ### 交互菜单
 
 不带参数运行即可进入菜单。菜单最终调用的仍是同一条 CLI 命令。
 
 ```bash
-mfk
+tck
 ```
 
 ### 一个常用流程
 
 ```bash
 # 1. 大模型 MD 产生带晶胞和 PBC 的 Extended XYZ 后，准备 ABACUS 任务
-mfk abacus prepare-from-xyz trajectory.xyz ./abacus_template ./tasks
+tck abacus prepare-from-xyz trajectory.xyz ./abacus_template ./tasks
 
 # 2. ABACUS 计算结束后检查任务
-mfk abacus audit ./tasks --strict
-mfk abacus report ./tasks
+tck abacus audit ./tasks --strict
+tck abacus report ./tasks
 
 # 3. 提取带能量、力和 virial 的 DeepMD NPY
-mfk abacus to-deepmd ./tasks ./deepmd_data
+tck abacus to-deepmd ./tasks ./deepmd_data
 
 # 4. 审计数据并划分训练集/测试集
-mfk deepmd report ./deepmd_data/deepmd_npy
-mfk deepmd split ./deepmd_data/deepmd_npy --test-size 0.1 --seed 42
+tck deepmd report ./deepmd_data/deepmd_npy
+tck deepmd split ./deepmd_data/deepmd_npy --test-size 0.1 --seed 42
 
 # 5. 检查训练集与测试集是否重复
-mfk dpdata overlap train.extxyz test.extxyz
+tck dpdata overlap train.extxyz test.extxyz
 
 # 6. 训练结束后画 loss 和已有预测结果；独立测试集误差是主要验证证据
-mfk gpumd plot-nep-evaluation ./train
+tck gpumd plot-nep-evaluation ./train
 ```
 
 更多例子见 [常用数据流程](examples/common_data_workflows.md)。
@@ -152,8 +152,8 @@ mfk gpumd plot-nep-evaluation ./train
 ## 项目目录
 
 ```text
-matflowkit/
-├── matflowkit/        # Python 包
+tcckit/
+├── tcckit/        # Python 包
 │   ├── cli.py         # CLI 入口
 │   ├── menu.py        # 交互菜单
 │   ├── registry.py    # CLI 与菜单共用的命令注册表
@@ -169,7 +169,7 @@ matflowkit/
 
 ## 文档
 
-- 各模块的输入和输出：`matflowkit/<module>/README.md`
+- 各模块的输入和输出：`tcckit/<module>/README.md`
 - 绘图规范：[knowledge/plotting_standard.md](knowledge/plotting_standard.md)
 - 添加命令：[CONTRIBUTING.md](CONTRIBUTING.md)
 - 版本变化：[CHANGELOG.md](CHANGELOG.md)

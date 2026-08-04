@@ -14,12 +14,12 @@ TASK_ROOT="${1:-.}"
 DATA_DIR="${2:-./deepmd_data}"
 
 echo "== 步骤 1: 审计 ABACUS 任务 =="
-mfk abacus audit "$TASK_ROOT" --strict
+tck abacus audit "$TASK_ROOT" --strict
 
 echo
 echo "== 步骤 2: 转换为 DeepMD NPY =="
-mfk abacus to-deepmd "$TASK_ROOT" "$DATA_DIR"
+tck abacus to-deepmd "$TASK_ROOT" "$DATA_DIR"
 
 echo
 echo "== 步骤 3: 检查数据集 =="
-mfk deepmd stat "$DATA_DIR/deepmd_npy"
+tck deepmd stat "$DATA_DIR/deepmd_npy"

@@ -3,8 +3,8 @@
 ## 检查并收集 ABACUS 任务
 
 ```bash
-mfk abacus audit ./tasks --expected 120 --strict
-mfk abacus to-deepmd ./tasks ./dataset_v1 \
+tck abacus audit ./tasks --expected 120 --strict
+tck abacus to-deepmd ./tasks ./dataset_v1 \
   --expected 120 \
   --type-map "Ca Mg P O H"
 ```
@@ -14,7 +14,7 @@ mfk abacus to-deepmd ./tasks ./dataset_v1 \
 ## 合并数据集
 
 ```bash
-mfk deepmd merge relaxation_data strain_data \
+tck deepmd merge relaxation_data strain_data \
   --output combined_data
 ```
 
@@ -24,9 +24,9 @@ mfk deepmd merge relaxation_data strain_data \
 ## 转换格式
 
 ```bash
-mfk dpdata convert work training_data \
+tck dpdata convert work training_data \
   --from cp2kdata/md --to deepmd/npy
 
-mfk dpdata convert training_data train.xyz \
+tck dpdata convert training_data train.xyz \
   --from deepmd/npy --to extxyz
 ```

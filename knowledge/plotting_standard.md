@@ -1,9 +1,9 @@
-# MatFlowKit 绘图规范
+# TCCKit 绘图规范
 
 所有 Matplotlib 图先调用：
 
 ```python
-from matflowkit.common.plot_style import apply_plot_style, figure_size, save_figure
+from tcckit.common.plot_style import apply_plot_style, figure_size, save_figure
 
 apply_plot_style()
 fig, ax = plt.subplots(figsize=figure_size("single", 0.72))

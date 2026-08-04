@@ -6,21 +6,21 @@ from pathlib import Path
 import numpy as np
 from typer.testing import CliRunner
 
-from matflowkit.abacus.audit import discover_tasks, inspect_task, parse_basis_type
-from matflowkit.abacus.check_relax import parse_series
-from matflowkit.cli import app
-from matflowkit.dpa4.common import read_fixed_indices
-from matflowkit.dpa4.batch_relax import read_manifest, safe_case_id
-from matflowkit.dpa4.evaluate import frame_metrics
-from matflowkit.dpdata.overlap import frame_hash
-from matflowkit.cp2k.parser import parse_cp2k_output
-from matflowkit.common.plot_style import (
+from tcckit.abacus.audit import discover_tasks, inspect_task, parse_basis_type
+from tcckit.abacus.check_relax import parse_series
+from tcckit.cli import app
+from tcckit.dpa4.common import read_fixed_indices
+from tcckit.dpa4.batch_relax import read_manifest, safe_case_id
+from tcckit.dpa4.evaluate import frame_metrics
+from tcckit.dpdata.overlap import frame_hash
+from tcckit.cp2k.parser import parse_cp2k_output
+from tcckit.common.plot_style import (
     COLOR_CYCLE,
     SINGLE_COLUMN_MM,
     apply_plot_style,
     figure_size,
 )
-from matflowkit.gpumd.thermo import cell_series, read_time_interval
+from tcckit.gpumd.thermo import cell_series, read_time_interval
 
 
 def write_deepmd(path: Path, x: float, energy: float) -> None:

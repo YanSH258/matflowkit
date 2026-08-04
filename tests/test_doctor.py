@@ -3,16 +3,16 @@ from importlib.metadata import version
 
 from typer.testing import CliRunner
 
-from matflowkit.cli import app
-from matflowkit.doctor import inspect_environment
-from matflowkit import __version__
+from tcckit.cli import app
+from tcckit.doctor import inspect_environment
+from tcckit import __version__
 
 
 runner = CliRunner()
 
 
 def test_package_metadata_matches_runtime_version():
-    assert version("matflowkit") == __version__
+    assert version("tcckit") == __version__
 
 
 def test_doctor_json_reports_dependencies_and_resources(tmp_path, monkeypatch):
@@ -29,7 +29,7 @@ def test_doctor_json_reports_dependencies_and_resources(tmp_path, monkeypatch):
 
     assert result.exit_code == 0, result.output
     payload = json.loads(result.output)
-    assert payload["matflowkit_version"]
+    assert payload["tcckit_version"]
     assert "dpdata" in payload["dependencies"]
     assert "CP2KData" in payload["dependencies"]
     assert payload["abacus_resources"]["pseudopotentials"] == {
@@ -54,5 +54,5 @@ def test_doctor_is_available_from_menu():
     result = runner.invoke(app, input="9\n1\n0\n")
 
     assert result.exit_code == 0, result.output
-    assert "等价命令: mfk doctor" in result.output
+    assert "等价命令: tck doctor" in result.output
     assert "可选依赖" in result.output

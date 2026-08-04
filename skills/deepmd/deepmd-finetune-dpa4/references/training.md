@@ -38,7 +38,7 @@ Do not start production training until the same explicit environment passes all 
 ```text
 normal dp --pt train smoke test
 normal dp --pt test on a representative frame
-normal mfk dpa4 evaluate on a representative frame
+normal tck dpa4 evaluate on a representative frame
 ```
 
 A diagnostic run assembled from packages in different Python locations does not establish a
@@ -90,7 +90,7 @@ DFT method fingerprint
 source task/trajectory identity
 ```
 
-Use `mfk deepmd report` and `mfk dpdata overlap` where their input contracts apply. A format-level
+Use `tck deepmd report` and `tck dpdata overlap` where their input contracts apply. A format-level
 audit does not replace source-task provenance.
 
 Split by a manifest grouping column, for example:

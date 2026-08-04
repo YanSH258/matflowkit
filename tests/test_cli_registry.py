@@ -1,9 +1,9 @@
 from typer.main import get_command
 from typer.testing import CliRunner
 
-from matflowkit.cli import app
-from matflowkit.menu import MENU, _prompt_dpdata_format
-from matflowkit.registry import GROUPS
+from tcckit.cli import app
+from tcckit.menu import MENU, _prompt_dpdata_format
+from tcckit.registry import GROUPS
 
 
 runner = CliRunner()

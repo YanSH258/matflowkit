@@ -3,15 +3,15 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "matflowkit"
+name = "tcckit"
 dynamic = ["version"]
-description = "MatFlowKit: computational materials workflow toolkit"
+description = "TCCKit: Theoretical & Computational Chemistry Tools"
 readme = "README.md"
 requires-python = ">=3.9"
 authors = [
     {name = "YanSH258"},
 ]
-keywords = ["materials-science", "atomistic-simulation", "workflow", "deepmd", "abacus"]
+keywords = ["theoretical-chemistry", "computational-chemistry", "atomistic-simulation", "workflow", "deepmd", "abacus"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Console",
@@ -44,18 +44,18 @@ all = [
 ]
 
 [project.scripts]
-mfk = "matflowkit.cli:app"
+tck = "tcckit.cli:app"
 
 [project.urls]
-Homepage = "https://github.com/YanSH258/matflowkit"
-Repository = "https://github.com/YanSH258/matflowkit.git"
-Issues = "https://github.com/YanSH258/matflowkit/issues"
+Homepage = "https://github.com/YanSH258/tcckit"
+Repository = "https://github.com/YanSH258/tcckit.git"
+Issues = "https://github.com/YanSH258/tcckit/issues"
 
 [tool.setuptools.packages.find]
-include = ["matflowkit*"]
+include = ["tcckit*"]
 
 [tool.setuptools.dynamic]
-version = {attr = "matflowkit.__version__"}
+version = {attr = "tcckit.__version__"}
 
 [tool.pytest.ini_options]
 markers = [

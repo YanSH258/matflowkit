@@ -1,4 +1,4 @@
 interface:
-  display_name: "DPA4 for MatFlowKit"
-  short_description: "Run and audit project DPA4 calculations with MatFlowKit"
-  default_prompt: "Use $dpa4 to prepare and verify this MatFlowKit DPA4 calculation."
+  display_name: "DPA4 for TCCKit"
+  short_description: "Run and audit project DPA4 calculations with TCCKit"
+  default_prompt: "Use $dpa4 to prepare and verify this TCCKit DPA4 calculation."

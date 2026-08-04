@@ -4,7 +4,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from matflowkit.cli import app
+from tcckit.cli import app
 
 
 runner = CliRunner()

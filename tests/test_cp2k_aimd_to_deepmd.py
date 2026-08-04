@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 from typer.testing import CliRunner
 
-from matflowkit.cli import app
+from tcckit.cli import app
 
 
 runner = CliRunner()
@@ -35,7 +35,7 @@ def _write_cp2k_aimd_stub(root: Path, frames: int = 2) -> None:
 
 def test_cp2k_aimd_to_deepmd_writes_validated_dataset(tmp_path, monkeypatch):
     import dpdata
-    import matflowkit.cp2k.aimd_to_deepmd as command
+    import tcckit.cp2k.aimd_to_deepmd as command
 
     source = tmp_path / "aimd"
     _write_cp2k_aimd_stub(source)
