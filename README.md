@@ -1,6 +1,6 @@
 # TCCT
 
-**面向计算材料研究的轻量级 workflow + analysis toolkit，用统一 CLI 管理常见科研计算流程。**
+**TCCT（Theoretical & Computational Chemistry Tools）：面向理论与计算化学研究的轻量级 workflow + analysis toolkit，用统一 CLI 管理常见科研计算流程。**
 
 TCCT 把平时散落在不同目录里的检查、转换、统计和画图脚本收进一个命令行入口
 `tcct`。它不负责安装或替代 ABACUS、CP2K、VASP、DeepMD-kit、GPUMD、DPA4，而是处理这些
