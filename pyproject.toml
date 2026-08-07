@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "tcckit"
+name = "tcct"
 dynamic = ["version"]
-description = "TCCKit: Theoretical & Computational Chemistry Tools"
+description = "TCCT: Theoretical & Computational Chemistry Tools"
 readme = "README.md"
 requires-python = ">=3.9"
 authors = [
@@ -44,18 +44,18 @@ all = [
 ]
 
 [project.scripts]
-tck = "tcckit.cli:app"
+tcct = "tcct.cli:app"
 
 [project.urls]
-Homepage = "https://github.com/YanSH258/tcckit"
-Repository = "https://github.com/YanSH258/tcckit.git"
-Issues = "https://github.com/YanSH258/tcckit/issues"
+Homepage = "https://github.com/YanSH258/tcct"
+Repository = "https://github.com/YanSH258/tcct.git"
+Issues = "https://github.com/YanSH258/tcct/issues"
 
 [tool.setuptools.packages.find]
-include = ["tcckit*"]
+include = ["tcct*"]
 
 [tool.setuptools.dynamic]
-version = {attr = "tcckit.__version__"}
+version = {attr = "tcct.__version__"}
 
 [tool.pytest.ini_options]
 markers = [

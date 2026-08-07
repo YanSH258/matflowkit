@@ -25,7 +25,7 @@ jobs:
           enable-cache: true
           python-version: ${{ matrix.python-version }}
 
-      - name: Install TCCKit and test dependencies
+      - name: Install TCCT and test dependencies
         run: uv sync --locked --extra dev --extra plot --extra dpdata --extra cp2k --extra structure
 
       - name: Run tests
@@ -33,9 +33,9 @@ jobs:
 
       - name: Check CLI entry points
         run: |
-          uv run tck --help
+          uv run tcct --help
           for group in abacus deepmd gpumd dpdata dpa4 cp2k vasp structure; do
-            uv run tck "$group" --help >/dev/null
+            uv run tcct "$group" --help >/dev/null
           done
 
   build:
@@ -58,4 +58,4 @@ jobs:
         run: |
           uv venv .build-venv --python 3.12
           uv pip install --python .build-venv/bin/python dist/*.whl
-          .build-venv/bin/tck --help >/dev/null
+          .build-venv/bin/tcct --help >/dev/null

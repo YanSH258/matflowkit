@@ -1,9 +1,9 @@
-# TCCKit 绘图规范
+# TCCT 绘图规范
 
 所有 Matplotlib 图先调用：
 
 ```python
-from tcckit.common.plot_style import apply_plot_style, figure_size, save_figure
+from tcct.common.plot_style import apply_plot_style, figure_size, save_figure
 
 apply_plot_style()
 fig, ax = plt.subplots(figsize=figure_size("single", 0.72))

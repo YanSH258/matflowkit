@@ -1,9 +1,9 @@
-# TCCKit
+# TCCT
 
 **面向计算材料研究的轻量级 workflow + analysis toolkit，用统一 CLI 管理常见科研计算流程。**
 
-TCCKit 把平时散落在不同目录里的检查、转换、统计和画图脚本收进一个命令行入口
-`tck`。它不负责安装或替代 ABACUS、CP2K、VASP、DeepMD-kit、GPUMD、DPA4，而是处理这些
+TCCT 把平时散落在不同目录里的检查、转换、统计和画图脚本收进一个命令行入口
+`tcct`。它不负责安装或替代 ABACUS、CP2K、VASP、DeepMD-kit、GPUMD、DPA4，而是处理这些
 软件前后的重复工作。
 
 ## 为什么做这个工具
@@ -23,7 +23,7 @@ MD 模拟（GPUMD）
 ```
 
 这些步骤本身不复杂，但很容易反复写临时脚本，也容易出现输入约定不同、输出文件名混乱、
-漏查未收敛任务等问题。TCCKit 只收录实际会重复使用的操作，并为它们提供固定命令、
+漏查未收敛任务等问题。TCCT 只收录实际会重复使用的操作，并为它们提供固定命令、
 输入约定和输出格式。
 
 ## 主要功能
@@ -42,13 +42,13 @@ MD 模拟（GPUMD）
 推荐使用 [uv](https://docs.astral.sh/uv/)：
 
 ```bash
-git clone git@github.com:YanSH258/tcckit.git
-cd tcckit
+git clone git@github.com:YanSH258/tcct.git
+cd tcct
 uv sync --extra plot --extra dpdata --extra cp2k --extra structure
-uv run tck --help
+uv run tcct --help
 ```
 
-需要在任意目录直接运行 `tck` 时：
+需要在任意目录直接运行 `tcct` 时：
 
 ```bash
 uv tool install --editable '.[plot,dpdata,cp2k,structure]'
@@ -58,74 +58,74 @@ uv tool install --editable '.[plot,dpdata,cp2k,structure]'
 
 ```bash
 python -m pip install -e '.[plot,dpdata,cp2k,structure]'
-tck --help
+tcct --help
 ```
 
-TCCKit 只安装 Python 依赖。ABACUS、CP2K、DeepMD-kit 和 GPUMD 需要另外安装。
+TCCT 只安装 Python 依赖。ABACUS、CP2K、DeepMD-kit 和 GPUMD 需要另外安装。
 DPA4 需要单独的 deepmd-kit + dftd3 环境，见
-[DPA4 说明](tcckit/dpa4/README.md)。
+[DPA4 说明](tcct/dpa4/README.md)。
 
 ## 使用
 
 ### 命令行
 
 ```bash
-tck --help
-tck doctor
-tck abacus audit ./tasks --strict
-tck abacus report ./tasks
-tck abacus prepare-from-xyz structures.xyz ./abacus_template ./abacus_tasks
-tck abacus to-deepmd ./tasks ./deepmd_data
-tck vasp outcar-to-deepmd ./vasp_tasks ./vasp_data
-tck cp2k singlepoint-to-deepmd ./cp2k_tasks ./cp2k_data
-tck cp2k aimd-to-deepmd ./cp2k_aimd ./cp2k_aimd_data
-tck deepmd split ./deepmd_data/deepmd_npy --test-size 0.1 --seed 42
-tck gpumd npy-to-xyz ./deepmd_data/deepmd_npy train.xyz
-tck deepmd stat ./deepmd_data/deepmd_npy
-tck dpdata overlap train.extxyz test.extxyz
-tck structure convert structure.cif --to stru
-tck gpumd plot-nep-evaluation ./train
+tcct --help
+tcct doctor
+tcct abacus audit ./tasks --strict
+tcct abacus report ./tasks
+tcct abacus prepare-from-xyz structures.xyz ./abacus_template ./abacus_tasks
+tcct abacus to-deepmd ./tasks ./deepmd_data
+tcct vasp outcar-to-deepmd ./vasp_tasks ./vasp_data
+tcct cp2k singlepoint-to-deepmd ./cp2k_tasks ./cp2k_data
+tcct cp2k aimd-to-deepmd ./cp2k_aimd ./cp2k_aimd_data
+tcct deepmd split ./deepmd_data/deepmd_npy --test-size 0.1 --seed 42
+tcct gpumd npy-to-xyz ./deepmd_data/deepmd_npy train.xyz
+tcct deepmd stat ./deepmd_data/deepmd_npy
+tcct dpdata overlap train.extxyz test.extxyz
+tcct structure convert structure.cif --to stru
+tcct gpumd plot-nep-evaluation ./train
 ```
 
 所有命令都支持 `-h`：
 
 ```bash
-tck abacus audit -h
+tcct abacus audit -h
 ```
 
-安装后可运行 `tck doctor`，检查可选依赖以及 `ABACUS_PP_PATH`、
-`ABACUS_ORB_PATH` 的配置状态；使用 `tck doctor --json` 可获得机器可读结果。
+安装后可运行 `tcct doctor`，检查可选依赖以及 `ABACUS_PP_PATH`、
+`ABACUS_ORB_PATH` 的配置状态；使用 `tcct doctor --json` 可获得机器可读结果。
 
 ### 交互菜单
 
 不带参数运行即可进入菜单。菜单最终调用的仍是同一条 CLI 命令。
 
 ```bash
-tck
+tcct
 ```
 
 ### 一个常用流程
 
 ```bash
 # 1. 大模型 MD 产生带晶胞和 PBC 的 Extended XYZ 后，准备 ABACUS 任务
-tck abacus prepare-from-xyz trajectory.xyz ./abacus_template ./tasks
+tcct abacus prepare-from-xyz trajectory.xyz ./abacus_template ./tasks
 
 # 2. ABACUS 计算结束后检查任务
-tck abacus audit ./tasks --strict
-tck abacus report ./tasks
+tcct abacus audit ./tasks --strict
+tcct abacus report ./tasks
 
 # 3. 提取带能量、力和 virial 的 DeepMD NPY
-tck abacus to-deepmd ./tasks ./deepmd_data
+tcct abacus to-deepmd ./tasks ./deepmd_data
 
 # 4. 审计数据并划分训练集/测试集
-tck deepmd report ./deepmd_data/deepmd_npy
-tck deepmd split ./deepmd_data/deepmd_npy --test-size 0.1 --seed 42
+tcct deepmd report ./deepmd_data/deepmd_npy
+tcct deepmd split ./deepmd_data/deepmd_npy --test-size 0.1 --seed 42
 
 # 5. 检查训练集与测试集是否重复
-tck dpdata overlap train.extxyz test.extxyz
+tcct dpdata overlap train.extxyz test.extxyz
 
 # 6. 训练结束后画 loss 和已有预测结果；独立测试集误差是主要验证证据
-tck gpumd plot-nep-evaluation ./train
+tcct gpumd plot-nep-evaluation ./train
 ```
 
 更多例子见 [常用数据流程](examples/common_data_workflows.md)。
@@ -133,17 +133,17 @@ tck gpumd plot-nep-evaluation ./train
 ## 支持的模块
 
 
-| 模块 | 用途 |
-| --- | --- |
-| Structure | 单个结构文件转换 |
-| ABACUS | XYZ 任务准备、计算检查、报告与数据提取 |
-| CP2K | 计算检查与数据提取 |
-| VASP | OUTCAR 数据提取 |
-| dpdata | 带标签数据格式转换与重复检查 |
-| DeepMD | NPY 数据集统计、合并与报告 |
-| GPUMD | train.xyz 准备与 NEP 结果分析 |
-| DPA4 | 结构优化、单点计算和 NEB |
-| System | 环境检查 |
+| 模块      | 用途                                   |
+| ----------- | ---------------------------------------- |
+| Structure | 单个结构文件转换                       |
+| ABACUS    | XYZ 任务准备、计算检查、报告与数据提取 |
+| CP2K      | 计算检查与数据提取                     |
+| VASP      | OUTCAR 数据提取                        |
+| dpdata    | 带标签数据格式转换与重复检查           |
+| DeepMD    | NPY 数据集统计、合并与报告             |
+| GPUMD     | train.xyz 准备与 NEP 结果分析          |
+| DPA4      | 结构优化、单点计算和 NEB               |
+| System    | 环境检查                               |
 
 分类按输入对象确定：Structure 处理不含能量和力的单个周期结构；dpdata 处理带能量、
 力或位力的标注数据。ABACUS、CP2K 和 VASP 的原生计算结果需要检查日志、收敛和文件
@@ -152,8 +152,8 @@ tck gpumd plot-nep-evaluation ./train
 ## 项目目录
 
 ```text
-tcckit/
-├── tcckit/        # Python 包
+tcct/
+├── tcct/        # Python 包
 │   ├── cli.py         # CLI 入口
 │   ├── menu.py        # 交互菜单
 │   ├── registry.py    # CLI 与菜单共用的命令注册表
@@ -169,7 +169,7 @@ tcckit/
 
 ## 文档
 
-- 各模块的输入和输出：`tcckit/<module>/README.md`
+- 各模块的输入和输出：`tcct/<module>/README.md`
 - 绘图规范：[knowledge/plotting_standard.md](knowledge/plotting_standard.md)
 - 添加命令：[CONTRIBUTING.md](CONTRIBUTING.md)
 - 版本变化：[CHANGELOG.md](CHANGELOG.md)

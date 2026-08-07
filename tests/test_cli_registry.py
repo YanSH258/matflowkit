@@ -1,9 +1,9 @@
 from typer.main import get_command
 from typer.testing import CliRunner
 
-from tcckit.cli import app
-from tcckit.menu import MENU, _prompt_dpdata_format
-from tcckit.registry import GROUPS
+from tcct.cli import app
+from tcct.menu import MENU, _prompt_dpdata_format
+from tcct.registry import GROUPS
 
 
 runner = CliRunner()

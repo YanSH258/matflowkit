@@ -6,7 +6,7 @@
 当前样例根目录为 `/home/yan/脚本整理`，运行：
 
 ```bash
-MFK_REAL_SAMPLE_ROOT=/home/yan/脚本整理 uv run pytest tests/integration -q
+TCCT_REAL_SAMPLE_ROOT=/home/yan/脚本整理 uv run pytest tests/integration -q
 ```
 
 覆盖范围：

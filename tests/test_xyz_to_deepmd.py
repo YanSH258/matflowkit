@@ -2,8 +2,8 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from tcckit.cli import app
-from tcckit.dpdata.xyz_to_deepmd import inspect_xyz_virials
+from tcct.cli import app
+from tcct.dpdata.xyz_to_deepmd import inspect_xyz_virials
 
 
 runner = CliRunner()

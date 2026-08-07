@@ -3,8 +3,8 @@ from pathlib import Path
 import numpy as np
 from typer.testing import CliRunner
 
-from tcckit.common.dpdata_utils import finite_labeled
-from tcckit.cli import app
+from tcct.common.dpdata_utils import finite_labeled
+from tcct.cli import app
 
 
 runner = CliRunner()

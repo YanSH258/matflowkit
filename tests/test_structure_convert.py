@@ -6,9 +6,9 @@ from ase import Atoms
 from ase.io import read, write
 from typer.testing import CliRunner
 
-from tcckit.cli import app
-from tcckit.menu import _run_command
-from tcckit.structure.convert import validate_roundtrip
+from tcct.cli import app
+from tcct.menu import _run_command
+from tcct.structure.convert import validate_roundtrip
 
 
 runner = CliRunner()
@@ -360,7 +360,7 @@ def test_stru_does_not_create_or_modify_input(tmp_path: Path):
 
 def test_menu_does_not_print_command_error_twice(monkeypatch, capsys):
     answers = iter(["missing.cif", "bad-format", "pw"])
-    monkeypatch.setattr("tcckit.menu._prompt", lambda *args: next(answers))
+    monkeypatch.setattr("tcct.menu._prompt", lambda *args: next(answers))
     _run_command(
         app,
         "structure",

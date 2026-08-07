@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from tcckit.cli import app
+from tcct.cli import app
 
 
 pytestmark = pytest.mark.integration
@@ -16,9 +16,9 @@ runner = CliRunner()
 
 @pytest.fixture(scope="module")
 def sample_root() -> Path:
-    value = os.environ.get("MFK_REAL_SAMPLE_ROOT")
+    value = os.environ.get("TCCT_REAL_SAMPLE_ROOT")
     if not value:
-        pytest.skip("set MFK_REAL_SAMPLE_ROOT to the preserved sample directory")
+        pytest.skip("set TCCT_REAL_SAMPLE_ROOT to the preserved sample directory")
     root = Path(value).expanduser().resolve()
     if not root.is_dir():
         pytest.skip(f"real sample directory does not exist: {root}")

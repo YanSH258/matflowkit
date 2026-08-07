@@ -4807,7 +4807,7 @@ wheels = [
 ]
 
 [[package]]
-name = "tcckit"
+name = "tcct"
 source = { editable = "." }
 dependencies = [
     { name = "cp2kdata" },

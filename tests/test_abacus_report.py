@@ -4,7 +4,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from tcckit.cli import app
+from tcct.cli import app
 
 
 runner = CliRunner()

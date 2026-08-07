@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 from typer.testing import CliRunner
 
-from tcckit.cli import app
+from tcct.cli import app
 
 
 runner = CliRunner()
@@ -79,7 +79,7 @@ def test_prepare_from_xyz_accepts_directory_and_multiframe_files(tmp_path: Path)
     for number in range(1, 4):
         task = output / "tasks" / f"task_{number:06d}"
         assert {path.name for path in task.iterdir()} == {"INPUT", "KPT", "STRU"}
-        assert f"suffix              mfk_{number:06d}" in (task / "INPUT").read_text()
+        assert f"suffix              tcct_{number:06d}" in (task / "INPUT").read_text()
         assert "calculation scf" in (task / "INPUT").read_text()
         stru = (task / "STRU").read_text()
         assert str((pp / "Al.upf").resolve()) in stru

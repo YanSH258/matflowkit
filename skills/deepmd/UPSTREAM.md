@@ -8,6 +8,6 @@ Author credits and `LGPL-3.0-or-later` declarations are retained in each upstrea
 `SKILL.md`. The accompanying upstream license is stored as
 [LICENSE](LICENSES/LICENSE).
 
-`dpa4/` and `deepmd-finetune-dpa4/` are original TCCKit project skills and are not
+`dpa4/` and `deepmd-finetune-dpa4/` are original TCCT project skills and are not
 part of this upstream mirror. The DPA4 fine-tuning skill follows the upstream skill layout,
-but its workflow and runtime safeguards were derived from TCCKit project validation.
+but its workflow and runtime safeguards were derived from TCCT project validation.
